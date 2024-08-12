@@ -16,7 +16,6 @@ This version DOES NOT include:
 - AIOv3 Skyboxes
 - Underwater Rendering + Volumes
 - Beautify Bloom + Sun Flares
-- Amplify AO
 - CRT Tube Effect
 - SunShafts HDR
 - Pixelize Effects
