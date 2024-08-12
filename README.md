@@ -26,15 +26,15 @@ This version DOES NOT include:
 
 If you want to have FUll Premium version you can get it on my sites. The Light version will be updated hopefully from time to time if I had crucial updates.
 ## Full version
-[Gumroad](https://hanmen.gumroad.com/l/gfxdev)
-[Patreon](https://www.patreon.com/hanmen)
+[Gumroad](https://hanmen.gumroad.com/l/gfxdev)  
+[Patreon](https://www.patreon.com/hanmen)  
 
 
 ## Attributions
-[Amplify Occlusion](https://github.com/AmplifyCreations/AmplifyOcclusion)
-[AgX Tonemapping](https://github.com/FairplexVR/AgX-Tonemapping-Unity)
+[Amplify Occlusion](https://github.com/AmplifyCreations/AmplifyOcclusion)  
+[AgX Tonemapping](https://github.com/FairplexVR/AgX-Tonemapping-Unity)  
 [Alloy](https://github.com/Josh015/Alloy)  
-[SEGI](https://github.com/sonicether/SEGI)  
+[SEGI](https://github.com/sonicether/SEGI)   
 [PCSS](https://github.com/TheMasonX/UnityPCSS)  
 [keijiro/PostProcessingUtilities](https://github.com/keijiro/PostProcessingUtilities)  
 [IllusionModdingAPI](https://github.com/IllusionMods/IllusionModdingAPI)
