@@ -1,6 +1,6 @@
 # Graphics
-Post Processing plugin for AIGirl and HoneySelect2
-This is the separate free branch of my main Graphics Plugin Updates. It Contains the core fixes and optimizations developed for the 6 months of constant updates.
+Post Processing plugin for AIGirl and HoneySelect2  
+This is the separate free branch of my main Graphics Plugin Updates. It Contains the core fixes and optimizations developed for the 6 months of constant updates.  
 
 - NEW UI
 - CTAA Fix
