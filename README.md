@@ -1,4 +1,4 @@
-# Graphics Light
+# Graphics Lite
 Post Processing plugin for AIGirl and HoneySelect2  
 This is the separate free branch of my main Graphics Plugin Updates. It Contains the core fixes and optimizations developed for the 6 months of constant updates.  
 
@@ -23,7 +23,7 @@ This version DOES NOT include:
 - Light Leaks Effect
 - Shiny Screen Space Raytraced Reflections
 
-If you want to have FUll Premium version you can get it on my sites. The Light version will be updated hopefully from time to time if I had crucial updates.
+If you want to have FUll Premium version you can get it on my sites. The Lite version will be updated hopefully from time to time if I had crucial updates.
 ## Full version
 [Gumroad](https://hanmen.gumroad.com/l/gfxdev)  
 [Patreon](https://www.patreon.com/hanmen)  
