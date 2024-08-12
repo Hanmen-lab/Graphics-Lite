@@ -28,6 +28,9 @@ If you want to have FUll Premium version you can get it on my sites. The Light v
 [Gumroad](https://hanmen.gumroad.com/l/gfxdev)  
 [Patreon](https://www.patreon.com/hanmen)  
 
+## Previews
+You can find some demo footages on my youtube channel:  
+[Youtube](https://www.youtube.com/@Hanmen-mods)
 
 ## Attributions
 [Amplify Occlusion](https://github.com/AmplifyCreations/AmplifyOcclusion)  
