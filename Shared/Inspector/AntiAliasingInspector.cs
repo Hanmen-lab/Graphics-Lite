@@ -90,6 +90,7 @@ namespace Graphics.Inspector
                 Label("Forward Only", "This is a separate type of anti-aliasing, which can be combined with the post-processing AA above", false);
                 Label("", "Performance intensive! Good for capturing, not actual gameplay.", false);
                 GUILayout.Space(30);
+                GUI.enabled = true;
             }
             GUILayout.EndVertical();
         }

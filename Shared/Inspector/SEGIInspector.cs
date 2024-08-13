@@ -166,7 +166,8 @@ namespace Graphics.Inspector
 
                 //}
 
-                GUILayout.EndVertical();
+                GUILayout.EndVertical(); 
+                GUI.enabled = true;
             }
 
         }

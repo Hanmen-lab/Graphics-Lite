@@ -344,8 +344,8 @@ namespace Graphics.Inspector
                     if (amplifyOccSettings.Enabled)
                     {
                         GUILayout.Space(30);
-                        Selection("Apply Method", amplifyOccSettings.ApplyMethod, apply => { amplifyOccSettings.ApplyMethod = apply; AmplifyOccManager.UpdateSettings(); });
-                        Selection("PerPixel Normals", amplifyOccSettings.PerPixelNormals, normals => { amplifyOccSettings.PerPixelNormals = normals; AmplifyOccManager.UpdateSettings(); });
+                        SelectionApply("Apply Method", amplifyOccSettings.ApplyMethod, apply => { amplifyOccSettings.ApplyMethod = apply; AmplifyOccManager.UpdateSettings(); });
+                        SelectionNormals("PerPixel Normals", amplifyOccSettings.PerPixelNormals, normals => { amplifyOccSettings.PerPixelNormals = normals; AmplifyOccManager.UpdateSettings(); });
                         Selection("Sample Count", amplifyOccSettings.SampleCount, samples => { amplifyOccSettings.SampleCount = samples; AmplifyOccManager.UpdateSettings(); });
 
                         Slider("Bias", amplifyOccSettings.Bias.value, 0f, 0.99f, "N2", bias => { amplifyOccSettings.Bias.value = bias; AmplifyOccManager.UpdateSettings(); });
@@ -358,7 +358,7 @@ namespace Graphics.Inspector
                         Toggle("Cache Aware", amplifyOccSettings.CacheAware.value, false, aware => { amplifyOccSettings.CacheAware.value = aware; AmplifyOccManager.UpdateSettings(); });
                         Toggle("Downsample", amplifyOccSettings.Downsample.value, false, sample => { amplifyOccSettings.Downsample.value = sample; AmplifyOccManager.UpdateSettings(); });
                         GUILayout.Space(10);
-                        Toggle("BILATERAL BLUR", amplifyOccSettings.BlurEnabled.value, true, blurenabled => amplifyOccSettings.BlurEnabled.value = blurenabled);
+                        Toggle("BILATERAL BLUR", amplifyOccSettings.BlurEnabled.value, true, blurenabled => { amplifyOccSettings.BlurEnabled.value = blurenabled; AmplifyOccManager.UpdateSettings(); });
                         if (amplifyOccSettings.BlurEnabled.value)
                         {
                             GUILayout.Space(5);
