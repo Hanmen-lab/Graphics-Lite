@@ -22,6 +22,9 @@ This version DOES NOT include:
 - Glitch Effects
 - Light Leaks Effect
 - Shiny Screen Space Raytraced Reflections
+- ASCII Fx
+- Edge Detection
+- Sharpen
 
 If you want to have FUll Premium version you can get it on my sites. The Lite version will be updated hopefully from time to time if I had crucial updates.
 ## Full version
