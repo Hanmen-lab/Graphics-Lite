@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿using ADV.Commands.Base;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
 using static Graphics.Inspector.Util;
 
 namespace Graphics.Inspector
@@ -7,7 +12,19 @@ namespace Graphics.Inspector
     {
         private static Rect _windowRect;
         private readonly int _windowID = 53157126;
-        private enum Tab { Lighting, Lights, GI, PostProcessing, AntiAliasing, SSS, Presets, Settings };
+        public enum Tab { Environmental, Probes, Lights, GI, PostProcessing, AntiAliasing, SSS, Presets, Settings };
+        public static readonly Dictionary<Inspector.Tab, string> DisplayNames = new Dictionary<Inspector.Tab, string>
+        {
+            { Inspector.Tab.Environmental, "Environment" },
+            { Inspector.Tab.Probes, "Probes" },
+            { Inspector.Tab.Lights, "Lights" },
+            { Inspector.Tab.GI, "  GI  " },
+            { Inspector.Tab.PostProcessing, "Post Processing" },
+            { Inspector.Tab.AntiAliasing, "Anti-Aliasing" },
+            { Inspector.Tab.SSS, " SSS " },
+            { Inspector.Tab.Presets, "Presets" },
+            { Inspector.Tab.Settings, "Settings" }
+        };
         private Tab SelectedTab { get; set; }
         internal Graphics Parent { get; set; }
 
@@ -92,11 +109,14 @@ namespace Graphics.Inspector
             //GUILayout.Space(10);
             switch (tabSelected)
             {
-                case Tab.Lighting:
+                case Tab.Environmental:
                     LightingInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.LightManager, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.Lights:
                     LightInspector.Draw(Parent.Settings, Parent.LightManager, Parent.LightingSettings, Parent.Settings.ShowAdvancedSettings);
+                    break;
+                case Tab.Probes:
+                    ReflectionProbeInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.LightManager, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.GI:
                     SEGIInspector.Draw(Parent.LightManager, Parent.Settings);
@@ -111,7 +131,7 @@ namespace Graphics.Inspector
                     SSSInspector.Draw(Parent.Settings);
                     break;
                 case Tab.Presets:
-                    PresetInspector.Draw(Parent.PresetManager);
+                    PresetInspector.Draw(Parent.PresetManager, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.Settings:
                     SettingsInspector.Draw(Parent.CameraSettings, Parent.Settings, Parent.Settings.ShowAdvancedSettings);

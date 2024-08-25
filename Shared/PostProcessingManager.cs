@@ -1,4 +1,4 @@
-﻿﻿using Graphics.Textures;
+﻿using Graphics.Textures;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +12,7 @@ namespace Graphics
         private ExternalTextureManager _lensDirtManager;
         private InternalTextureManager _lutManager;
         private EmbeddedTextureManager _exlutManager;
+        private EmbeddedTextureManager _speclutManager;
         private readonly string _lutAssetPath = "studio/lut/00.unity3d";
         private readonly List<string> _lutTexturePaths = new List<string>()
         {
@@ -34,6 +35,26 @@ namespace Graphics
             "AgX_Very High Contrast",
             "AgX_Very Low Contrast",
             "AgX_Greyscale"
+        };
+
+        private readonly List<string> _speclutTexturePaths = new List<string>()
+        {
+            "SpectralLut_BlueRed",
+            "SpectralLut_GreenPurple",
+            "SpectralLut_PurpleGreen",
+            "SpectralLut_RedBlue",
+            "SpectralLut_Pink256",
+            "SpectralLut_Poison",
+            "SpectralLut_Neon256",
+            "SpectralLut_Rainbow256",
+            "SpectralLut_Reverse256",
+            "SpectralLut_Skin",
+            "SpectralLut_SkinRev",
+            "SpectralLut_YMC",
+            "SpectralLut_YRB",
+            "SpectralLut_BRY",
+            "SpectralLut_CMY",
+            "SpectralLut_Gold"
         };
 
         internal string LensDirtTexturesPath
@@ -76,7 +97,7 @@ namespace Graphics
         {
             return _lutManager.GetTexture(name);
         }
-        
+
         //3dLuts
         internal Texture Current3DLUTTexture => _exlutManager.CurrentTexture;
 
@@ -95,11 +116,29 @@ namespace Graphics
         {
             return _exlutManager.GetTexture(name);
         }
-        internal bool LUTReady()
+        //SpectralLuts
+        internal Texture CurrentSpecLUTTexture => _speclutManager.CurrentTexture;
+
+        internal string CurrentSpecLUTName => _speclutManager.CurrentTextureName.IsNullOrEmpty() ? LUTSpecNames[0] : _speclutManager.CurrentTextureName;
+
+        internal int CurrentSpecLUTIndex => _speclutManager.CurrentTextureIndex >= 0 ? _speclutManager.CurrentTextureIndex : 0;
+
+        internal string[] LUTSpecNames => _speclutManager.TextureNames;
+
+        internal Texture LoadSpecLUT(int index)
         {
-            return _exlutManager.TextureNames != null && _lutManager.TextureNames != null;
+            return _speclutManager.GetTexture(index);
         }
 
+        internal Texture LoadSpecLUT(string name)
+        {
+            return _speclutManager.GetTexture(name);
+        }
+        internal bool LUTReady()
+        {
+            return _exlutManager.TextureNames != null && _lutManager.TextureNames != null && _speclutManager.TextureNames != null;
+
+        }
         internal Graphics Parent
         {
             get => _parent;
@@ -116,6 +155,10 @@ namespace Graphics
                 _exlutManager.TexturePaths = _3dlutTexturePaths;
                 _exlutManager.SearchPattern = "AgX_";
                 _exlutManager.ResourcePath = "agx.unity3d";
+                _speclutManager = _parent.gameObject.AddComponent<EmbeddedTextureManager>();
+                _speclutManager.TexturePaths = _speclutTexturePaths;
+                _speclutManager.SearchPattern = "SpectralLut_";
+                _speclutManager.ResourcePath = "spectral_luts.unity3d";
             }
         }
     }

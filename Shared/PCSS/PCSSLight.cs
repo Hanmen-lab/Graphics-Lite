@@ -236,7 +236,7 @@ namespace Graphics
             _sss = assetBundle.LoadAsset<Shader>("Assets/PCSS/Shaders/Built-In-ScreenSpaceShadows.shader");
             _shaderVariants = assetBundle.LoadAsset<ShaderVariantCollection>("Assets/PCSS/Shaders/PCSS-ShaderVariants.shadervariants");
             assetBundle.Unload(false);
-            _noiseTexture = KKAPI.Utilities.TextureUtils.LoadTexture(ResourceUtils.GetEmbeddedResource("blue noise.png"));
+            _noiseTexture = KKAPI.Utilities.TextureUtils.LoadTexture(ResourceUtils.GetEmbeddedResource("BlueNoise256Greyscale.png"));
             _shadowmapPropID = Shader.PropertyToID("_ShadowMap");
             return true;
         }

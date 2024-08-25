@@ -16,7 +16,7 @@ namespace Graphics.Inspector
         private static Vector2 settingstScrollView;
         public delegate void RenderingPathChangedHandler();
 
-        public static event RenderingPathChangedHandler RenderingPathChanged;
+        //public static event RenderingPathChangedHandler RenderingPathChanged;
 
         private static void OnRenderingPathChanged()
         {
@@ -40,7 +40,7 @@ namespace Graphics.Inspector
                 }
 
             }
-            
+
         }
 
         internal static void Draw(CameraSettings cameraSettings, GlobalSettings renderingSettings, bool showAdvanced)
@@ -48,7 +48,11 @@ namespace Graphics.Inspector
 
             settingstScrollView = GUILayout.BeginScrollView(settingstScrollView);
             GUILayout.BeginVertical(GUIStyles.tabcontent);
-            {              
+            {
+                Label("VERSION:", Graphics.Version, true);
+                GUILayout.Space(10);
+                Toggle("Show Advanced Settings", renderingSettings.ShowAdvancedSettings, false, advanced => renderingSettings.ShowAdvancedSettings = advanced);
+                GUILayout.Space(25);
                 //GUILayout.Space(25);
                 Label("CAMERA", "", true);
                 GUILayout.Space(2);
@@ -62,17 +66,17 @@ namespace Graphics.Inspector
                 }
                 Slider("Near Clipping Plane", cameraSettings.NearClipPlane, 0.01f, 15000f, "N2", ncp => { cameraSettings.NearClipPlane = ncp; });
                 Slider("Far Clipping Plane", cameraSettings.FarClipPlane, 0.01f, 15000f, "N2", ncp => { cameraSettings.FarClipPlane = ncp; });
-                Selection("Rendering Path", cameraSettings.RenderingPath, path => {
+                Selection("Rendering Path", cameraSettings.RenderingPath, path =>
+                {
                     cameraSettings.RenderingPath = path;
                     OnRenderingPathChanged();
-                });         
+                });
 
                 Slider("Field of View", cameraSettings.Fov, FOVMin, FOVMax, "N0", fov => { cameraSettings.Fov = fov; });
                 Toggle("Occlusion Culling", cameraSettings.OcculsionCulling, false, culling => cameraSettings.OcculsionCulling = culling);
                 Toggle("Allow HDR", cameraSettings.HDR, false, hdr => cameraSettings.HDR = hdr);
                 //Toggle("Allow MSAA (Forward Only)", cameraSettings.MSAA, false, msaa => cameraSettings.MSAA = msaa);
                 Toggle("Allow Dynamic Resolution", cameraSettings.DynamicResolution, false, dynamic => cameraSettings.DynamicResolution = dynamic);
-                Toggle("Physical Camera", cameraSettings.PhysicalCamera, false, physical => cameraSettings.PhysicalCamera = physical);
                 GUILayout.Space(25);
                 Label("RENDERING", "", true);
                 GUILayout.Space(1);
@@ -94,20 +98,18 @@ namespace Graphics.Inspector
                 Selection("Shadow Projection", renderingSettings.ShadowProjectionSetting, projection => renderingSettings.ShadowProjectionSetting = projection);
                 Text("Shadow Distance", renderingSettings.ShadowDistance, "N2", distance => renderingSettings.ShadowDistance = distance);
                 Text("Shadow Near Plane Offset", renderingSettings.ShadowNearPlaneOffset, "N2", offset => renderingSettings.ShadowNearPlaneOffset = offset);
-                if (showAdvanced)
+                GUILayout.Space(10);
+                Toggle("Use PCSS (Experimental)", renderingSettings.UsePCSS, false, pcss => renderingSettings.UsePCSS = pcss);
+                if (renderingSettings.UsePCSS)
                 {
-                    Toggle("Use PCSS (Experimental)", renderingSettings.UsePCSS, false, pcss => renderingSettings.UsePCSS = pcss);
-                    if (renderingSettings.UsePCSS)
-                    {
-                        Slider("Blocker Sample Count", PCSSLight.Blocker_SampleCount, 1, 64, count => PCSSLight.Blocker_SampleCount = count);
-                        Slider("PCF Sample Count", PCSSLight.PCF_SampleCount, 1, 64, count => PCSSLight.PCF_SampleCount = count);
-                        Slider("Softness", PCSSLight.Softness, 0f, 7.5f, "N2", softness => PCSSLight.Softness = softness);
-                        Slider("Softness Falloff", PCSSLight.SoftnessFalloff, 0f, 5f, "N2", softnessFalloff => PCSSLight.SoftnessFalloff = softnessFalloff);
-                        Slider("Blocker Gradient Bias", PCSSLight.Blocker_GradientBias, 0f, 1f, "N2", bias => PCSSLight.Blocker_GradientBias = bias);
-                        Slider("PCF Gradient Bias", PCSSLight.PCF_GradientBias, 0f, 1f, "N2", bias => PCSSLight.PCF_GradientBias = bias);
-                        Slider("Max Static Gradient Bias", PCSSLight.MaxStaticGradientBias, 0f, 0.15f, "N2", bias => PCSSLight.MaxStaticGradientBias = bias);
-                        Slider("Cascade Blend Distance", PCSSLight.CascadeBlendDistance, 0f, 1f, "N2", distance => PCSSLight.CascadeBlendDistance = distance);
-                    }
+                    Slider("Blocker Sample Count", PCSSLight.Blocker_SampleCount, 1, 64, count => PCSSLight.Blocker_SampleCount = count);
+                    Slider("PCF Sample Count", PCSSLight.PCF_SampleCount, 1, 64, count => PCSSLight.PCF_SampleCount = count);
+                    Slider("Softness", PCSSLight.Softness, 0f, 7.5f, "N2", softness => PCSSLight.Softness = softness);
+                    Slider("Softness Falloff", PCSSLight.SoftnessFalloff, 0f, 5f, "N2", softnessFalloff => PCSSLight.SoftnessFalloff = softnessFalloff);
+                    Slider("Blocker Gradient Bias", PCSSLight.Blocker_GradientBias, 0f, 1f, "N2", bias => PCSSLight.Blocker_GradientBias = bias);
+                    Slider("PCF Gradient Bias", PCSSLight.PCF_GradientBias, 0f, 1f, "N2", bias => PCSSLight.PCF_GradientBias = bias);
+                    Slider("Max Static Gradient Bias", PCSSLight.MaxStaticGradientBias, 0f, 0.15f, "N2", bias => PCSSLight.MaxStaticGradientBias = bias);
+                    Slider("Cascade Blend Distance", PCSSLight.CascadeBlendDistance, 0f, 1f, "N2", distance => PCSSLight.CascadeBlendDistance = distance);
                 }
                 GUILayout.Space(30);
                 if (DitheredShadowsManager.settings != null)
@@ -137,10 +139,6 @@ namespace Graphics.Inspector
                 Slider("Font Size", renderingSettings.FontSize, 12, 24, size => renderingSettings.FontSize = size);
                 Slider("Window Width", Inspector.Width, 400, Screen.width / 2, size => Inspector.Width = size);
                 Slider("Window Height", Inspector.Height, 400, Screen.height, size => Inspector.Height = size);
-                GUILayout.Space(25);
-                Toggle("Show Advanced Settings", renderingSettings.ShowAdvancedSettings, false, advanced => renderingSettings.ShowAdvancedSettings = advanced);
-                GUILayout.Space(25);
-                Label("VERSION:", Graphics.Version, true);
                 GUILayout.Space(25);
             }
             GUILayout.FlexibleSpace();

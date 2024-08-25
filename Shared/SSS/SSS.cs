@@ -174,7 +174,7 @@ namespace Graphics
             _separableSSS = assetBundle.LoadAsset<Shader>("Assets/SSS/Resources/SeparableSSS.shader");
             _profile = assetBundle.LoadAsset<Shader>("Assets/SSS/Resources/SSS_Profile.shader");
             assetBundle.Unload(false);
-            NoiseTexture = ResourceUtils.GetEmbeddedResource("bluenoise.png").LoadTexture();
+            NoiseTexture = ResourceUtils.GetEmbeddedResource("BlueNoise256RGB.png").LoadTexture();
             ScatteringRadius = 0.2f;
             Downsampling = 1;
             ScatteringIterations = 5;

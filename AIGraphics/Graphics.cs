@@ -4,9 +4,8 @@ using KKAPI;
 using KKAPI.Studio.SaveLoad;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
-using static Graphics.Patch.StudioHooks;
+
 
 namespace Graphics
 {

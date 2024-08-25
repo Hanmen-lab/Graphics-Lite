@@ -198,7 +198,7 @@ namespace Graphics.SEGI
         Quaternion rotationLeft = new Quaternion(0.0f, 0.7f, 0.0f, 0.7f);
         Quaternion rotationTop = new Quaternion(0.7f, 0.0f, 0.0f, 0.7f);
 
-        int voxelFlipFlop = 0;
+        //int voxelFlipFlop = 0;
 
 
         enum RenderState

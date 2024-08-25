@@ -3,10 +3,9 @@ Lights,部分照明
 PostProcessing,后期处理
 Presets,快速设置
 Mode,模式
-SMAA Quality,SMAA 质量
+SMAA Quality,MSAA 质量
 Settings,设置
 Camera,照相机
-Point Lights,单点光
 Spot Lights,聚光灯
 Directional Lights,平行光源
 English,英语
@@ -16,8 +15,8 @@ Shadows,阴影
 Reflection Probes,反射探头
 Colour,颜色
 Anti-aliasing,抗锯齿处理
-Ambient Occlusion,环境光遮罩
-Amplify Ambient Occlusion,放大环境光遮罩
+Ambient Occlusion,环境光遮蔽（AO）
+Amplify Ambient Occlusion,放大环境光遮蔽
 Auto Exposure,自动曝光控制
 Red,红色
 Blue,蓝色
@@ -47,8 +46,8 @@ Clipping Planes - Far,最高渲染距离
 Rendering Path,渲染方式
 Field of View,视角范围
 Occulsion Culling,隐藏动态区域
-Allow HDR,打开 HDR
-Allow MSAA (Forward Only),打开MSAA(Forward 渲染专用)
+Allow HDR,打开 高动态光照渲染
+Allow MSAA (Forward Only),打开 多重采样抗锯齿(前向渲染用)
 Allow DynamicResolution,打开动态分辨率
 Colour Space,色域
 Linear,线性
@@ -204,3 +203,367 @@ Normal test,正态检验
 Apply edge test to dither noise,抖动噪声的边缘检测
 Fix pixel leaks,修复像素漏洞
 Profile Test (per obj),配置测试
+Shadow Type,阴影类型
+Strength, 强度
+FromQualitySettings, 最高
+Normal Bias, 正常偏差
+Near Plane, 近平面
+Indirect Multiplier, 间乘
+Vertical Rotation,垂直旋转
+Horizontal Rotation,水平旋转
+Specular Highlight,高光
+Light Range,光范围
+length,长度
+ScalableAmbientObscurance,可缩放环境光遮蔽
+MultiScaleVolumetricObscurance,多次缩放容积遮蔽
+Thickness Modifier,厚度修改器
+Post Process Layer,后处理层
+Hard,硬
+Soft,软
+Sky Dummy Light,天空模型光
+Cam light,角色灯
+Directional light,方向灯
+Colour Grading,颜色分级
+Post-exposure (EV),曝光
+Lift range,升举高度范围
+Gamma range,伽马范围
+Gain range,增加范围
+Spot Angle,位置角度
+Light Name,光的名字
+tonemapping,色调映射
+LDR,低动态范围
+HDR,高动态范围
+Neutral,中性的
+ACES,ACES色彩系统
+Custom,自定义
+Auto Focus Speed,自动对焦速度
+Small,小
+large,大
+VeryLarge,非常大
+Classic,经典
+Masked,遮蔽
+Profile Colour Test,概要文件颜色测试
+Profile Radius Test,轮廓半径测试
+Colored,彩色的
+Selected light is disabled,选定的灯光被禁用
+Occlusion Culling,遮罩剔除(必开)
+Allow Dynamic Resolution,允许动态分辨率
+Pulse Realtime Reflection Probes,脉冲实时反射探头
+Pulse Timing (Secs),脉冲时间
+Use PCSS (Experimental),使用个人电脑(实验)
+Skybox Material,天空球
+Sun Source,太阳源
+Use Alloy Light,使用合金光
+Lights Use Linear Intensity,灯光使用线性强度
+Lights Use Color Temperature,灯光使用色温
+Render Mode,渲染模式
+Culling Mask,遮罩层级
+Volume blending,体积混合
+Trigger,触发器
+MainCamera,主相机
+Layer,层级
+Maximum Iteration Count,最大迭代数
+VertexLit,顶点光照
+Forward,正向渲染
+Deferred,延时光照
+ForceEnable,强力开启
+LightingTex,照明文本
+Realtime,实时
+Runtime settings,运行时设置
+AllFacesAtOnce,所有表面实时
+IndividualFaces,个体表面
+NoTimeSlicing,没有时间切片
+SEGI (Experimental),动态实时全局光照(实验)
+Main Configuration,主要配置
+voxel Resolution,立体像素分辨率
+Inner Occlusion Layers,内遮挡层
+Gaussian Mip Filter,高斯过滤器
+Voxel Space SIze,立体像素空间大小
+Shadow Space SIze,阴影空间大小
+GI Culling Mask,遮罩层级全局光照
+TransparentFX,隐形层
+Ignore Raycast,忽略射线
+Update GI,更新实时全局光照
+Infinite Bounces,无限反弹
+VRAM usage,显存使用
+Environmental Properties,环境属性
+Sun,太阳
+Please set one directional light as sunlight,请设置一个方向灯为阳光
+Soft Sunlight, 柔和的阳光
+Sky Colour,天空的颜色
+Sky Intensity,天空强度
+Spherical Skylight,球形的天窗
+Tracing Skylight,跟踪天窗
+Select a light source on the left panel. ,在左边面板上选择一个光源.
+Tracing Properties,跟踪性能
+Temporal Blend Weight,时间混合重量
+Bilateral Filtering,双边滤波
+Half Resolution,一半的分辨率
+Stochastic Sampling,随机抽样
+Cones,锥形斜角
+Cones Trace Steps,锥形跟踪
+Cones Length,锥长度
+Cones Width,锥形细胞宽度
+Cones Trace Bias,锥跟踪偏差
+Occlusion Strength,闭塞的力量
+Near Occlusion Strength,附近阻力
+Far Occlusion Strength,远阻力
+Occlusion Power,闭塞阻力
+Near Light Gain,附近光增益
+GI Gain,获得实时全局光照
+Secondary Bounce Gain,双重反弹增加
+Secondary Cones,双重锥形
+Secondary Occlusion Strength,双重闭塞阻力
+Reflection Properties,反射特性
+Do Reflections,进行反射
+Reflection Steps,步骤反射
+Reflection Occlusion Power,反射闭塞阻力
+Sky Reflection Intensity,天空反射强度
+Debug Tools,调试工具
+Visualize Sun Depth Texture,可视化太阳深度纹理
+Visualize GI,可视化实时全局光照
+Visualize Voxels,可视化像素
+Hidden/LightingPass,隐藏/照明通过
+Target Position,目标位置
+Post Process Volume,后处理体积
+Farthest Occlusion Strength,最远闭塞阻力
+SEGI Sun source,实时动态光照太阳源
+Skybox Tint,天空盒色调
+Exposure,曝光
+Default Reflection Probe ,默认反射探头
+Downsampled,向下采样
+FullSize,实际大小
+Supersampled,特级采样
+Blocker Sample Count,拦截器样品数
+PCF Sample Count,功能样品数
+Softness,柔软
+Blocker Gradient Bias,拦截器梯度偏差
+PCF Gradient Bias,功能梯度偏差
+Max Static Gradient Bias,最大静态梯度偏差
+Cascade Blend Distance,级联混合距离
+GLOBAL FOG,全局雾
+Exclude Far Pixels,消除远距离像素
+Use Radial Distance,使用径向距离
+Height Density,高度密度
+Start Distance,起始距离
+Fog Color,雾颜色
+Fog Mode,雾模式
+Exponential,指数性
+ExponentialSquared,指数平方
+UNDERWATER RENDERING,水下效果
+TILT SHIFT BOKEH,移轴虚化
+CRT TUBE,老电视效果
+PIEXELIZE,像素化
+GLITCH,故障效果
+LIGHT LEAKS,光泄露效果
+Yellow,黄色
+Move Speed,移动速度
+Use Screen Blendmode,使用屏幕混合模式
+DirSampler,方向采样器
+SliceSampler,切片采样器
+TemporalScale,时间尺度
+TemporalResponse,时间响应
+MultiBounce,多重反弹
+BentNormal,弯曲法线
+Distance Fog,距离雾
+Power,强度
+Sharpeness,锐化
+LOAD PRESET,加载预设
+SAVE PRESET,保存预设
+Dithered Shadows,抖动阴影（平滑阴影）
+Antialiasing,抗锯齿
+Range,范围
+Range Iterations,范围迭代
+Range Radius,范围半径
+Use Depth Texture,使用深度纹理
+Area,面积
+Spread,扩散
+Samples,采样数
+Use Distortion,扭曲
+Cubic Distortion,立方扭曲
+Distortion Scale,扭曲比例
+bleeding,颜色扩散
+Fringing,边缘散射
+Scanline,扫描线强度
+Bloom Intensity,辉光强度
+Bloom Threshold,辉光阈值
+Bloom Max Brightness,辉光最大亮度
+Bloom Depth Atten,辉光衰减距离
+Bloom Ultra,增强辉光
+Bloom Debug,辉光调试
+Bloom Customize,辉光定制
+Bloom Antiflicker,防止辉光闪烁
+SMAA,MSAA
+Default Reflection Probe,默认反射探针
+Volex AA,体素抗锯齿
+SUN SHAFTS HDR,高动态范围太阳光束
+Use Global Sun,使用全局光照
+CUBEMAP SKYBOX,立方体贴图天空盒
+You can disable 'Update GI' in the static scenes after the adjustements are done to boost performance.,调整完成后，您可以在静态场景中禁用“更新GI”以提高性能
+This is a separate type of anti-aliasing, which can be combined with the post-processing AA above Performance intensive! Good for capturing, not actual gameplay.,这是一种单独的抗锯齿技术，可以与后处理抗锯齿结合使用！适合截图，而不是实际游戏
+Debug Mode,调试模式
+MULTISAMPLE AA,附加MSAA
+HDR Response,高动态范围响应
+Adaptive Sharpness,锐度动态调整
+Edge Response,边缘响应
+POST PROCESSING,后处理
+TEMPORAL FILTER,时间滤波器
+BILATERAL BLUR,双边模糊
+Quality,质量
+Presence,出现值
+Detail,细节
+Infinite Bounces (Slow),无限反射
+Half Resolution (Fast),半分辨率（快速）
+SUN PROPERTIES,阳光属性
+SKY PROPERTIES,天空属性
+REFLECTIONS,反射
+GI PROPERTIES,全局光照属性
+VRAM Usage:,显存使用：
+Mode:,模式：
+Warning:,警告：
+TROUBLESHOOTING:,疑难解答：
+Require Deferred Rendering mode and Deferred Shaders. Shaders that not support Deffered will be semi transparent/bugged.,需要延迟渲染模式和延迟着色器。不支持延迟的着色器将是半透明/不透明的。
+Not Supported: AIT/Clothes True, AIT/Item, AIT/Skin True Face, ShaderForge/hair08, all Alpha Shaders... etc.,不支持的着色器：AIT/Clothes True，AIT/Item、AIT/Skin True、FaceShaderForge/hair08、所有 Alpha Shaders...等
+For correct setup use:,正确设置：
+Character: Next-Gen Body, Next Gen Face + Turn off SSS checkbox.,角色：Next-Gen Body，Next Gen Face并关闭SSS。
+Clothing: Hanmen/Clothes True Cutoff,服装：Hanmen/Clothes True Cutoff
+Accessories: Hanmen/Item Cutoff,佩饰：Hanmen/ltem Cutoff
+Studio Items (if bugged): Hanmen/ltem Cutoff or Standard.,工作室物品（如果出现错误）：Hanmen/ltem Cutoff or Standard
+Algorithm,算法
+StandardVAO,标准VAO
+RaycastAO,光线投射AO
+BordersAO,边界AO
+Limit Max Radius,限制最大半径
+MaxRadius,最大半径
+Distance Falloff,衰减距离
+Absolute,完全的
+Relative,相对的
+Coloring Settings:,颜色设置
+Effect Mode,影响模式
+Simple,简单
+ColorTint,色调
+ColorBleed,颜色扩散
+Color Tint,色调
+Performance Settings:,性能设置
+Command Buffer,命令缓冲器
+Normal Source,法线来源
+GBuffer,几何缓冲器
+Calculate,计算
+Rendering Mode: DEFERRED,渲染模式：延迟渲染
+Cmd Buffer Integration,命令缓冲器集成
+AfterLighting,光照后
+BeforeReflections,反射前
+BeforeImageEffectsOpaque,不透明图像效果前
+Temporal Filtering,时间过滤
+Adaptive Sampling,自适应采样
+EnabledAutomatic,自动
+EnabledManual,手动
+Hierarchical Buffers,分层缓冲器
+Detail Quality,细节质量
+Downsampled PRE-Pass,降采样预通过
+Greedy,激进的
+Careful,一般的
+G-Buffer Depth & Normals,几何缓冲器的深度与法线
+Far Plane Source,远平面源
+ProjectionParams,投影参数
+Luma Sensitivity,亮度敏感度
+Blur Quality,模糊质量
+Blur Mode,模糊模式
+Basic,基础
+Enhanced,增强
+Luma,亮度
+HSVValue,HSV值
+Threshold (HDR),高动态范围阈值
+Falloff Width,衰减宽度
+Falloff Softness,衰减柔和度
+Debug Mode:,调试模式
+Luminance Mode,亮度模式
+Precise,精准的
+Fast,快速的
+Rendering Settings:,渲染设置
+Cold,冷
+Warm,暖
+TimeNight,夜晚
+TimeSundown,日落
+TimeDay,白天
+Dull,暗淡
+Pale,苍白
+Deep,深色
+Strong,强力
+Bright,明亮
+Sepia,棕褐色
+Monochrome,单色
+MoneRed,单红色
+MoneBlue,单蓝色
+MoneGreen,单绿色
+LimitRed,限制红色
+LimitGreen,限制绿色
+LimitBlue,限制蓝色
+Art,艺术
+Aliens,外星人
+Punchy,强而♂有力
+Base Contrast,基础对比度
+Medium High Contrast,中高对比度
+Medium Low Contrast,中低对比度
+High Contrast,高对比度
+Low Contrast,低对比度
+Very Low Contrast,超低对比度
+Very High Contrast,超高对比度
+Greyscale,黑白
+ANAMORPHIC FLARES,变形光晕
+Depth Atten,衰减深度
+Antiflicker,防闪烁
+Vertical,垂直
+SUN FLARES,太阳光线
+LENS DIRTH,镜头污垢
+Lens Dirt Intensity,污垢强度
+Lens Dirt Threshold,污垢阈值
+Lens Dirt Spread,污垢扩散
+Lens Dirt Texture,污垢纹理
+Solar Wind Speed,太阳风速度
+Rotation Dead Zone,旋转死角
+Sun Intensity,阳光强度
+Sun Disk Size,太阳直径
+Sun Ray Diffraction Intensity,阳光衍射强度
+Sun Ray Diffraction Threshold,阳光衍射阈值
+Downsampling,降采样
+Streaks,条纹
+Angle Offset,偏移角度
+Halo,光环
+DEFAULT PRESETS,设置默认预设
+GENERAL SETTINGS,常规设置
+QUALITY SETTINGS,质量设置
+Max Ray Length,最大光线长度
+Binary Search Iterations,二分搜索迭代
+Compute Back Faces,计算背面
+Refine Thickness,细化厚度
+Jitter,抖动
+Animated Jitter,动态抖动
+REFLECTION INTENSITY,反射强度
+Smoothness Threshold,平滑阈值
+Reflections Min Intensity,最小反射强度
+Reflections Max Intensity,最大反射强度
+Fresnel,菲涅尔效应
+Decay,衰减
+Specular Control,镜面反射控制
+Vignette Size,晕影大小
+Vignette Power,晕影强度
+REFLECTION SHARPNESS,反射清晰度
+Fuzzyness,模糊度
+Contact Hardening,边缘硬化
+Minimum Blur,最小模糊值
+Blur Downsampling,模糊降采样
+ADVANCED OPTIONS,高级选项
+Output Mode,输出模式
+Final,最终
+OnlyReflections,仅反射
+SideBySideComparison,两边对比
+Low Precision,低精度
+Stop NaN,停止计算不定值
+Stencil Check,检查模板
+POINT LIGHTS,点光源
+p_stneo_Spotlight,聚光灯
+p_stneo_Pointlight,聚光灯
+ALL ON,全打开
+ALL OFF,全关闭
+Requires Water Volume,需要水

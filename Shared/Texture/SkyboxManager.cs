@@ -23,6 +23,7 @@ namespace Graphics.Textures
         public float horizon;
         public float scale;
 
+
         public SkyboxParams(float exposure, float rotation, Color tint, string selectedCubeMap, bool projection, float horizon, float scale)
         {
             this.exposure = exposure;
@@ -444,7 +445,7 @@ namespace Graphics.Textures
                 {
                     _probe.boxProjection = false;
                     _probe.intensity = 1f;
-                    _probe.importance = 100;
+                    _probe.importance = 0;
                     _probe.resolution = 512;
                     _probe.backgroundColor = Color.white;
                     _probe.hdr = true;

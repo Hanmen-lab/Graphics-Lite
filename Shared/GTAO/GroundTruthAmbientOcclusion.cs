@@ -90,18 +90,18 @@ namespace Graphics.GTAO
         private Matrix4x4 projectionMatrix;
         private Matrix4x4 LastFrameViewProjectionMatrix;
         private Matrix4x4 View_ProjectionMatrix;
-        private Matrix4x4 Inverse_View_ProjectionMatrix;
+        //private Matrix4x4 Inverse_View_ProjectionMatrix;
         private Matrix4x4 worldToCameraMatrix;
 
         ////// private
-        private float HalfProjScale;
-        private float TemporalOffsets;
-        private float TemporalDirections;
+        //private float HalfProjScale;
+        //private float TemporalOffsets;
+        //private float TemporalDirections;
         private Vector2 CameraSize;
         private Vector2 RenderResolution;
-        private Vector4 UVToView;
+        //private Vector4 UVToView;
         private Vector4 oneOverSize_Size;
-        private Vector4 Target_TexelSize;
+        //private Vector4 Target_TexelSize;
 
 
         private RenderTexture Prev_RT;

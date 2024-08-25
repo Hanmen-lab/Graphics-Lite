@@ -15,7 +15,8 @@ namespace Graphics.Inspector
         private static bool ShouldUpdate => _presetIndexCurrent != -1 && _presetIndexCurrent != _presetIndexOld;
 
         private static Vector2 presetScrollView;
-        internal static void Draw(PresetManager presetManager)
+
+        internal static void Draw(PresetManager presetManager, bool showAdvanced)
         {
             GUIStyle BoxPadding = new GUIStyle(GUI.skin.box);
             BoxPadding.padding = new RectOffset(20, 20, 3, 13);
@@ -38,6 +39,7 @@ namespace Graphics.Inspector
                 GUILayout.Space(10);
                 Label("LOAD PRESET", "", true);
                 GUILayout.Space(20);
+
                 if (presetManager.PresetNames.IsNullOrEmpty())
                 {
                     LabelColorRed("No presets found. Go to F1 Menu and reset the default folder paths.", "");
@@ -52,20 +54,27 @@ namespace Graphics.Inspector
                         if (ShouldUpdate)
                         {
                             presetManager.CurrentPreset = presetManager.PresetNames[_presetIndexCurrent];
-                            _presetIndexOld = _presetIndexCurrent; // to prevent continous update;
+                            _presetIndexOld = _presetIndexCurrent; // to prevent continuous updates;
                         }
                         GUILayout.EndScrollView();
                     }
                     GUILayout.EndVertical();
                 }
+
                 GUILayout.Space(5);
+                GUILayout.FlexibleSpace(); // Add a flexible space here to push everything above upwards
+
+                GUILayout.Space(10);
+                GUILayout.ExpandHeight(true);
                 GUILayout.BeginHorizontal();
                 if (Button("Refresh Preset List", true))
                 {
                     presetManager.RefreshPresetListManually();
                 }
                 GUILayout.EndHorizontal();
+
                 GUILayout.Space(20);
+
                 Label("SAVE PRESET", "", true);
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
@@ -87,7 +96,12 @@ namespace Graphics.Inspector
                 GUILayout.Space(20);
                 Label("DEFAULT PRESETS", "", true);
                 GUILayout.Space(10);
+
                 GUILayout.BeginHorizontal();
+                if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.MainGame && KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Unknown && (!showAdvanced))
+                {
+                    GUI.enabled = false;
+                }
                 if (Button("Load Main Game DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.MAIN_GAME);
@@ -102,8 +116,14 @@ namespace Graphics.Inspector
                 {
                     presetManager.RestoreDefault(PresetDefaultType.MAIN_GAME);
                 }
+                GUI.enabled = true;
                 GUILayout.EndHorizontal();
+
                 GUILayout.BeginHorizontal();
+                if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Unknown && (!showAdvanced))
+                {
+                    GUI.enabled = false;
+                }
                 if (Button("Load Title DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.TITLE);
@@ -118,8 +138,14 @@ namespace Graphics.Inspector
                 {
                     presetManager.RestoreDefault(PresetDefaultType.TITLE);
                 }
+                GUI.enabled = true;
                 GUILayout.EndHorizontal();
+
                 GUILayout.BeginHorizontal();
+                if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Maker && (!showAdvanced))
+                {
+                    GUI.enabled = false;
+                }
                 if (Button("Load Maker DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.MAKER);
@@ -134,8 +160,14 @@ namespace Graphics.Inspector
                 {
                     presetManager.RestoreDefault(PresetDefaultType.MAKER);
                 }
+                GUI.enabled = true;
                 GUILayout.EndHorizontal();
+
                 GUILayout.BeginHorizontal();
+                if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Unknown && (!showAdvanced))
+                {
+                    GUI.enabled = false;
+                }
                 if (Button("Load VR DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.VR_GAME);
@@ -150,9 +182,14 @@ namespace Graphics.Inspector
                 {
                     presetManager.RestoreDefault(PresetDefaultType.VR_GAME);
                 }
+                GUI.enabled = true;
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
+                if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Studio && (!showAdvanced))
+                {
+                    GUI.enabled = false;
+                }
                 if (Button("Load Studio DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.STUDIO);
@@ -167,8 +204,10 @@ namespace Graphics.Inspector
                 {
                     presetManager.RestoreDefault(PresetDefaultType.STUDIO);
                 }
+                GUI.enabled = true;
                 GUILayout.EndHorizontal();
 
+                GUILayout.Space(20);
             }
             GUILayout.EndVertical();
         }

@@ -17,7 +17,7 @@ namespace Graphics.Inspector
         private static FocusPuller focusPuller;
         private static bool _autoFocusEnabled;
         private static float _autoFocusSpeed;
-        private static bool _flareCustomize;
+        //private static bool _flareCustomize;
 
         internal static bool AutoFocusEnabled
         {
@@ -352,7 +352,7 @@ namespace Graphics.Inspector
                         Slider("Intensity", amplifyOccSettings.Intensity.value, 0f, 4f, "N2", intensity => { amplifyOccSettings.Intensity.value = intensity; AmplifyOccManager.UpdateSettings(); });
                         SliderColor("Tint", amplifyOccSettings.Tint, colour => { amplifyOccSettings.Tint = colour; AmplifyOccManager.UpdateSettings(); });
                         Slider("Radius", amplifyOccSettings.Radius.value, 0f, 32f, "N2", radius => { amplifyOccSettings.Radius.value = radius; AmplifyOccManager.UpdateSettings(); });
-                        Slider("Power Exponent", amplifyOccSettings.PowerExponent.value, 0f, 16f, "N2", powerExponent => { amplifyOccSettings.PowerExponent.value = powerExponent; AmplifyOccManager.UpdateSettings(); });
+                        Slider("Power Exponent", amplifyOccSettings.PowerExponent.value, 1f, 16f, "N2", powerExponent => { amplifyOccSettings.PowerExponent.value = powerExponent; AmplifyOccManager.UpdateSettings(); });
                         Slider("Thickness", amplifyOccSettings.Thickness.value, 0f, 1f, "N2", thickness => { amplifyOccSettings.Thickness.value = thickness; AmplifyOccManager.UpdateSettings(); });
                         GUILayout.Space(10);
                         Toggle("Cache Aware", amplifyOccSettings.CacheAware.value, false, aware => { amplifyOccSettings.CacheAware.value = aware; AmplifyOccManager.UpdateSettings(); });
@@ -406,7 +406,7 @@ namespace Graphics.Inspector
                         settings.bloomLayer.threshold.overrideState, overrideState => settings.bloomLayer.threshold.overrideState = overrideState);
                     Slider("SoftKnee", settings.bloomLayer.softKnee.value, 0f, 1f, "N1", softKnee => settings.bloomLayer.softKnee.value = softKnee,
                         settings.bloomLayer.softKnee.overrideState, overrideState => settings.bloomLayer.softKnee.overrideState = overrideState);
-                    Slider("Clamp", settings.bloomLayer.clamp.value, 0, 65472, "N0", clamp => settings.bloomLayer.clamp.value = clamp,
+                    Slider("Clamp", settings.bloomLayer.clamp.value, 1, 1000, "N0", clamp => settings.bloomLayer.clamp.value = clamp,
                         settings.bloomLayer.clamp.overrideState, overrideState => settings.bloomLayer.clamp.overrideState = overrideState);
                     Slider("Diffusion", (int)settings.bloomLayer.diffusion.value, 1, 10, "N0", diffusion => settings.bloomLayer.diffusion.value = diffusion,
                         settings.bloomLayer.diffusion.overrideState, overrideState => settings.bloomLayer.diffusion.overrideState = overrideState);
@@ -447,7 +447,7 @@ namespace Graphics.Inspector
                         if (GradingMode.LowDefinitionRange == settings.colorGradingLayer.gradingMode.value)
                         {
                             Selection("LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
-                                lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.colorGradingLayer.ldrLut.value = postprocessingManager.LoadLUT(lut); } }, Inspector.Width / 200,
+                                lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.colorGradingLayer.ldrLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
                                 settings.colorGradingLayer.ldrLut.overrideState, overrideState => settings.colorGradingLayer.ldrLut.overrideState = overrideState);
                             Slider("LUT Blend", settings.colorGradingLayer.ldrLutContribution.value, 0, 1, "N3", ldrLutContribution => settings.colorGradingLayer.ldrLutContribution.value = ldrLutContribution,
                                 settings.colorGradingLayer.ldrLutContribution.overrideState, overrideState => settings.colorGradingLayer.ldrLutContribution.overrideState = overrideState);
@@ -559,6 +559,10 @@ namespace Graphics.Inspector
                 if (settings.chromaticAberrationLayer.enabled.value)
                 {
                     GUILayout.Space(30);
+                    Selection("Spectral Lut", postprocessingManager.CurrentSpecLUTName, postprocessingManager.LUTSpecNames,
+                        speclut => { if (speclut != postprocessingManager.CurrentSpecLUTName) { settings.chromaticAberrationLayer.spectralLut.value = postprocessingManager.LoadSpecLUT(speclut); } }, 4,
+                        settings.chromaticAberrationLayer.spectralLut.overrideState, overrideState => settings.chromaticAberrationLayer.spectralLut.overrideState = overrideState);
+                    GUILayout.Space(10);
                     Slider("Intensity", settings.chromaticAberrationLayer.intensity.value, 0f, 5f, "N3", intensity => settings.chromaticAberrationLayer.intensity.value = intensity,
                         settings.chromaticAberrationLayer.intensity.overrideState, overrideState => settings.chromaticAberrationLayer.intensity.overrideState = overrideState);
                     Toggle("Fast Mode", settings.chromaticAberrationLayer.fastMode.value, false, fastMode => settings.chromaticAberrationLayer.fastMode.value = fastMode);
@@ -607,81 +611,6 @@ namespace Graphics.Inspector
                 }
                 GUILayout.EndVertical();
             }
-
-            //if (settings.beautifyDoFLayer != null)
-            //{
-            //    GUILayout.BeginVertical(SmallTab);
-            //    Switch(renderSettings.FontSize, "BEAUTIFY DEPTH OF FIELD", settings.beautifyDoFLayer.enabled.value, true, enabled => settings.beautifyDoFLayer.active = settings.beautifyDoFLayer.enabled.value = enabled);
-            //    if (settings.beautifyDoFLayer.enabled.value)
-            //    {
-            //        GUILayout.Space(30);
-
-            //        Toggle("Debug", settings.beautifyDoFLayer.depthOfFieldDebug, false, debug => settings.beautifyDoFLayer.depthOfFieldDebug.Override(debug));
-
-            //        Selection("Focus Mode", settings.beautifyDoFLayer.depthOfFieldFocusMode.value, focusmode => settings.beautifyDoFLayer.depthOfFieldFocusMode.value = focusmode, 3,
-            //            settings.beautifyDoFLayer.depthOfFieldFocusMode.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldFocusMode.overrideState = overrideState);
-            //        GUILayout.Space(5);
-            //        if (BeautifyDoFFocusMode.AutoFocus == settings.beautifyDoFLayer.depthOfFieldFocusMode.value)
-            //        {
-            //            Dimension("Auto Focus Point", settings.beautifyDoFLayer.depthofFieldAutofocusViewportPoint.value, pos => { settings.beautifyDoFLayer.depthofFieldAutofocusViewportPoint.value = pos; settings.beautifyDoFLayer.depthofFieldAutofocusViewportPoint.Override(pos); });
-            //            GUILayout.Space(5);
-            //            Slider("Autofocus Min Distance", settings.beautifyDoFLayer.depthOfFieldAutofocusMinDistance.value, 0, 1000f, "N0", minDistance => settings.beautifyDoFLayer.depthOfFieldAutofocusMinDistance.value = minDistance,
-            //                settings.beautifyDoFLayer.depthOfFieldAutofocusMinDistance.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldAutofocusMinDistance.overrideState = overrideState);
-            //            Slider("Autofocus Max Distance", settings.beautifyDoFLayer.depthOfFieldAutofocusMaxDistance.value, 0, 10000f, "N0", maxDistance => settings.beautifyDoFLayer.depthOfFieldAutofocusMaxDistance.value = maxDistance,
-            //                settings.beautifyDoFLayer.depthOfFieldAutofocusMaxDistance.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldAutofocusMaxDistance.overrideState = overrideState);
-            //            Slider("Focus Speed", settings.beautifyDoFLayer.depthOfFieldFocusSpeed.value, 0.001f, 5f, "N2", speed => settings.beautifyDoFLayer.depthOfFieldFocusSpeed.value = speed,
-            //                settings.beautifyDoFLayer.depthOfFieldFocusSpeed.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldFocusSpeed.overrideState = overrideState);
-            //            GUILayout.Space(10);
-            //            SelectionMask("Autofocus Layer Mask", settings.beautifyDoFLayer.depthOfFieldAutofocusLayerMask, layerMask => settings.beautifyDoFLayer.depthOfFieldAutofocusLayerMask = layerMask);
-            //        }
-
-            //        GUILayout.Space(10);
-
-            //        SelectionMask("Exclusion Layer Mask", settings.beautifyDoFLayer.depthOfFieldExclusionLayerMask, exclayerMask => settings.beautifyDoFLayer.depthOfFieldExclusionLayerMask = exclayerMask);
-
-            //        GUILayout.Space(5);
-            //        //Selection("Exclusion Layer Mask", settings.beautifyDoFLayer.depthOfFieldExclusionLayerMask.value, layerMask => settings.beautifyDoFLayer.depthOfFieldExclusionLayerMask.value = layerMask, 0,
-            //        //    settings.beautifyDoFLayer.depthOfFieldExclusionLayerMask.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldExclusionLayerMask.overrideState = overrideState);
-            //        Slider("Exclusion Downsampling", settings.beautifyDoFLayer.depthOfFieldExclusionLayerMaskDownsampling.value, 1, 4, downsampling => settings.beautifyDoFLayer.depthOfFieldExclusionLayerMaskDownsampling.value = downsampling,
-            //            settings.beautifyDoFLayer.depthOfFieldExclusionLayerMaskDownsampling.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldExclusionLayerMaskDownsampling.overrideState = overrideState);
-            //        Toggle("Transparency Support", settings.beautifyDoFLayer.depthOfFieldTransparencySupport, false, transparencySupport => settings.beautifyDoFLayer.depthOfFieldTransparencySupport.Override(transparencySupport));
-            //        //Selection("Transparency Layer Mask", settings.beautifyDoFLayer.depthOfFieldTransparencyLayerMask.value, layerMask => settings.beautifyDoFLayer.depthOfFieldTransparencyLayerMask.value = layerMask, -1,
-            //        //    settings.beautifyDoFLayer.depthOfFieldTransparencyLayerMask.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldTransparencyLayerMask.overrideState = overrideState);                    
-            //        Slider("Transparency Downsampling", settings.beautifyDoFLayer.depthOfFieldTransparencySupportDownsampling.value, 1, 4, downsampling => settings.beautifyDoFLayer.depthOfFieldTransparencySupportDownsampling.value = downsampling,
-            //            settings.beautifyDoFLayer.depthOfFieldTransparencySupportDownsampling.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldTransparencySupportDownsampling.overrideState = overrideState);
-            //        Slider("Exclusion Bias", settings.beautifyDoFLayer.depthOfFieldExclusionBias.value, 0.9f, 1f, "N2", bias => settings.beautifyDoFLayer.depthOfFieldExclusionBias.value = bias,
-            //            settings.beautifyDoFLayer.depthOfFieldExclusionBias.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldExclusionBias.overrideState = overrideState);
-            //        Slider("Distance", settings.beautifyDoFLayer.depthOfFieldDistance.value, 1f, 100f, "N0", distance => settings.beautifyDoFLayer.depthOfFieldDistance.value = distance,
-            //            settings.beautifyDoFLayer.depthOfFieldDistance.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldDistance.overrideState = overrideState);
-
-            //        Slider("Downsampling", settings.beautifyDoFLayer.depthOfFieldDownsampling.value, 1, 5, downsampling => settings.beautifyDoFLayer.depthOfFieldDownsampling.value = downsampling,
-            //            settings.beautifyDoFLayer.depthOfFieldDownsampling.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldDownsampling.overrideState = overrideState);
-            //        Slider("Max Samples", settings.beautifyDoFLayer.depthOfFieldMaxSamples.value, 2, 16, samples => settings.beautifyDoFLayer.depthOfFieldMaxSamples.value = samples,
-            //            settings.beautifyDoFLayer.depthOfFieldMaxSamples.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldMaxSamples.overrideState = overrideState);
-            //        Slider("Focal Length", settings.beautifyDoFLayer.depthOfFieldFocalLength.value, 0.005f, 0.5f, "N3", focalLength => settings.beautifyDoFLayer.depthOfFieldFocalLength.value = focalLength,
-            //            settings.beautifyDoFLayer.depthOfFieldFocalLength.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldFocalLength.overrideState = overrideState);
-            //        Slider("Aperture", settings.beautifyDoFLayer.depthOfFieldAperture.value, 1f, 22f, "N1", aperture => settings.beautifyDoFLayer.depthOfFieldAperture.value = aperture,
-            //            settings.beautifyDoFLayer.depthOfFieldAperture.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldAperture.overrideState = overrideState);
-            //        Toggle("Foreground Blur", settings.beautifyDoFLayer.depthOfFieldForegroundBlur.value, false, foregroundBlur => settings.beautifyDoFLayer.depthOfFieldForegroundBlur.value = foregroundBlur);
-            //        Toggle("Foreground Blur HQ", settings.beautifyDoFLayer.depthOfFieldForegroundBlurHQ.value, false, foregroundBlurHQ => settings.beautifyDoFLayer.depthOfFieldForegroundBlurHQ.value = foregroundBlurHQ);
-            //        Slider("Foreground Distance", settings.beautifyDoFLayer.depthOfFieldForegroundDistance.value, 0, 1, "N2", distance => settings.beautifyDoFLayer.depthOfFieldForegroundDistance.value = distance,
-            //            settings.beautifyDoFLayer.depthOfFieldForegroundDistance.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldForegroundDistance.overrideState = overrideState);
-            //        Toggle("Bokeh", settings.beautifyDoFLayer.depthOfFieldBokeh, false, bokeh => settings.beautifyDoFLayer.depthOfFieldDebug.Override(bokeh));
-            //        Slider("Bokeh Threshold", settings.beautifyDoFLayer.depthOfFieldBokehThreshold.value, 0.5f, 3f, "N1", threshold => settings.beautifyDoFLayer.depthOfFieldBokehThreshold.value = threshold,
-            //            settings.beautifyDoFLayer.depthOfFieldBokehThreshold.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldBokehThreshold.overrideState = overrideState);
-            //        Slider("Bokeh Intensity", settings.beautifyDoFLayer.depthOfFieldBokehIntensity.value, 0, 8f, "N1", intensity => settings.beautifyDoFLayer.depthOfFieldBokehIntensity.value = intensity,
-            //            settings.beautifyDoFLayer.depthOfFieldBokehIntensity.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldBokehIntensity.overrideState = overrideState);
-            //        Slider("Max Brightness", settings.beautifyDoFLayer.depthOfFieldMaxBrightness.value, 0, 1000f, "N0", brightness => settings.beautifyDoFLayer.depthOfFieldMaxBrightness.value = brightness,
-            //            settings.beautifyDoFLayer.depthOfFieldMaxBrightness.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldMaxBrightness.overrideState = overrideState);
-            //        Slider("Max Distance", settings.beautifyDoFLayer.depthOfFieldMaxDistance.value, 0, 1f, "N2", distance => settings.beautifyDoFLayer.depthOfFieldMaxDistance.value = distance,
-            //            settings.beautifyDoFLayer.depthOfFieldMaxDistance.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldMaxDistance.overrideState = overrideState);
-
-            //        Selection("Filter Mode", settings.beautifyDoFLayer.depthOfFieldFilterMode.value, filtermode => settings.beautifyDoFLayer.depthOfFieldFilterMode.value = filtermode, 3,
-            //            settings.beautifyDoFLayer.depthOfFieldFilterMode.overrideState, overrideState => settings.beautifyDoFLayer.depthOfFieldFilterMode.overrideState = overrideState);
-            //    }
-
-            //    GUILayout.EndVertical();
-            //}
 
             if (settings.grainLayer != null)
             {
@@ -733,96 +662,6 @@ namespace Graphics.Inspector
                 }
                 GUILayout.EndVertical();
             }
-
-            //if (ShinySSRRManager.settings != null)
-            //{
-            //    ShinySSRRSettings ShinySSRRSettings = ShinySSRRManager.settings;
-            //    //GUILayout.Space(30);
-            //    GUILayout.BeginVertical(SmallTab);
-            //    Switch(renderSettings.FontSize, "SHINY SSRR", ShinySSRRSettings.Enabled, true, enabled => { ShinySSRRSettings.Enabled = enabled; ShinySSRRManager.UpdateSettings(); });
-
-            //    if (ShinySSRRSettings.Enabled)
-            //    {
-            //        GUILayout.Space(30);
-            //        Label("GENERAL SETTINGS", "", true);
-            //        Slider("Intensity", ShinySSRRSettings.reflectionsMultiplier.value, 0f, 4f, "N2", reflectionsmultiplier => { ShinySSRRSettings.reflectionsMultiplier.value = reflectionsmultiplier; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.reflectionsMultiplier.overrideState, overrideState => { ShinySSRRSettings.reflectionsMultiplier.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        //Toggle("Show In Scene View", ShinySSRRSettings.showInSceneView.value, true, showinsceneview => { ShinySSRRSettings.showInSceneView.value = showinsceneview; ShinySSRRManager.UpdateSettings(); });
-            //        GUILayout.Space(30);
-            //        Label("QUALITY SETTINGS", "", true);
-            //        Slider("Sample Count", ShinySSRRSettings.sampleCount.value, 4, 128, samplecount => { ShinySSRRSettings.sampleCount.value = samplecount; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.sampleCount.overrideState, overrideState => { ShinySSRRSettings.sampleCount.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Max Ray Length", ShinySSRRSettings.maxRayLength.value, 1f, 64f, "N2", maxraylength => { ShinySSRRSettings.maxRayLength.value = maxraylength; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.maxRayLength.overrideState, overrideState => { ShinySSRRSettings.maxRayLength.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Binary Search Iterations", ShinySSRRSettings.binarySearchIterations.value, 1, 16, binarysearchiterations => { ShinySSRRSettings.binarySearchIterations.value = binarysearchiterations; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.binarySearchIterations.overrideState, overrideState => { ShinySSRRSettings.binarySearchIterations.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Toggle("Compute Back Faces", ShinySSRRSettings.computeBackFaces.value, false, computebackfaces => { ShinySSRRSettings.computeBackFaces.value = computebackfaces; ShinySSRRManager.UpdateSettings(); });
-            //        if (ShinySSRRSettings.computeBackFaces.value != false)
-            //        {
-            //            Slider("Thickness Minimum", ShinySSRRSettings.thicknessMinimum.value, 0f, 1f, "N2", thicknessminimum => { ShinySSRRSettings.thicknessMinimum.value = thicknessminimum; ShinySSRRManager.UpdateSettings(); },
-            //                ShinySSRRSettings.thicknessMinimum.overrideState, overrideState => { ShinySSRRSettings.thicknessMinimum.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        }
-            //        Slider("Thickness", ShinySSRRSettings.thickness.value, 0f, 1f, "N2", thickness => { ShinySSRRSettings.thickness.value = thickness; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.thickness.overrideState, overrideState => { ShinySSRRSettings.thickness.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Toggle("Refine Thickness", ShinySSRRSettings.refineThickness.value, false, refinethickness => { ShinySSRRSettings.refineThickness.value = refinethickness; ShinySSRRManager.UpdateSettings(); });
-            //        if (ShinySSRRSettings.refineThickness.value != false)
-            //        {
-            //            Slider("Thickness Fine", ShinySSRRSettings.thicknessFine.value, 0f, 1f, "N2", thicknessfine => { ShinySSRRSettings.thicknessFine.value = thicknessfine; ShinySSRRManager.UpdateSettings(); },
-            //                ShinySSRRSettings.thicknessFine.overrideState, overrideState => { ShinySSRRSettings.thicknessFine.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        }
-            //        Slider("Jitter", ShinySSRRSettings.jitter.value, 0f, 1f, "N2", jitter => { ShinySSRRSettings.jitter.value = jitter; ShinySSRRManager.UpdateSettings(); },
-            //                                   ShinySSRRSettings.jitter.overrideState, overrideState => { ShinySSRRSettings.jitter.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Toggle("Animated Jitter", ShinySSRRSettings.animatedJitter.value, false, animatedjitter => { ShinySSRRSettings.animatedJitter.value = animatedjitter; ShinySSRRManager.UpdateSettings(); });
-            //        Toggle("Temporal Filter", ShinySSRRSettings.temporalFilter.value, false, temporalfilter => { ShinySSRRSettings.temporalFilter.value = temporalfilter; ShinySSRRManager.UpdateSettings(); });
-            //        if (ShinySSRRSettings.temporalFilter.value != false)
-            //        {
-            //            Slider("Temporal Filter Response Speed", ShinySSRRSettings.temporalFilterResponseSpeed.value, 0f, 1f, "N2", temporalfilterresponsespeed => { ShinySSRRSettings.temporalFilterResponseSpeed.value = temporalfilterresponsespeed; ShinySSRRManager.UpdateSettings(); },
-            //                ShinySSRRSettings.temporalFilterResponseSpeed.overrideState, overrideState => { ShinySSRRSettings.temporalFilterResponseSpeed.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        }
-            //        Slider("Downsampling", ShinySSRRSettings.downsampling.value, 1, 4, downsampling => { ShinySSRRSettings.downsampling.value = downsampling; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.downsampling.overrideState, overrideState => { ShinySSRRSettings.downsampling.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        GUILayout.Space(30);
-            //        Label("REFLECTION INTENSITY", "", true);
-            //        Slider("Smoothness Threshold", ShinySSRRSettings.smoothnessThreshold.value, 0f, 1f, "N2", smoothnessthreshold => { ShinySSRRSettings.smoothnessThreshold.value = smoothnessthreshold; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.smoothnessThreshold.overrideState, overrideState => { ShinySSRRSettings.smoothnessThreshold.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Reflections Min Intensity", ShinySSRRSettings.reflectionsMinIntensity.value, 0f, 1f, "N2", reflectionsminintensity => { ShinySSRRSettings.reflectionsMinIntensity.value = reflectionsminintensity; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.reflectionsMinIntensity.overrideState, overrideState => { ShinySSRRSettings.reflectionsMinIntensity.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Reflections Max Intensity", ShinySSRRSettings.reflectionsMaxIntensity.value, 0f, 1f, "N2", reflectionsmaxintensity => { ShinySSRRSettings.reflectionsMaxIntensity.value = reflectionsmaxintensity; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.reflectionsMaxIntensity.overrideState, overrideState => { ShinySSRRSettings.reflectionsMaxIntensity.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Fresnel", ShinySSRRSettings.fresnel.value, 0f, 1f, "N2", fresnel => { ShinySSRRSettings.fresnel.value = fresnel; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.fresnel.overrideState, overrideState => { ShinySSRRSettings.fresnel.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Decay", ShinySSRRSettings.decay.value, 0f, 4f, "N2", decay => { ShinySSRRSettings.decay.value = decay; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.decay.overrideState, overrideState => { ShinySSRRSettings.decay.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Toggle("Specular Control", ShinySSRRSettings.specularControl.value, false, specularcontrol => { ShinySSRRSettings.specularControl.value = specularcontrol; ShinySSRRManager.UpdateSettings(); });
-            //        if (ShinySSRRSettings.temporalFilter.value != false)
-            //        {
-            //            Slider("Specular Soften Power", ShinySSRRSettings.specularSoftenPower.value, 0f, 32f, "N2", specularsoftenpower => { ShinySSRRSettings.specularSoftenPower.value = specularsoftenpower; ShinySSRRManager.UpdateSettings(); },
-            //                ShinySSRRSettings.specularSoftenPower.overrideState, overrideState => { ShinySSRRSettings.specularSoftenPower.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        }
-            //        Slider("Vignette Size", ShinySSRRSettings.vignetteSize.value, 0f, 2f, "N2", vignettesize => { ShinySSRRSettings.vignetteSize.value = vignettesize; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.vignetteSize.overrideState, overrideState => { ShinySSRRSettings.vignetteSize.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Vignette Power", ShinySSRRSettings.vignettePower.value, 0f, 2f, "N2", vignettepower => { ShinySSRRSettings.vignettePower.value = vignettepower; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.vignettePower.overrideState, overrideState => { ShinySSRRSettings.vignettePower.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        GUILayout.Space(30);
-            //        Label("REFLECTION SHARPNESS", "", true);
-            //        Slider("Fuzzyness", ShinySSRRSettings.fuzzyness.value, 0f, 1f, "N2", fuzzyness => { ShinySSRRSettings.fuzzyness.value = fuzzyness; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.fuzzyness.overrideState, overrideState => { ShinySSRRSettings.fuzzyness.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Contact Hardening", ShinySSRRSettings.contactHardening.value, 0f, 1f, "N2", contacthardening => { ShinySSRRSettings.contactHardening.value = contacthardening; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.contactHardening.overrideState, overrideState => { ShinySSRRSettings.contactHardening.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Minimum Blur", ShinySSRRSettings.minimumBlur.value, 0f, 1f, "N2", minimumblur => { ShinySSRRSettings.minimumBlur.value = minimumblur; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.minimumBlur.overrideState, overrideState => { ShinySSRRSettings.minimumBlur.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        Slider("Blur Downsampling", ShinySSRRSettings.blurDownsampling.value, 1, 4, blurdownsampling => { ShinySSRRSettings.blurDownsampling.value = blurdownsampling; ShinySSRRManager.UpdateSettings(); },
-            //            ShinySSRRSettings.blurDownsampling.overrideState, overrideState => { ShinySSRRSettings.blurDownsampling.overrideState = overrideState; ShinySSRRManager.UpdateSettings(); });
-            //        GUILayout.Space(30);
-            //        Label("ADVANCED OPTIONS", "", true);
-            //        Selection("Output Mode", ShinySSRRSettings.outputMode, debugtoscreen => { ShinySSRRSettings.outputMode = debugtoscreen; ShinySSRRManager.UpdateSettings(); }, -1);
-            //        Toggle("Low Precision", ShinySSRRSettings.lowPrecision.value, true, lowprecision => { ShinySSRRSettings.lowPrecision.value = lowprecision; ShinySSRRManager.UpdateSettings(); });
-            //        Toggle("Stop NaN", ShinySSRRSettings.stopNaN.value, true, stopnan => { ShinySSRRSettings.stopNaN.value = stopnan; ShinySSRRManager.UpdateSettings(); });
-            //        Toggle("Stencil Check", ShinySSRRSettings.stencilCheck.value, true, stencilcheck => { ShinySSRRSettings.stencilCheck.value = stencilcheck; ShinySSRRManager.UpdateSettings(); });
-
-            //    }
-            //    GUILayout.EndVertical();
-            //}
 
             if (settings.vignetteLayer != null)
             {

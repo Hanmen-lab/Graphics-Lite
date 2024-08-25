@@ -19,15 +19,8 @@ namespace Graphics.Inspector
         private static Vector2 cubeMapScrollView;
         //private static int selectedCubeMapIdx = -1;
 
-        private static Vector2 probeSettingsScrollView;
         private static Vector2 dynSkyScrollView;
-        private static float scrollViewHeight = Inspector.Height * 0.6f;
-
-        //private static Vector2 ScrollView;
-
-        private static int selectedProbe = 0;
-
-        private static bool inspectReflectionProbes = true;
+        //private static float scrollViewHeight = Inspector.Height * 0.6f;
 
         internal static void Draw(LightingSettings lightingSettings, SkyboxManager skyboxManager, LightManager lightmanager, bool showAdvanced)
         {
@@ -92,7 +85,7 @@ namespace Graphics.Inspector
 
             }
             GUILayout.EndVertical();
-            dynSkyScrollView = GUILayout.BeginScrollView(dynSkyScrollView, GUILayout.MaxHeight(scrollViewHeight));
+            dynSkyScrollView = GUILayout.BeginScrollView(dynSkyScrollView);
             GUILayout.BeginVertical(BoxPadding);
             {
 
@@ -116,91 +109,58 @@ namespace Graphics.Inspector
                     }
                 });
                 GUILayout.Space(10);
-                Slider("Intensity", lightingSettings.AmbientIntensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N1", intensity => { lightingSettings.AmbientIntensity = intensity; });
-                
-                if (null != skyboxManager.Skybox && null != skyboxManager.Skyboxbg)
+                if (lightingSettings.AmbientModeSetting == LightingSettings.AIAmbientMode.Skybox)
                 {
-                    Material skybox = skyboxManager.Skybox;
-                    if (skybox.HasProperty("_Exposure"))
-                        Slider("Exposure", skyboxManager.Exposure, ExposureMin, ExposureMax, "N1", exp => { skyboxManager.Exposure = exp; skyboxManager.Update = true; });
-                    if (skybox.HasProperty("_Rotation"))
-                        Slider("Rotation", skyboxManager.Rotation, RotationMin, RotationMax, "N1", rot => { skyboxManager.Rotation = rot; skyboxManager.Update = true; });
-                    GUILayout.Space(10);
-                    if (skybox.HasProperty("_Tint"))
-                        SliderColor("Skybox Tint", skyboxManager.Tint, c => { skyboxManager.Tint = c; skyboxManager.Update = true; }, true);
-                    GUILayout.Space(10);
-                    if (skybox.shader.name == "Skybox/Cubemap Ground Projection")
-                    Toggle("Ground Projection", skyboxManager.Projection, false, proj => { skyboxManager.Projection = proj; skyboxManager.Update = true; });
+                    Slider("Intensity", lightingSettings.AmbientIntensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N1", intensity => { lightingSettings.AmbientIntensity = intensity; });
 
-                    if (skyboxManager.Projection)
+                    if (null != skyboxManager.Skybox && null != skyboxManager.Skyboxbg)
                     {
-                        Slider("Horizon", skyboxManager.Horizon, -1f, 1f, "N2", horizon => { skyboxManager.Horizon = horizon; skyboxManager.Update = true; });
-                        Slider("Scale", skyboxManager.Scale, -50f, 50f, "N2", scale => { skyboxManager.Scale = scale; skyboxManager.Update = true; });
+                        Material skybox = skyboxManager.Skybox;
+                        if (skybox.HasProperty("_Exposure"))
+                            Slider("Exposure", skyboxManager.Exposure, ExposureMin, ExposureMax, "N1", exp => { skyboxManager.Exposure = exp; skyboxManager.Update = true; });
+                        if (skybox.HasProperty("_Rotation"))
+                            Slider("Rotation", skyboxManager.Rotation, RotationMin, RotationMax, "N1", rot => { skyboxManager.Rotation = rot; skyboxManager.Update = true; });
+                        GUILayout.Space(10);
+                        if (skybox.HasProperty("_Tint"))
+                            SliderColor("Skybox Tint", skyboxManager.Tint, c => { skyboxManager.Tint = c; skyboxManager.Update = true; }, true);
+                        GUILayout.Space(10);
+                        if (skybox.shader.name == "Skybox/Cubemap Ground Projection")
+                            Toggle("Ground Projection", skyboxManager.Projection, false, proj => { skyboxManager.Projection = proj; skyboxManager.Update = true; });
+
+                        if (skyboxManager.Projection)
+                        {
+                            Slider("Horizon", skyboxManager.Horizon, -1f, 1f, "N2", horizon => { skyboxManager.Horizon = horizon; skyboxManager.Update = true; });
+                            Slider("Scale", skyboxManager.Scale, -50f, 50f, "N2", scale => { skyboxManager.Scale = scale; skyboxManager.Update = true; });
+                        }
+
+                        DrawDynSkyboxOptions(lightingSettings, skyboxManager, lightmanager, showAdvanced);
                     }
                 }
-                DrawDynSkyboxOptions(lightingSettings, skyboxManager, lightmanager, showAdvanced);
-                GUILayout.Space(10);
-                Label("ENVIRONMENT REFLECTIONS", "", true);
-                GUILayout.Space(1);
-                Selection("Resolution", lightingSettings.ReflectionResolution, LightingSettings.ReflectionResolutions, resolution => lightingSettings.ReflectionResolution = resolution);
-                Slider("Intensity", lightingSettings.ReflectionIntensity, 0f, 1f, "N1", intensity => { lightingSettings.ReflectionIntensity = intensity; });
-                Slider("Bounces", lightingSettings.ReflectionBounces, 1, 5, bounces => { lightingSettings.ReflectionBounces = bounces; });
+                else if (lightingSettings.AmbientModeSetting == LightingSettings.AIAmbientMode.Trilight)
+                {
+                    SliderColor("Sky Color", lightingSettings.SkyColor, c => { RenderSettings.ambientSkyColor = c; });
+                    SliderColor("Horizon Color", lightingSettings.EquatorColor, c => { RenderSettings.ambientEquatorColor = c; });
+                    SliderColor("Ground Color", lightingSettings.GroundColor, c => { RenderSettings.ambientGroundColor = c; });
+                }
+                else
+                {
+                    SliderColor("Ambient Light", lightingSettings.AmbientLight, c => { RenderSettings.ambientLight = c; });
+                }
 
-                GUILayout.Space(25);
+                GUILayout.Space(10);
+                //Label("ENVIRONMENT REFLECTIONS", "", true);
+                //GUILayout.Space(1);
+                //Selection("Resolution", lightingSettings.ReflectionResolution, LightingSettings.ReflectionResolutions, resolution => lightingSettings.ReflectionResolution = resolution);
+                //Slider("Intensity", lightingSettings.ReflectionIntensity, 0f, 1f, "N1", intensity => { lightingSettings.ReflectionIntensity = intensity; });
+                //Slider("Bounces", lightingSettings.ReflectionBounces, 1, 5, bounces => { lightingSettings.ReflectionBounces = bounces; });
+                //GUILayout.Space(25);
+                
                 GUILayout.FlexibleSpace();
             }
             GUILayout.EndVertical();
 
             GUILayout.EndScrollView();
 
-            GUILayout.BeginVertical(EmptyBox2);
-            {
-
-                    ReflectionProbe[] rps = skyboxManager.GetReflectinProbes();
-                    if (0 < rps.Length)
-                    {
-                        if (selectedProbe >= rps.Length)
-                            selectedProbe = 0;
-
-                        string[] probeNames = rps.Select(probe => probe.name).ToArray();
-                        selectedProbe = GUILayout.SelectionGrid(selectedProbe, probeNames, 3, GUIStyles.toolbarbutton);
-                        ReflectionProbe rp = rps[selectedProbe];
-                        GUILayout.Space(1);
-                        probeSettingsScrollView = GUILayout.BeginScrollView(probeSettingsScrollView);
-                        GUILayout.BeginVertical(SmallBox);
-
-                        GUILayout.Space(10);
-                        {
-                            Label("Type", rp.mode.ToString());
-                            Label("Runtime settings", "");
-                            Slider("Importance", rp.importance, 0, 1000, importance => rp.importance = importance);
-                            Slider("Intensity", rp.intensity, 0, 10, "N2", intensity => rp.intensity = intensity);
-                            Toggle("Box Projection", rp.boxProjection, false, box => rp.boxProjection = box);
-                            Text("Blend Distance", rp.blendDistance, "N2", distance => rp.blendDistance = distance);
-                            Dimension("Box Size", rp.size, size => rp.size = size);
-                            Dimension("Box Offset", rp.center, size => rp.center = size);
-                            GUILayout.Space(10);
-                            Label("Cubemap capture settings", "");
-                            Selection("Resolution", rp.resolution, LightingSettings.ReflectionResolutions, resolution => rp.resolution = resolution);
-                            Toggle("HDR", rp.hdr, false, hdr => rp.hdr = hdr);
-                            Text("Shadow Distance", rp.shadowDistance, "N2", distance => rp.shadowDistance = distance);
-                            Selection("Clear Flags", rp.clearFlags, flag => rp.clearFlags = flag);
-                            if (showAdvanced)
-                            {
-                                SelectionMask("Culling Mask", rp.cullingMask, mask => rp.cullingMask = mask);
-                            }
-                            Text("Clipping Planes - Near", rp.nearClipPlane, "N2", plane => rp.nearClipPlane = plane);
-                            Text("Clipping Planes - Far", rp.farClipPlane, "N2", plane => rp.farClipPlane = plane);
-                            SliderColor("Background", rp.backgroundColor, colour => { rp.backgroundColor = colour; });
-                            Selection("Time Slicing Mode", rp.timeSlicingMode, mode => rp.timeSlicingMode = mode);
-                            GUILayout.Space(25);
-                        }
-                        GUILayout.EndScrollView();
-                        GUILayout.EndVertical();
-                    }
-                //}
-            }
-            GUILayout.EndVertical();
 
         }
 

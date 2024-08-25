@@ -14,7 +14,6 @@ namespace Graphics.Settings
 
         internal static int[] ReflectionResolutions = { 128, 256, 512, 1024, 2048 };
 
-
         public enum AIAmbientMode
         {
             Skybox = AmbientMode.Skybox,
@@ -34,17 +33,63 @@ namespace Graphics.Settings
         //    set => RenderSettings.sun = value;
         //}
 
+        public Color AmbientLight
+        {
+            get => RenderSettings.ambientLight;
+            set
+            {
+                if (RenderSettings.ambientLight == null)
+                {
+                    value = new Color32(170, 188, 243, 255);
+                }
+                RenderSettings.ambientLight = value;
+            }
+
+        }
+        public Color SkyColor
+        {
+            get => RenderSettings.ambientSkyColor;
+            set
+            {
+                if (RenderSettings.ambientSkyColor == null)
+                {
+                    value = new Color32(170, 188, 243, 255);
+                }
+                RenderSettings.ambientSkyColor = value;
+            }
+        }
+
+        public Color EquatorColor
+        {
+            get => RenderSettings.ambientEquatorColor;
+            set
+            {
+                if (RenderSettings.ambientEquatorColor == null)
+                {
+                    value = new Color32(185, 195, 205, 255);
+                }
+                RenderSettings.ambientEquatorColor = value;
+            }
+        }
+
+        public Color GroundColor
+        {
+            get => RenderSettings.ambientGroundColor;
+            set
+            {
+                if (RenderSettings.ambientGroundColor == null)
+                {
+                    value = new Color(204, 109, 41, 255);
+                }
+                RenderSettings.ambientGroundColor = value;
+            }
+        }
 
         public AIAmbientMode AmbientModeSetting
         {
             get => (AIAmbientMode)RenderSettings.ambientMode;
             set
             {
-                if (value != AIAmbientMode.Skybox)
-                {
-                    RenderSettings.ambientLight = Color.white;
-                }
-
                 RenderSettings.ambientMode = (AmbientMode)value;
             }
         }

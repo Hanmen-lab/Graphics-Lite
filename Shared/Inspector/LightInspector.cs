@@ -47,14 +47,14 @@ namespace Graphics.Inspector
             LightButton.margin = new RectOffset(0, 0, 0, 0);
             LightButton.padding = new RectOffset(0, 0, 0, 0);
             //LightButton.normal.background = null;
-            LightButton.fixedWidth = 350;
+            LightButton.fixedWidth = Inspector.Width * 0.32f;
             LightButton.fixedHeight = lightbox;
 
             GUIStyle LightListBox = new GUIStyle(GUIStyles.tabcontent);
             LightListBox.margin = new RectOffset(0, 0, 0, 0);
             LightListBox.padding = new RectOffset(0, 0, 0, 0);
             LightListBox.normal.background = null;
-            LightListBox.fixedWidth = 350;
+            LightListBox.fixedWidth = Inspector.Width * 0.32f;
             //LightListBox.fixedHeight = 400;
 
             GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);

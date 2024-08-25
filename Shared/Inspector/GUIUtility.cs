@@ -284,6 +284,8 @@ namespace Graphics.Inspector
             GUILayout.BeginHorizontal();
             int spacing = 0;
             EnableToggle(label, ref spacing, ref enable, onChangedEnable);
+
+            bool previousEnabledState = GUI.enabled;
             if (!enable)
             {
                 GUI.enabled = false;
@@ -300,6 +302,9 @@ namespace Graphics.Inspector
 
             int selectedIndex = GUILayout.SelectionGrid(currentIndex, localizedSelection, columns);
             GUILayout.EndHorizontal();
+
+            GUI.enabled = previousEnabledState;
+
             if (selectedIndex == currentIndex)
             {
                 return selected;
@@ -308,10 +313,6 @@ namespace Graphics.Inspector
             string selectedName = selection.GetValue(selectedIndex).ToString();
             selected = (TEnum)Enum.Parse(typeof(TEnum), selectedName);
             onChanged?.Invoke(selected);
-            if (!enable)
-            {
-                GUI.enabled = true;
-            }
 
             return selected;
         }
@@ -335,6 +336,7 @@ namespace Graphics.Inspector
                 onChangedEnable(newEnable);
                 enable = newEnable;
             }
+            bool previousEnabledState = GUI.enabled;
             if (!enable)
             {
                 GUI.enabled = false;
@@ -351,6 +353,9 @@ namespace Graphics.Inspector
 
             int selectedIndex = GUILayout.SelectionGrid(currentIndex, localizedSelection, columns);
             GUILayout.EndHorizontal();
+
+            GUI.enabled = previousEnabledState;
+
             if (selectedIndex == currentIndex)
             {
                 return selected;
@@ -359,10 +364,6 @@ namespace Graphics.Inspector
             string selectedName = selection.GetValue(selectedIndex).ToString();
             selected = (TEnum)Enum.Parse(typeof(TEnum), selectedName);
             onChanged?.Invoke(selected);
-            if (!enable)
-            {
-                GUI.enabled = true;
-            }
 
             return selected;
         }
@@ -539,21 +540,71 @@ namespace Graphics.Inspector
                 onChanged(newMask);
         }
 
-        internal static TEnum Toolbar<TEnum>(TEnum selected)
+        internal static TEnum Toolbar<TEnum>(TEnum selected) where TEnum : Enum
         {
             GUILayout.BeginHorizontal();
-            string[] selection = Enum.GetNames(typeof(TEnum));
-            string[] localizedSelection = LocalizationManager.HasLocalization() ? selection.Select(text => LocalizationManager.Localized(text)).ToArray() : selection;
-            int currentIndex = Array.IndexOf(selection, selected.ToString());
-            int selectedIndex = GUILayout.Toolbar(currentIndex, localizedSelection, GUIStyles.toolbarbutton);
-            GUILayout.EndHorizontal();
-            if (selectedIndex == currentIndex)
+
+            string[] enumNames = Enum.GetNames(typeof(TEnum));
+            TEnum[] enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
+            string[] displayNames;
+
+            if (typeof(TEnum) == typeof(Inspector.Tab))
             {
-                return selected;
+                displayNames = enumValues.Cast<Inspector.Tab>().Select(value => Inspector.DisplayNames[value]).ToArray();
+            }
+            else
+            {
+                displayNames = enumNames;
             }
 
-            string selectedName = selection.GetValue(selectedIndex).ToString();
-            selected = (TEnum)Enum.Parse(typeof(TEnum), selectedName);
+            int currentIndex = Array.IndexOf(enumNames, selected.ToString());
+
+            GUIStyle buttonStyle = GUIStyles.toolbarbutton;
+            GUIStyle activeButtonStyle = new GUIStyle(buttonStyle)
+            {
+                normal = buttonStyle.onNormal,
+                hover = buttonStyle.onHover,
+                active = buttonStyle.onActive,
+                focused = buttonStyle.onFocused
+            };
+
+            float[] buttonWidths = new float[displayNames.Length];
+
+            float totalTextLength = 0f;
+            Vector2[] textSizes = new Vector2[displayNames.Length];
+
+            for (int i = 0; i < displayNames.Length; i++)
+            {
+                Vector2 size = buttonStyle.CalcSize(new GUIContent(displayNames[i]));
+                totalTextLength += size.x;
+                textSizes[i] = size;
+            }
+
+            float availableWidth = Graphics.ConfigWindowWidth.Value;
+
+            for (int i = 0; i < displayNames.Length; i++)
+            {
+                float proportion = textSizes[i].x / totalTextLength;
+                buttonWidths[i] = Mathf.Max(proportion * availableWidth, textSizes[i].x + 20);
+            }
+
+            for (int i = 0; i < displayNames.Length; i++)
+            {
+                GUIStyle style = (i == currentIndex) ? activeButtonStyle : buttonStyle;
+                if (GUILayout.Button(displayNames[i], style, GUILayout.Width(buttonWidths[i])))
+                {
+                    currentIndex = i;
+                }
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (currentIndex != Array.IndexOf(enumNames, selected.ToString()))
+            {
+                string selectedName = enumNames[currentIndex];
+                selected = (TEnum)Enum.Parse(typeof(TEnum), selectedName);
+            }
+
             return selected;
         }
 
@@ -826,7 +877,7 @@ namespace Graphics.Inspector
         internal static void TextInt(string label, int Integer, Action<int> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
         {
             GUILayout.BeginHorizontal();
-            int spacing = 0;
+            //int spacing = 0;
 
             int.TryParse(GUILayout.TextField(Integer.ToString()), out int count);
             if (!enable)
@@ -844,7 +895,7 @@ namespace Graphics.Inspector
         internal static void TextFloat(string label, float Float, string format = "N0", Action<float> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
         {
             GUILayout.BeginHorizontal();
-            int spacing = 0;
+            //int spacing = 0;
 
             float.TryParse(GUILayout.TextField(Float.ToString(format)), out float count);
             if (!enable)

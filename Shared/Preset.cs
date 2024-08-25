@@ -179,7 +179,7 @@ namespace Graphics
 #endif
             pp.LoadParameters();
 #if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with PP");
+            Graphics.Instance.Log.LogInfo($"Done with Post Processing Stack");
 #endif
             sss?.LoadParameters();
 #if DEBUG
@@ -205,7 +205,7 @@ namespace Graphics
             GlobalFogManager.UpdateSettings();
 
 #if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with Unity Standard Effects");
+            Graphics.Instance.Log.LogInfo($"Done with Global Fog");
 #endif
 
             //LuxWater_UnderWaterRenderingManager.settings = underwater;
@@ -217,9 +217,9 @@ namespace Graphics
             //ConnectSunToUnderwaterManager.settings = connectSun;
             //ConnectSunToUnderwaterManager.UpdateSettings();
 
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with LuxWater");
-#endif
+//#if DEBUG
+//            Graphics.Instance.Log.LogInfo($"Done with LuxWater");
+//#endif
 
             VAOManager.settings = vao;
             VAOManager.UpdateSettings();

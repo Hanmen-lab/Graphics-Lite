@@ -15,7 +15,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.PostProcessing;
 
 
-namespace Graphics.XPostProcessing
+namespace Graphics
 {
 
     [Serializable]

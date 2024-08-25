@@ -170,16 +170,16 @@ namespace Graphics.CTAA
                 (SupersampleMode > 0) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
                 depth, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Default, FilterMode.Bilinear, TextureWrapMode.Clamp, preCreate);
 
-            if (SupersampleMode > 1)
-            {
-                Graphics.Instance.Log.LogMessage($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
-                          $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y} => Upscaled Size: {orig_ScreenXY.x << 1}x{orig_ScreenXY.y << 1}");
-            }
-            else
-            {
-                Graphics.Instance.Log.LogMessage($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
-                          $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y}");
-            }
+            //if (SupersampleMode > 1)
+            //{
+            //    Graphics.Instance.Log.LogMessage($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
+            //              $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y} => Upscaled Size: {orig_ScreenXY.x << 1}x{orig_ScreenXY.y << 1}");
+            //}
+            //else
+            //{
+            //    Graphics.Instance.Log.LogMessage($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
+            //              $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y}");
+            //}
         }
         void ClearRT()
         {

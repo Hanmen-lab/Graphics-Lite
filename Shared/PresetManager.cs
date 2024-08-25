@@ -1,4 +1,5 @@
 using ExtensibleSaveFormat;
+using KKAPI.Utilities;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -158,18 +159,12 @@ namespace Graphics
         {
             Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams, _parent.SSSSettings);
             string presetName = defaultType.ToString();
-            string targetPath = Path.Combine(_defaultsPath, presetName + ".factory");
-            if (preset.Load(targetPath, presetName))
-            {
-                SaveDefault(defaultType);
-                Graphics.Instance.Log.LogInfo(string.Format("Restored {0} to factory shiny.", defaultType.ToString()));
-                return true;
-            }
-            else
-            {
-                Graphics.Instance.Log.LogError(string.Format("Unable to restore default type {0}", defaultType.ToString()));
-                return false;
-            }
+            //string targetPath = Path.Combine(_defaultsPath, presetName + ".factory");
+            byte[] presetBytes = ResourceUtils.GetEmbeddedResource(presetName + ".factory");
+            preset.Load(presetBytes);
+            SaveDefault(defaultType);
+            Graphics.Instance.Log.LogInfo(string.Format("Restored {0} to factory defaults.", defaultType.ToString()));
+            return true;
         }
 
         internal void Load(PluginData data)

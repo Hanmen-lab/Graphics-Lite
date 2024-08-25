@@ -81,12 +81,12 @@ namespace Graphics
             //Load shaders from Assetbundle
             assetBundle = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("ditheredshadows.unity3d"));
             if (assetBundle == null) 
-                Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load asset bunle 'rgbsplit.unity3d'");      
+                Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load asset bunle 'ditheredshadows.unity3d'");      
             if (deferredShading == null)
                 deferredShading = assetBundle.LoadAsset<Shader>("Assets/DitheredShadows/Resources/Internal-DeferredShading-Dithering.shader");           
             if (screenSpaceShadows == null)
                 screenSpaceShadows = assetBundle.LoadAsset<Shader>("Assets/DitheredShadows/Resources/Internal-ScreenSpaceShadows-Dithering.shader");
-            byte[] textureByte = ResourceUtils.GetEmbeddedResource("NoiseHigh.png");
+            byte[] textureByte = ResourceUtils.GetEmbeddedResource("BlueNoise256Greyscale.png");
             if (noise == null)
                 noise = TextureUtils.LoadTexture(textureByte);
 

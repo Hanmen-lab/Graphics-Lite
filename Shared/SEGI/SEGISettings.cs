@@ -39,15 +39,15 @@ namespace Graphics.Settings
         [Range(0.0f, 4.0f)]
         public float coneTraceBias = 0.63f;
         [Range(0.0f, 4.0f)]
-        public float occlusionStrength = 0f;
+        public float occlusionStrength = 1f;
         [Range(0.0f, 4.0f)]
         public float nearOcclusionStrength = 0.0f;
         [Range(0.001f, 4.0f)]
-        public float occlusionPower = 0.0f;
+        public float occlusionPower = 1.0f;
         [Range(0.0f, 4.0f)]
-        public float nearLightGain = 0.0f;
+        public float nearLightGain = 1.0f;
         [Range(0.0f, 4.0f)]
-        public float giGain = 0f;
+        public float giGain = 1f;
         [Range(0.0f, 2.0f)]
         public float secondaryBounceGain = 1.0f;
         [Range(12, 128)]

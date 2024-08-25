@@ -2,8 +2,6 @@
 using MessagePack;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
-using Graphics.XPostProcessing;
-//using Graphics.BeautifyForPPS;
 
 // TODO: Turn on Post Processing in main menu.
 // TODO: Messagepack clears out layer lists for a frame. Need to figure out to remove temporary solutions
@@ -117,28 +115,8 @@ namespace Graphics.Settings
         internal Vignette vignetteLayer;
         internal Camera initialCamera;
         internal MotionBlur motionBlurLayer;
-        //internal TiltShiftBokeh tiltShiftLayer;
-        //internal SunShaftsHDR sunShaftsHDRLayer;
-        //internal CRTTube crtTubeLayer;
-        //internal PixelizeQuad pixelizeQuadLayer;
-        //internal PixelizeLed pixelizeLedLayer;
-        //internal PixelizeHexagon pixelizeHexagonLayer;
-        //internal GlitchRGBSplitV5 glitchRGBSplitV5Layer;
-        //internal GlitchRGBSplitV4 glitchRGBSplitV4Layer;
-        //internal GlitchRGBSplitV3 glitchRGBSplitV3Layer;
-        //internal GlitchRGBSplitV2 glitchRGBSplitV2Layer;
-        //internal GlitchRGBSplit glitchRGBSplitLayer;
-        //internal GlitchImageBlock glitchImageBlockLayer;
-        //internal GlitchImageBlockV2 glitchImageBlockV2Layer;
-        //internal GlitchImageBlockV3 glitchImageBlockV3Layer;
-        //internal GlitchImageBlockV4 glitchImageBlockV4Layer;
-        //internal BeautifyBloom beautifyBloomLayer;
-        //internal LightLeaksPPS lightLeaksPPSLayer;
-        //internal BeautifyDoF beautifyDoFLayer;
         internal AgxColor agxColorLayer;
 
-
-        //internal LensDistortion lensDistortionLayer;
         #if AI
 
                 internal AmplifyOcclusionEffect amplifyOcclusionComponent;
@@ -268,119 +246,11 @@ namespace Graphics.Settings
                 motionBlurLayer.enabled.value = false;
             }
 
-            //if (!SettingValues.profile.TryGetSettings(out tiltShiftLayer))
-            //{
-            //    tiltShiftLayer = SettingValues.profile.AddSettings<TiltShiftBokeh>();
-            //    tiltShiftLayer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out sunShaftsHDRLayer))
-            //{
-            //    sunShaftsHDRLayer = SettingValues.profile.AddSettings<SunShaftsHDR>();
-            //    sunShaftsHDRLayer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out crtTubeLayer))
-            //{
-            //    crtTubeLayer = SettingValues.profile.AddSettings<CRTTube>();
-            //    crtTubeLayer.enabled.value = false;
-            //}
-            
-            //if (!SettingValues.profile.TryGetSettings(out pixelizeQuadLayer))
-            //{
-            //    pixelizeQuadLayer = SettingValues.profile.AddSettings<PixelizeQuad>();
-            //    pixelizeQuadLayer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out pixelizeLedLayer))
-            //{
-            //    pixelizeLedLayer = SettingValues.profile.AddSettings<PixelizeLed>();
-            //    pixelizeLedLayer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out pixelizeHexagonLayer))
-            //{
-            //    pixelizeHexagonLayer = SettingValues.profile.AddSettings<PixelizeHexagon>();
-            //    pixelizeHexagonLayer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchRGBSplitV5Layer))
-            //{
-            //    glitchRGBSplitV5Layer = SettingValues.profile.AddSettings<GlitchRGBSplitV5>();
-            //    glitchRGBSplitV5Layer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchRGBSplitV4Layer))
-            //{
-            //    glitchRGBSplitV4Layer = SettingValues.profile.AddSettings<GlitchRGBSplitV4>();
-            //    glitchRGBSplitV4Layer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchRGBSplitV3Layer))
-            //{
-            //    glitchRGBSplitV3Layer = SettingValues.profile.AddSettings<GlitchRGBSplitV3>();
-            //    glitchRGBSplitV3Layer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchRGBSplitV2Layer))
-            //{
-            //    glitchRGBSplitV2Layer = SettingValues.profile.AddSettings<GlitchRGBSplitV2>();
-            //    glitchRGBSplitV2Layer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchRGBSplitLayer))
-            //{
-            //    glitchRGBSplitLayer = SettingValues.profile.AddSettings<GlitchRGBSplit>();
-            //    glitchRGBSplitLayer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchImageBlockLayer))
-            //{
-            //    glitchImageBlockLayer = SettingValues.profile.AddSettings<GlitchImageBlock>();
-            //    glitchImageBlockLayer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchImageBlockV2Layer))
-            //{
-            //    glitchImageBlockV2Layer = SettingValues.profile.AddSettings<GlitchImageBlockV2>();
-            //    glitchImageBlockV2Layer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchImageBlockV3Layer))
-            //{
-            //    glitchImageBlockV3Layer = SettingValues.profile.AddSettings<GlitchImageBlockV3>();
-            //    glitchImageBlockV3Layer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out glitchImageBlockV4Layer))
-            //{
-            //    glitchImageBlockV4Layer = SettingValues.profile.AddSettings<GlitchImageBlockV4>();
-            //    glitchImageBlockV4Layer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out beautifyBloomLayer))
-            //{
-            //    beautifyBloomLayer = SettingValues.profile.AddSettings<BeautifyBloom>();
-            //    beautifyBloomLayer.enabled.value = false;
-            //}
-
             if (!SettingValues.profile.TryGetSettings(out agxColorLayer))
             {
                 agxColorLayer = SettingValues.profile.AddSettings<AgxColor>();
                 agxColorLayer.enabled.value = false;
             }
-
-            //if (!SettingValues.profile.TryGetSettings(out lightLeaksPPSLayer))
-            //{
-            //    lightLeaksPPSLayer = SettingValues.profile.AddSettings<LightLeaksPPS>();
-            //    lightLeaksPPSLayer.enabled.value = false;
-            //}
-
-            //if (!SettingValues.profile.TryGetSettings(out beautifyDoFLayer))
-            //{
-            //    beautifyDoFLayer = SettingValues.profile.AddSettings<BeautifyDoF>();
-            //    beautifyDoFLayer.enabled.value = false;
-            //}
 
             depthOfFieldLayer.enabled.value = false; // Make people use Depth of Field Manually
         }
@@ -446,111 +316,10 @@ namespace Graphics.Settings
                 paramMotionBlur.Save(motionBlurLayer);
             }
 
-            //if (Volume.profile.TryGetSettings(out TiltShiftBokeh tiltShiftBokehLayer))
-            //{
-            //    paramTiltShiftBokeh.Save(tiltShiftBokehLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out SunShaftsHDR sunShaftsHDRLayer))
-            //{
-            //    paramSunShaftsHDR.Save(sunShaftsHDRLayer);
-            //}
-            
-            //if (Volume.profile.TryGetSettings(out CRTTube crtTubeLayer))
-            //{
-            //    paramCRTTube.Save(crtTubeLayer);
-            //}
-            
-            //if (Volume.profile.TryGetSettings(out PixelizeQuad pixelizeQuadLayer))
-            //{
-            //    paramPixelizeQuad.Save(pixelizeQuadLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out PixelizeLed pixelizeLedLayer))
-            //{
-            //    paramPixelizeLed.Save(pixelizeLedLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out PixelizeHexagon pixelizeHexagonLayer))
-            //{
-            //    paramPixelizeHexagon.Save(pixelizeHexagonLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplitV5 glitchRGBSplitV5Layer))
-            //{
-            //    paramGlitchRGBSplitV5.Save(glitchRGBSplitV5Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplitV4 glitchRGBSplitV4Layer))
-            //{
-            //    paramGlitchRGBSplitV4.Save(glitchRGBSplitV4Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplitV3 glitchRGBSplitV3Layer))
-            //{
-            //    paramGlitchRGBSplitV3.Save(glitchRGBSplitV3Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplitV2 glitchRGBSplitV2Layer))
-            //{
-            //    paramGlitchRGBSplitV2.Save(glitchRGBSplitV2Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplit glitchRGBSplitLayer))
-            //{
-            //    paramGlitchRGBSplit.Save(glitchRGBSplitLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchImageBlock glitchImageBlockLayer))
-            //{
-            //    paramGlitchImageBlock.Save(glitchImageBlockLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchImageBlockV2 glitchImageBlockV2Layer))
-            //{
-            //    paramGlitchImageBlockV2.Save(glitchImageBlockV2Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchImageBlockV3 glitchImageBlockV3Layer))
-            //{
-            //    paramGlitchImageBlockV3.Save(glitchImageBlockV3Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchImageBlockV4 glitchImageBlockV4Layer))
-            //{
-            //    paramGlitchImageBlockV4.Save(glitchImageBlockV4Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out BeautifyBloom beautifyBloomLayer))
-            //{
-            //    paramBeautifyBloom.Save(beautifyBloomLayer);
-            //}
-
             if (Volume.profile.TryGetSettings(out AgxColor agxColorLayer))
             {
                 paramAgxColor.Save(agxColorLayer);
             }
-
-            //if (Volume.profile.TryGetSettings(out LightLeaksPPS lightLeaksPPSLayer))
-            //{
-            //    paramLightLeaksPPS.Save(lightLeaksPPSLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out BeautifyDoF beautifyDoFLayer))
-            //{
-            //    paramBeautifyDoF.Save(beautifyDoFLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out LensDistortion lensDistortionLayer))
-            //{
-            //    paramLensDistortion.Save(lensDistortionLayer);
-            //}
-            //#if AI
-            //            if (AmplifyOcclusionComponent != null)
-            //            {
-            //                paramAmplifyOcclusion.Save(AmplifyOcclusionComponent);
-            //            }
-            //#endif
         }
 
         public void LoadParameters()
@@ -605,105 +374,10 @@ namespace Graphics.Settings
                 paramMotionBlur.Load(motionBlurLayer);
             }
 
-            //if (Volume.profile.TryGetSettings(out TiltShiftBokeh tiltShiftBokehLayer))
-            //{
-            //    paramTiltShiftBokeh.Load(tiltShiftBokehLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out SunShaftsHDR sunShaftsHDRLayer))
-            //{
-            //    paramSunShaftsHDR.Load(sunShaftsHDRLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out CRTTube crtTubeLayer))
-            //{
-            //    paramCRTTube.Load(crtTubeLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out PixelizeQuad pixelizeQuadLayer))
-            //{
-            //    paramPixelizeQuad.Load(pixelizeQuadLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out PixelizeLed pixelizeLedLayer))
-            //{
-            //    paramPixelizeLed.Load(pixelizeLedLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out PixelizeHexagon pixelizeHexagonLayer))
-            //{
-            //    paramPixelizeHexagon.Load(pixelizeHexagonLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplitV5 glitchRGBSplitV5Layer))
-            //{
-            //    paramGlitchRGBSplitV5.Load(glitchRGBSplitV5Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplitV4 glitchRGBSplitV4Layer))
-            //{
-            //    paramGlitchRGBSplitV4.Load(glitchRGBSplitV4Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplitV3 glitchRGBSplitV3Layer))
-            //{
-            //    paramGlitchRGBSplitV3.Load(glitchRGBSplitV3Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplitV2 glitchRGBSplitV2Layer))
-            //{
-            //    paramGlitchRGBSplitV2.Load(glitchRGBSplitV2Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchRGBSplit glitchRGBSplitLayer))
-            //{
-            //    paramGlitchRGBSplit.Load(glitchRGBSplitLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchImageBlock glitchImageBlockLayer))
-            //{
-            //    paramGlitchImageBlock.Load(glitchImageBlockLayer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchImageBlockV2 glitchImageBlockV2Layer))
-            //{
-            //    paramGlitchImageBlockV2.Load(glitchImageBlockV2Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchImageBlockV3 glitchImageBlockV3Layer))
-            //{
-            //    paramGlitchImageBlockV3.Load(glitchImageBlockV3Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out GlitchImageBlockV4 glitchImageBlockV4Layer))
-            //{
-            //    paramGlitchImageBlockV4.Load(glitchImageBlockV4Layer);
-            //}
-
-            //if (Volume.profile.TryGetSettings(out BeautifyBloom beautifyBloomLayer))
-            //{
-            //    paramBeautifyBloom.Load(beautifyBloomLayer);
-            //}
-
             if (Volume.profile.TryGetSettings(out AgxColor agxColorLayer))
             {
                 paramAgxColor.Load(agxColorLayer);
             }
-
-            //if (Volume.profile.TryGetSettings(out BeautifyDoF beautifyDoFLayer))
-            //{
-            //    paramBeautifyDoF.Load(beautifyDoFLayer);
-            //}
-            //if (Volume.profile.TryGetSettings(out LensDistortion lensDistortionLayer))
-            //{
-            //    paramLensDistortion.Load(lensDistortionLayer);
-            //}
-            //#if AI
-            //            if (AmplifyOcclusionComponent != null)
-            //            {
-            //                paramAmplifyOcclusion.Load(AmplifyOcclusionComponent);
-            //            }
-            //#endif
         }
 
         internal Transform VolumeTriggerSetting => _postProcessLayer.volumeTrigger;
@@ -844,123 +518,10 @@ namespace Graphics.Settings
             get => paramMotionBlur;
             set => paramMotionBlur = value;
         }
-        //public TiltShiftBokehParams TiltShiftBokeh
-        //{
-        //    get => paramTiltShiftBokeh;
-        //    set => paramTiltShiftBokeh = value;
-        //}
-        //public SunShaftsHDRParams SunShaftsHDR
-        //{
-        //    get => paramSunShaftsHDR;
-        //    set => paramSunShaftsHDR = value;
-        //}
-
-        //public CRTTubeParams CRTTube
-        //{
-        //    get => paramCRTTube;
-        //    set => paramCRTTube = value;
-        //}
-       
-        //public PixelizeQuadParams PixelizeQuad
-        //{
-        //    get => paramPixelizeQuad;
-        //    set => paramPixelizeQuad = value;
-        //}
-
-        //public PixelizeLedParams PixelizeLed
-        //{
-        //    get => paramPixelizeLed;
-        //    set => paramPixelizeLed = value;
-        //}
-
-        //public PixelizeHexagonParams PixelizeHexagon
-        //{
-        //    get => paramPixelizeHexagon;
-        //    set => paramPixelizeHexagon = value;
-        //}
-
-        //public GlitchRGBSplitV5Params GlitchRGBSplitV5
-        //{
-        //    get => paramGlitchRGBSplitV5;
-        //    set => paramGlitchRGBSplitV5 = value;
-        //}
-
-        //public GlitchRGBSplitV4Params GlitchRGBSplitV4
-        //{
-        //    get => paramGlitchRGBSplitV4;
-        //    set => paramGlitchRGBSplitV4 = value;
-        //}
-
-        //public GlitchRGBSplitV3Params GlitchRGBSplitV3
-        //{
-        //    get => paramGlitchRGBSplitV3;
-        //    set => paramGlitchRGBSplitV3 = value;
-        //}
-
-        //public GlitchRGBSplitV2Params GlitchRGBSplitV2
-        //{
-        //    get => paramGlitchRGBSplitV2;
-        //    set => paramGlitchRGBSplitV2 = value;
-        //}
-
-        //public GlitchRGBSplitParams GlitchRGBSplit
-        //{
-        //    get => paramGlitchRGBSplit;
-        //    set => paramGlitchRGBSplit = value;
-        //}
-
-        //public GlitchImageBlockParams GlitchImageBlock
-        //{
-        //    get => paramGlitchImageBlock;
-        //    set => paramGlitchImageBlock = value;
-        //}
-
-        //public GlitchImageBlockV2Params GlitchImageBlockV2
-        //{
-        //    get => paramGlitchImageBlockV2;
-        //    set => paramGlitchImageBlockV2 = value;
-        //}
-
-        //public GlitchImageBlockV3Params GlitchImageBlockV3
-        //{
-        //    get => paramGlitchImageBlockV3;
-        //    set => paramGlitchImageBlockV3 = value;
-        //}
-
-        //public GlitchImageBlockV4Params GlitchImageBlockV4
-        //{
-        //    get => paramGlitchImageBlockV4;
-        //    set => paramGlitchImageBlockV4 = value;
-        //}
-
-        //public BeautifyBloomParams BeautifyBloom
-        //{
-        //    get => paramBeautifyBloom;
-        //    set => paramBeautifyBloom = value;
-        //}
-
         public AgxColorParams AgxColor
         {
             get => paramAgxColor;
             set => paramAgxColor = value;
         }
-        //public LightLeaksPPSParams LightLeaksPPS
-        //{
-        //    get => paramLightLeaksPPS;
-        //    set => paramLightLeaksPPS = value;
-        //}
-
-        //public BeautifyDoFParams BeautifyDoF
-        //{
-        //    get => paramBeautifyDoF;
-        //    set => paramBeautifyDoF = value;
-        //}
-
-        //public LensDistortionParams LensDistortion
-        //{
-        //    get => paramLensDistortion;
-        //    set => paramLensDistortion = value;
-        //}
-
     }
 }

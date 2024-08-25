@@ -28,10 +28,13 @@ namespace Graphics.Inspector
                 {
                     Label("SETTINGS", "", true);
                     GUILayout.Space(2);
-                    Slider("Jitter Spread", postProcessingSettings.JitterSpread, 0.1f, 1f, "N2", spread => { postProcessingSettings.JitterSpread = spread; });
+                    Slider("Jitter Spread", postProcessingSettings.JitterSpread, 0.1f, 1f, "N2", spread => { postProcessingSettings.JitterSpread = spread; });                   
                     Slider("Stationary Blending", postProcessingSettings.StationaryBlending, 0f, 1f, "N2", sblending => { postProcessingSettings.StationaryBlending = sblending; });
-                    Slider("Motion Blending", postProcessingSettings.MotionBlending, 0f, 1f, "N2", mblending => { postProcessingSettings.MotionBlending = mblending; });
+                    Slider("Motion Blending", postProcessingSettings.MotionBlending, 0f, 1f, "N2", mblending => { postProcessingSettings.MotionBlending = mblending; });                   
                     Slider("Sharpness", postProcessingSettings.Sharpness, 0f, 3f, "N2", sharpness => { postProcessingSettings.Sharpness = sharpness; });
+                    GUILayout.Space(10);
+                    Label("Tips:", "Decrease 'Motion Blending' to around 0.1-0.3 if you have ghosting", false);
+                    Label("", "Decrease 'Jitter Spread' if you have problem with pantyhose/tight clothing flickering.", false);
                 }
                 else if (PostProcessingSettings.Antialiasing.FXAA == postProcessingSettings.AntialiasingMode)
                 {
@@ -65,7 +68,8 @@ namespace Graphics.Inspector
                         CTAAManager.settings.TemporalJitterScale.overrideState,
                         overrideState => CTAAManager.settings.TemporalJitterScale.overrideState = overrideState);
                     GUILayout.Space(10);
-                    Label("Warning!", "Don't use with Upscaled Rendered Screenshot (F11)! Will cause bugs.", false);
+                    Label("Warning!", "Don't use with Rendered Screenshot (F11)! with 1.0+ upsampling. Will cause blurry artifats.", false);
+                    Label("", "Decrease 'Temporal Jitter Scale' if you have problem with pantyhose/tight clothing flickering.", false);
                     //Selection("Mode", CTAAManager.CTaaSettings.Mode, mode => CTAAManager.CTaaSettings.Mode = mode);
 
                     //if (CTAAManager.CTaaSettings.Mode > 0)
