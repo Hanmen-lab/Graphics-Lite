@@ -7,7 +7,7 @@ namespace Graphics.Inspector
 {
     internal static class AntiAliasingInspector
     {
-
+        //private static bool FilterDithering;
         internal static void Draw(GlobalSettings renderSettings, CameraSettings cameraSettings, PostProcessingSettings postProcessingSettings, PostProcessingManager postprocessingManager, bool showAdvanced)
         {
 
@@ -23,17 +23,28 @@ namespace Graphics.Inspector
                     Label("SETTINGS", "", true);
                     GUILayout.Space(2);
                     Selection("SMAA Quality", postProcessingSettings.SMAAQuality, quality => postProcessingSettings.SMAAQuality = quality);
+                    Shader.DisableKeyword("_TEMPORALFILTER_ON");
                 }
                 else if (PostProcessingSettings.Antialiasing.TAA == postProcessingSettings.AntialiasingMode)
                 {
                     Label("SETTINGS", "", true);
                     GUILayout.Space(2);
-                    Slider("Jitter Spread", postProcessingSettings.JitterSpread, 0.1f, 1f, "N2", spread => { postProcessingSettings.JitterSpread = spread; });                   
+                    Slider("Jitter Spread", postProcessingSettings.JitterSpread, 0.1f, 1f, "N2", spread => { postProcessingSettings.JitterSpread = spread; });
                     Slider("Stationary Blending", postProcessingSettings.StationaryBlending, 0f, 1f, "N2", sblending => { postProcessingSettings.StationaryBlending = sblending; });
-                    Slider("Motion Blending", postProcessingSettings.MotionBlending, 0f, 1f, "N2", mblending => { postProcessingSettings.MotionBlending = mblending; });                   
+                    Slider("Motion Blending", postProcessingSettings.MotionBlending, 0f, 1f, "N2", mblending => { postProcessingSettings.MotionBlending = mblending; });
                     Slider("Sharpness", postProcessingSettings.Sharpness, 0f, 3f, "N2", sharpness => { postProcessingSettings.Sharpness = sharpness; });
                     GUILayout.Space(10);
-                    Label("Tips:", "Decrease 'Motion Blending' to around 0.1-0.3 if you have ghosting", false);
+                    ToggleAlt("FILTER DITHERING", postProcessingSettings.FilterDithering, true, filter => postProcessingSettings.FilterDithering = filter);
+                    if (postProcessingSettings.FilterDithering)
+                    {
+                        Shader.EnableKeyword("_TEMPORALFILTER_ON");
+                    }
+                    else
+                    {
+                        Shader.DisableKeyword("_TEMPORALFILTER_ON");
+                    }
+                    GUILayout.Space(10);
+                    Label("Tips:", "Decrease 'Motion Blending' to around 0.1-0.3 if you have ghosting.", false);
                     Label("", "Decrease 'Jitter Spread' if you have problem with pantyhose/tight clothing flickering.", false);
                 }
                 else if (PostProcessingSettings.Antialiasing.FXAA == postProcessingSettings.AntialiasingMode)
@@ -42,6 +53,7 @@ namespace Graphics.Inspector
                     GUILayout.Space(2);
                     Toggle("Fast Mode", postProcessingSettings.FXAAMode, false, fxaa => postProcessingSettings.FXAAMode = fxaa);
                     Toggle("Keep Alpha", postProcessingSettings.FXAAAlpha, false, alpha => postProcessingSettings.FXAAAlpha = alpha);
+                    Shader.DisableKeyword("_TEMPORALFILTER_ON");
                 }
                 else if (PostProcessingSettings.Antialiasing.CTAA == postProcessingSettings.AntialiasingMode)
                 {
@@ -68,14 +80,26 @@ namespace Graphics.Inspector
                         CTAAManager.settings.TemporalJitterScale.overrideState,
                         overrideState => CTAAManager.settings.TemporalJitterScale.overrideState = overrideState);
                     GUILayout.Space(10);
-                    Label("Warning!", "Don't use with Rendered Screenshot (F11)! with 1.0+ upsampling. Will cause blurry artifats.", false);
+                    Label("Warning!", "Don't use with Rendered Screenshot (F11)! with 1.0+ upsampling. Will cause blurry artifacts.", false);
                     Label("", "Decrease 'Temporal Jitter Scale' if you have problem with pantyhose/tight clothing flickering.", false);
-                    //Selection("Mode", CTAAManager.CTaaSettings.Mode, mode => CTAAManager.CTaaSettings.Mode = mode);
-
-                    //if (CTAAManager.CTaaSettings.Mode > 0)
-                    //    Label("Notice: Capture-related features do not work when using CINA_SOFT or CINA_ULTRA.\nFor gameplay use only.", "", false);
+                    Selection("Mode", CTAAManager.settings.Mode, mode => CTAAManager.settings.Mode = mode);
+                    if (CTAAManager.settings.Mode > 0)
+                        GUILayout.Space(10);
+                    ToggleAlt("FILTER DITHERING", postProcessingSettings.FilterDithering, true, filter => postProcessingSettings.FilterDithering = filter);
+                    if (postProcessingSettings.FilterDithering)
+                    {
+                        Shader.EnableKeyword("_TEMPORALFILTER_ON");
+                    }
+                    else
+                    {
+                        Shader.DisableKeyword("_TEMPORALFILTER_ON");
+                    }
 
                     CTAAManager.settings.Load(Graphics.Instance.CameraSettings.MainCamera.GetComponent<CTAA_PC>());
+                }
+                else if (PostProcessingSettings.Antialiasing.None == postProcessingSettings.AntialiasingMode)
+                {
+                    Shader.DisableKeyword("_TEMPORALFILTER_ON");
                 }
 
                 GUILayout.Space(30);
@@ -91,8 +115,8 @@ namespace Graphics.Inspector
                 Switch(renderSettings.FontSize, "MSAA", cameraSettings.MSAA, true, msaa => cameraSettings.MSAA = msaa);
                 GUILayout.Space(30);
                 Slider("MSAA Multiplier", renderSettings.AntiAliasing, 0, 8, aa => renderSettings.AntiAliasing = aa);
-                Label("Forward Only", "This is a separate type of anti-aliasing, which can be combined with the post-processing AA above", false);
-                Label("", "Performance intensive! Good for capturing, not actual gameplay.", false);
+                Label("Forward Only", "This is a separate type of anti-aliasing which can be combined with the post-processing AA above.", false);
+                Label("", "Performance intensive! Good for capturing not for actual gameplay.", false);
                 GUILayout.Space(30);
                 GUI.enabled = true;
             }

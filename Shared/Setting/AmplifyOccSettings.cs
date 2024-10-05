@@ -1,5 +1,6 @@
 ﻿using MessagePack;
 using Graphics.AmplifyOcclusion;
+using AOE = Graphics.AmplifyOcclusion.AmplifyOcclusionEffect;
 using UnityEngine;
 using ADV.Commands.Base;
 

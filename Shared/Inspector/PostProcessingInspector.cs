@@ -109,7 +109,7 @@ namespace Graphics.Inspector
                 if (settings.ambientOcclusionLayer != null)
                 {
                     GUILayout.Space(30);
-                    Toggle("Enable", settings.ambientOcclusionLayer.enabled.value, true, enabled => settings.ambientOcclusionLayer.active = settings.ambientOcclusionLayer.enabled.value = enabled);
+                    ToggleAlt("Enable", settings.ambientOcclusionLayer.enabled.value, true, enabled => settings.ambientOcclusionLayer.active = settings.ambientOcclusionLayer.enabled.value = enabled);
                     if (settings.ambientOcclusionLayer.enabled.value)
                     {
 
@@ -135,7 +135,7 @@ namespace Graphics.Inspector
                         SliderColor("Colour", settings.ambientOcclusionLayer.color.value,
                             colour => settings.ambientOcclusionLayer.color.value = colour, false, settings.ambientOcclusionLayer.color.overrideState,
                             overrideState => settings.ambientOcclusionLayer.color.overrideState = overrideState);
-                        Toggle("Ambient Only", settings.ambientOcclusionLayer.ambientOnly.value, false, ambient => settings.ambientOcclusionLayer.ambientOnly.value = ambient);
+                        ToggleAlt("Ambient Only", settings.ambientOcclusionLayer.ambientOnly.value, false, ambient => settings.ambientOcclusionLayer.ambientOnly.value = ambient);
                     }
 
                 }
@@ -147,7 +147,7 @@ namespace Graphics.Inspector
                     VAOSettings vaoSettings = VAOManager.settings;
                     GUILayout.Space(30);
 
-                    Toggle("Enable", vaoSettings.Enabled, true, enabled => { vaoSettings.Enabled = enabled; VAOManager.UpdateSettings(); });
+                    ToggleAlt("Enable", vaoSettings.Enabled, true, enabled => { vaoSettings.Enabled = enabled; VAOManager.UpdateSettings(); });
                     if (vaoSettings.Enabled)
                     {
                         GUILayout.Space(30);
@@ -172,7 +172,7 @@ namespace Graphics.Inspector
 
                         Slider("BordersAO", vaoSettings.BordersIntensity.value, 0f, 1f, "N2", borders => { vaoSettings.BordersIntensity.value = borders; VAOManager.UpdateSettings(); }, vaoSettings.BordersIntensity.overrideState, overrideState => { vaoSettings.BordersIntensity.overrideState = overrideState; VAOManager.UpdateSettings(); });
                         Label("", "", true);
-                        Toggle("Limit Max Radius", vaoSettings.MaxRadiusEnabled.value, true, limitmaxradius => { vaoSettings.MaxRadiusEnabled.value = limitmaxradius; VAOManager.UpdateSettings(); });
+                        ToggleAlt("Limit Max Radius", vaoSettings.MaxRadiusEnabled.value, true, limitmaxradius => { vaoSettings.MaxRadiusEnabled.value = limitmaxradius; VAOManager.UpdateSettings(); });
 
                         if (vaoSettings.MaxRadiusEnabled.value)
                         {
@@ -206,7 +206,7 @@ namespace Graphics.Inspector
                             Slider("Power", vaoSettings.ColorBleedPower.value, 0f, 10f, "N2", colorbleedpower => { vaoSettings.ColorBleedPower.value = colorbleedpower; VAOManager.UpdateSettings(); }, vaoSettings.ColorBleedPower.overrideState, overrideState => { vaoSettings.ColorBleedPower.overrideState = overrideState; VAOManager.UpdateSettings(); });
                             Slider("Presence", vaoSettings.ColorBleedPresence.value, 0f, 10f, "N2", colorbleedpresence => { vaoSettings.ColorBleedPresence.value = colorbleedpresence; VAOManager.UpdateSettings(); }, vaoSettings.ColorBleedPresence.overrideState, overrideState => { vaoSettings.ColorBleedPresence.overrideState = overrideState; VAOManager.UpdateSettings(); });
                             Selection("Texture Format", vaoSettings.IntermediateScreenTextureFormat, intermediatetextureformat => { vaoSettings.IntermediateScreenTextureFormat = intermediatetextureformat; VAOManager.UpdateSettings(); });
-                            Toggle("Same Color Hue Attenuation", vaoSettings.ColorbleedHueSuppresionEnabled.value, true, huesuppresion => { vaoSettings.ColorbleedHueSuppresionEnabled.value = huesuppresion; VAOManager.UpdateSettings(); });
+                            ToggleAlt("Same Color Hue Attenuation", vaoSettings.ColorbleedHueSuppresionEnabled.value, true, huesuppresion => { vaoSettings.ColorbleedHueSuppresionEnabled.value = huesuppresion; VAOManager.UpdateSettings(); });
 
                             if (vaoSettings.ColorbleedHueSuppresionEnabled.value)
                             {
@@ -221,12 +221,12 @@ namespace Graphics.Inspector
                             //Causing plugin crush. Actual veriable is Int, Probably need conversion to enum.
                             //Selection("Quality", vaoSettings.ColorBleedQuality, colorbleedquality => vaoSettings.ColorBleedQuality = colorbleedquality);
                             Selection("Dampen Self Bleeding", vaoSettings.ColorBleedSelfOcclusionFixLevel, colorbleedocclusionfixlevel => { vaoSettings.ColorBleedSelfOcclusionFixLevel = colorbleedocclusionfixlevel; VAOManager.UpdateSettings(); });
-                            Toggle("Skip Backfaces", vaoSettings.GiBackfaces.value, true, gibackfaces => { vaoSettings.GiBackfaces.value = gibackfaces; VAOManager.UpdateSettings(); });
+                            ToggleAlt("Skip Backfaces", vaoSettings.GiBackfaces.value, true, gibackfaces => { vaoSettings.GiBackfaces.value = gibackfaces; VAOManager.UpdateSettings(); });
                         }
 
                         Label("", "", true);
                         Label("Performance Settings:", "", true);
-                        Toggle("Temporal Filtering", vaoSettings.EnableTemporalFiltering.value, true, temporalfiltering => { vaoSettings.EnableTemporalFiltering.value = temporalfiltering; VAOManager.UpdateSettings(); });
+                        ToggleAlt("Temporal Filtering", vaoSettings.EnableTemporalFiltering.value, true, temporalfiltering => { vaoSettings.EnableTemporalFiltering.value = temporalfiltering; VAOManager.UpdateSettings(); });
                         Selection("Adaptive Sampling", vaoSettings.AdaptiveType, adaptivetype => { vaoSettings.AdaptiveType = adaptivetype; VAOManager.UpdateSettings(); });
 
                         if (vaoSettings.EnableTemporalFiltering.value)
@@ -252,26 +252,26 @@ namespace Graphics.Inspector
 
                         Label("", "", true);
                         Label("Rendering Settings:", "", true);
-                        Toggle("Command Buffer", vaoSettings.CommandBufferEnabled.value, true, commandbuffer => { vaoSettings.CommandBufferEnabled.value = commandbuffer; VAOManager.UpdateSettings(); });
+                        ToggleAlt("Command Buffer", vaoSettings.CommandBufferEnabled.value, true, commandbuffer => { vaoSettings.CommandBufferEnabled.value = commandbuffer; VAOManager.UpdateSettings(); });
                         Selection("Normal Source", vaoSettings.NormalsSource, normalsource => { vaoSettings.NormalsSource = normalsource; VAOManager.UpdateSettings(); });
 
                         if (Graphics.Instance.CameraSettings.RenderingPath != CameraSettings.AIRenderingPath.Deferred)
                         {
                             Label("Rendering Mode: FORWARD", "", true);
-                            Toggle("High Precision Depth Buffer", vaoSettings.UsePreciseDepthBuffer.value, true, useprecisiondepthbuffer => { vaoSettings.UsePreciseDepthBuffer.value = useprecisiondepthbuffer; VAOManager.UpdateSettings(); });
+                            ToggleAlt("High Precision Depth Buffer", vaoSettings.UsePreciseDepthBuffer.value, true, useprecisiondepthbuffer => { vaoSettings.UsePreciseDepthBuffer.value = useprecisiondepthbuffer; VAOManager.UpdateSettings(); });
                         }
                         else
                         {
                             Label("", "", true);
                             Label("Rendering Mode: DEFERRED", "", true);
                             Selection("Cmd Buffer Integration", vaoSettings.VaoCameraEvent, vaocameraevent => { vaoSettings.VaoCameraEvent = vaocameraevent; VAOManager.UpdateSettings(); });
-                            Toggle("G-Buffer Depth & Normals", vaoSettings.UseGBuffer.value, true, usegbuffer => { vaoSettings.UseGBuffer.value = usegbuffer; VAOManager.UpdateSettings(); });
+                            ToggleAlt("G-Buffer Depth & Normals", vaoSettings.UseGBuffer.value, true, usegbuffer => { vaoSettings.UseGBuffer.value = usegbuffer; VAOManager.UpdateSettings(); });
                         }
 
                         Selection("Far Plane Source", vaoSettings.FarPlaneSource, farplanesource => { vaoSettings.FarPlaneSource = farplanesource; VAOManager.UpdateSettings(); });
 
                         Label("", "", true);
-                        Toggle("Luma Sensitivity", vaoSettings.IsLumaSensitive.value, true, lumasensitive => { vaoSettings.IsLumaSensitive.value = lumasensitive; VAOManager.UpdateSettings(); });
+                        ToggleAlt("Luma Sensitivity", vaoSettings.IsLumaSensitive.value, true, lumasensitive => { vaoSettings.IsLumaSensitive.value = lumasensitive; VAOManager.UpdateSettings(); });
 
                         if (vaoSettings.IsLumaSensitive.value)
                         {
@@ -290,7 +290,7 @@ namespace Graphics.Inspector
                             Slider("Blur Sharpness", vaoSettings.EnhancedBlurDeviation.value, 0.01f, 3.0f, "N2", enhancedblurdeviation => { vaoSettings.EnhancedBlurDeviation.value = enhancedblurdeviation; VAOManager.UpdateSettings(); }, vaoSettings.EnhancedBlurDeviation.overrideState, overrideState => { vaoSettings.EnhancedBlurDeviation.overrideState = overrideState; VAOManager.UpdateSettings(); });
                         }
                         Label("", "", true);
-                        Toggle("Debug Mode:", vaoSettings.OutputAOOnly.value, true, outputaoonly => { vaoSettings.OutputAOOnly.value = outputaoonly; VAOManager.UpdateSettings(); });
+                        ToggleAlt("Debug Mode:", vaoSettings.OutputAOOnly.value, true, outputaoonly => { vaoSettings.OutputAOOnly.value = outputaoonly; VAOManager.UpdateSettings(); });
                         Label("", "", true);
                     }
                 }
@@ -312,7 +312,7 @@ namespace Graphics.Inspector
                     }
                     else
                     {
-                        Toggle("Enable", gtaoSettings.Enabled, true, enabled => { gtaoSettings.Enabled = enabled; GTAOManager.UpdateSettings(); });
+                        ToggleAlt("Enable", gtaoSettings.Enabled, true, enabled => { gtaoSettings.Enabled = enabled; GTAOManager.UpdateSettings(); });
 
                         if (gtaoSettings.Enabled)
                         {
@@ -327,7 +327,7 @@ namespace Graphics.Inspector
 
                             Slider("TemporalScale", gtaoSettings.TemporalScale.value, 1f, 5f, "N2", temporalScale => { gtaoSettings.TemporalScale.value = temporalScale; GTAOManager.UpdateSettings(); }, gtaoSettings.TemporalScale.overrideState, overrideState => { gtaoSettings.TemporalScale.overrideState = overrideState; GTAOManager.UpdateSettings(); });
                             Slider("TemporalResponse", gtaoSettings.TemporalResponse.value, 0f, 1f, "N2", temporalResponse => { gtaoSettings.TemporalResponse.value = temporalResponse; GTAOManager.UpdateSettings(); }, gtaoSettings.TemporalResponse.overrideState, overrideState => { gtaoSettings.TemporalResponse.overrideState = overrideState; GTAOManager.UpdateSettings(); });
-                            Toggle("MultiBounce", gtaoSettings.MultiBounce.value, true, multiBounce => { gtaoSettings.MultiBounce.value = multiBounce; GTAOManager.UpdateSettings(); });
+                            ToggleAlt("MultiBounce", gtaoSettings.MultiBounce.value, true, multiBounce => { gtaoSettings.MultiBounce.value = multiBounce; GTAOManager.UpdateSettings(); });
                             GUILayout.Space(10);
                             Selection("Debug", gtaoSettings.Debug, debug => { gtaoSettings.Debug = debug; GTAOManager.UpdateSettings(); });
                         }
@@ -340,7 +340,7 @@ namespace Graphics.Inspector
                 {
                     AmplifyOccSettings amplifyOccSettings = AmplifyOccManager.settings;
                     GUILayout.Space(30);
-                    Toggle("Enable", amplifyOccSettings.Enabled, true, enabled => { amplifyOccSettings.Enabled = enabled; AmplifyOccManager.UpdateSettings(); });
+                    ToggleAlt("Enable", amplifyOccSettings.Enabled, true, enabled => { amplifyOccSettings.Enabled = enabled; AmplifyOccManager.UpdateSettings(); });
                     if (amplifyOccSettings.Enabled)
                     {
                         GUILayout.Space(30);
@@ -355,10 +355,10 @@ namespace Graphics.Inspector
                         Slider("Power Exponent", amplifyOccSettings.PowerExponent.value, 1f, 16f, "N2", powerExponent => { amplifyOccSettings.PowerExponent.value = powerExponent; AmplifyOccManager.UpdateSettings(); });
                         Slider("Thickness", amplifyOccSettings.Thickness.value, 0f, 1f, "N2", thickness => { amplifyOccSettings.Thickness.value = thickness; AmplifyOccManager.UpdateSettings(); });
                         GUILayout.Space(10);
-                        Toggle("Cache Aware", amplifyOccSettings.CacheAware.value, false, aware => { amplifyOccSettings.CacheAware.value = aware; AmplifyOccManager.UpdateSettings(); });
-                        Toggle("Downsample", amplifyOccSettings.Downsample.value, false, sample => { amplifyOccSettings.Downsample.value = sample; AmplifyOccManager.UpdateSettings(); });
+                        ToggleAlt("Cache Aware", amplifyOccSettings.CacheAware.value, false, aware => { amplifyOccSettings.CacheAware.value = aware; AmplifyOccManager.UpdateSettings(); });
+                        ToggleAlt("Downsample", amplifyOccSettings.Downsample.value, false, sample => { amplifyOccSettings.Downsample.value = sample; AmplifyOccManager.UpdateSettings(); });
                         GUILayout.Space(10);
-                        Toggle("BILATERAL BLUR", amplifyOccSettings.BlurEnabled.value, true, blurenabled => { amplifyOccSettings.BlurEnabled.value = blurenabled; AmplifyOccManager.UpdateSettings(); });
+                        ToggleAlt("BILATERAL BLUR", amplifyOccSettings.BlurEnabled.value, true, blurenabled => { amplifyOccSettings.BlurEnabled.value = blurenabled; AmplifyOccManager.UpdateSettings(); });
                         if (amplifyOccSettings.BlurEnabled.value)
                         {
                             GUILayout.Space(5);
@@ -367,7 +367,7 @@ namespace Graphics.Inspector
                             Slider("Blur Radius", amplifyOccSettings.BlurRadius.value, 1, 4, blurRadius => { amplifyOccSettings.BlurRadius.value = blurRadius; AmplifyOccManager.UpdateSettings(); });
                         }
                         GUILayout.Space(10);
-                        Toggle("TEMPORAL FILTER", amplifyOccSettings.FilterEnabled.value, true, enabled => { amplifyOccSettings.FilterEnabled.value = enabled; AmplifyOccManager.UpdateSettings(); });
+                        ToggleAlt("TEMPORAL FILTER", amplifyOccSettings.FilterEnabled.value, true, enabled => { amplifyOccSettings.FilterEnabled.value = enabled; AmplifyOccManager.UpdateSettings(); });
                         if (amplifyOccSettings.FilterEnabled.value)
                         {
                             GUILayout.Space(5);
@@ -375,7 +375,7 @@ namespace Graphics.Inspector
                             Slider("Filter Response", amplifyOccSettings.FilterResponse.value, 0f, 1f, "N2", filterResponse => { amplifyOccSettings.FilterResponse.value = filterResponse; AmplifyOccManager.UpdateSettings(); });
                         }
                         GUILayout.Space(10);
-                        Toggle("DISTANCE FADE", amplifyOccSettings.FadeEnabled.value, true, enabled => { amplifyOccSettings.FadeEnabled.value = enabled; AmplifyOccManager.UpdateSettings(); });
+                        ToggleAlt("DISTANCE FADE", amplifyOccSettings.FadeEnabled.value, true, enabled => { amplifyOccSettings.FadeEnabled.value = enabled; AmplifyOccManager.UpdateSettings(); });
                         if (amplifyOccSettings.FadeEnabled.value)
                         {
                             GUILayout.Space(5);
@@ -416,7 +416,7 @@ namespace Graphics.Inspector
                     SliderColor("Colour", settings.bloomLayer.color.value, colour => { settings.bloomLayer.color.value = colour; }, settings.bloomLayer.color.overrideState,
                         settings.bloomLayer.color.overrideState, overrideState => settings.bloomLayer.color.overrideState = overrideState);
                     GUILayout.Space(5);
-                    Toggle("Fast Mode", settings.bloomLayer.fastMode.value, false, fastMode => settings.bloomLayer.fastMode.value = fastMode);
+                    ToggleAlt("Fast Mode", settings.bloomLayer.fastMode.value, false, fastMode => settings.bloomLayer.fastMode.value = fastMode);
                     GUILayout.Space(5);
                     int lensDirtIndex = SelectionTexture("Lens Dirt", postprocessingManager.CurrentLensDirtTextureIndex, postprocessingManager.LensDirtPreviews, Inspector.Width / 105,
                         settings.bloomLayer.dirtTexture.overrideState, overrideState => settings.bloomLayer.dirtTexture.overrideState = overrideState, GUIStyles.Skin.box);
@@ -527,7 +527,7 @@ namespace Graphics.Inspector
                 if (settings.autoExposureLayer.enabled.value)
                 {
                     GUILayout.Space(30);
-                    Toggle("Histogram Filtering (%)", settings.autoExposureLayer.filtering.overrideState, false, overrideState => settings.autoExposureLayer.filtering.overrideState = overrideState);
+                    ToggleAlt("Histogram Filtering (%)", settings.autoExposureLayer.filtering.overrideState, false, overrideState => settings.autoExposureLayer.filtering.overrideState = overrideState);
                     Vector2 filteringRange = settings.autoExposureLayer.filtering.value;
                     Slider("Lower Bound", filteringRange.x, 1f, Math.Min(filteringRange.y, 99f), "N0", filtering => filteringRange.x = filtering, settings.autoExposureLayer.filtering.overrideState);
                     Slider("Upper Bound", filteringRange.y, Math.Max(filteringRange.x, 1f), 99f, "N0", filtering => filteringRange.y = filtering, settings.autoExposureLayer.filtering.overrideState);
@@ -539,7 +539,7 @@ namespace Graphics.Inspector
                         luminance => settings.autoExposureLayer.maxLuminance.value = luminance, settings.autoExposureLayer.maxLuminance.overrideState,
                         overrideState => settings.autoExposureLayer.maxLuminance.overrideState = overrideState);
                     GUILayout.Space(5);
-                    Toggle("Eye Adaptation", settings.autoExposureLayer.eyeAdaptation.overrideState, false, overrideState => settings.autoExposureLayer.eyeAdaptation.overrideState = overrideState);
+                    ToggleAlt("Eye Adaptation", settings.autoExposureLayer.eyeAdaptation.overrideState, false, overrideState => settings.autoExposureLayer.eyeAdaptation.overrideState = overrideState);
                     Selection("Type", settings.autoExposureLayer.eyeAdaptation.value, type => settings.autoExposureLayer.eyeAdaptation.value = type, -1,
                         settings.autoExposureLayer.eyeAdaptation.overrideState);
                     Slider("Speed from light to dark", settings.autoExposureLayer.speedUp.value, 0f, 10f, "N1",
@@ -565,7 +565,7 @@ namespace Graphics.Inspector
                     GUILayout.Space(10);
                     Slider("Intensity", settings.chromaticAberrationLayer.intensity.value, 0f, 5f, "N3", intensity => settings.chromaticAberrationLayer.intensity.value = intensity,
                         settings.chromaticAberrationLayer.intensity.overrideState, overrideState => settings.chromaticAberrationLayer.intensity.overrideState = overrideState);
-                    Toggle("Fast Mode", settings.chromaticAberrationLayer.fastMode.value, false, fastMode => settings.chromaticAberrationLayer.fastMode.value = fastMode);
+                    ToggleAlt("Fast Mode", settings.chromaticAberrationLayer.fastMode.value, false, fastMode => settings.chromaticAberrationLayer.fastMode.value = fastMode);
                 }
                 GUILayout.EndVertical();
             }
@@ -589,7 +589,7 @@ namespace Graphics.Inspector
 
                     if (null != focusPuller)
                     {
-                        Toggle("Auto Focus", focusPuller.enabled, false, enabled => focusPuller.enabled = enabled);
+                        ToggleAlt("Auto Focus", focusPuller.enabled, false, enabled => focusPuller.enabled = enabled);
                         Slider("Auto Focus Speed", focusPuller.Speed, FocusPuller.MinSpeed, FocusPuller.MaxSpeed, "N2", speed => focusPuller.Speed = speed, focusPuller.enabled);
                     }
                     Slider("Focal Distance", settings.depthOfFieldLayer.focusDistance.value, 0.1f, 1000f, "N2", focusDistance => settings.depthOfFieldLayer.focusDistance.value = focusDistance,
@@ -619,7 +619,7 @@ namespace Graphics.Inspector
                 if (settings.grainLayer.enabled.value)
                 {
                     GUILayout.Space(10);
-                    Toggle("Colored", settings.grainLayer.colored.overrideState, false, overrideState => settings.grainLayer.colored.overrideState = overrideState);
+                    ToggleAlt("Colored", settings.grainLayer.colored.overrideState, false, overrideState => settings.grainLayer.colored.overrideState = overrideState);
                     Slider("Intensity", settings.grainLayer.intensity.value, 0f, 20f, "N2", intensity => settings.grainLayer.intensity.value = intensity,
                         settings.grainLayer.intensity.overrideState, overrideState => settings.grainLayer.intensity.overrideState = overrideState);
                     Slider("Size", settings.grainLayer.size.value, 0f, 10f, "N0", focalLength => settings.grainLayer.size.value = focalLength,
@@ -680,7 +680,7 @@ namespace Graphics.Inspector
                         settings.vignetteLayer.smoothness.overrideState, overrideState => settings.vignetteLayer.smoothness.overrideState = overrideState);
                     Slider("Roundness", settings.vignetteLayer.roundness.value, 0f, 1f, "N3", vignette => settings.vignetteLayer.roundness.value = vignette,
                         settings.vignetteLayer.roundness.overrideState, overrideState => settings.vignetteLayer.roundness.overrideState = overrideState);
-                    Toggle("Rounded", settings.vignetteLayer.rounded, settings.vignetteLayer.rounded.overrideState, rounded => settings.vignetteLayer.rounded.value = rounded);
+                    ToggleAlt("Rounded", settings.vignetteLayer.rounded, settings.vignetteLayer.rounded.overrideState, rounded => settings.vignetteLayer.rounded.value = rounded);
                 }
                 GUILayout.EndVertical();
             }
@@ -708,9 +708,9 @@ namespace Graphics.Inspector
                 if (globalfogSettings.Enabled)
                 {
                     GUILayout.Space(30);
-                    Toggle("Distance Fog", globalfogSettings.distanceFog.value, false, distanceFog => { globalfogSettings.distanceFog.value = distanceFog; GlobalFogManager.UpdateSettings(); });
-                    Toggle("Exclude Far Pixels", globalfogSettings.excludeFarPixels.value, false, excludeFarPixels => { globalfogSettings.excludeFarPixels.value = excludeFarPixels; GlobalFogManager.UpdateSettings(); });
-                    Toggle("Use Radial Distance", globalfogSettings.useRadialDistance.value, false, useRadialDistance => { globalfogSettings.useRadialDistance.value = useRadialDistance; GlobalFogManager.UpdateSettings(); });
+                    ToggleAlt("Distance Fog", globalfogSettings.distanceFog.value, false, distanceFog => { globalfogSettings.distanceFog.value = distanceFog; GlobalFogManager.UpdateSettings(); });
+                    ToggleAlt("Exclude Far Pixels", globalfogSettings.excludeFarPixels.value, false, excludeFarPixels => { globalfogSettings.excludeFarPixels.value = excludeFarPixels; GlobalFogManager.UpdateSettings(); });
+                    ToggleAlt("Use Radial Distance", globalfogSettings.useRadialDistance.value, false, useRadialDistance => { globalfogSettings.useRadialDistance.value = useRadialDistance; GlobalFogManager.UpdateSettings(); });
 
                     Slider("Height", globalfogSettings.height.value, 1f, 100f, "N0", height => { globalfogSettings.height.value = height; GlobalFogManager.UpdateSettings(); });
                     Slider("Height Density", globalfogSettings.heightDensity.value, 0.001f, 10f, "N3", density => { globalfogSettings.heightDensity.value = density; GlobalFogManager.UpdateSettings(); });
@@ -753,7 +753,7 @@ namespace Graphics.Inspector
             //        });
 
             //        GUILayout.Space(30);
-            //        Toggle("Underwater Blur", blurSettings.Enabled, false, underwaterBlur => { blurSettings.Enabled = underwaterBlur; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
+            //        ToggleAlt("Underwater Blur", blurSettings.Enabled, false, underwaterBlur => { blurSettings.Enabled = underwaterBlur; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
             //        if (blurSettings.Enabled)
             //        {
             //            Slider("Blur Spread", blurSettings.BlurSpread.value, 0.1f, 1f, "N2", spread => { blurSettings.BlurSpread.value = spread; LuxWater_UnderwaterBlurManager.UpdateSettings(); });

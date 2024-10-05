@@ -21,7 +21,7 @@ namespace Graphics.CTAA
         [Header("CTAA Settings")]
         //Supersample mode can now be changed at runtime via Enum.
         [Tooltip("Super Sample Mode")]
-        public int SupersampleMode = 0;
+        public CTAA_MODE SupersampleMode = CTAA_MODE.STANDARD;
         [Space(5)]
         [Tooltip("Number of Frames to Blend via Re-Projection")]
         [Range(3, 16)] public int TemporalStability = 6;
@@ -62,7 +62,7 @@ namespace Graphics.CTAA
         private RenderTexture upScaleRT;
 
         //For detecting SS mode change.
-        private int prev_SupersampleMode;
+        private CTAA_MODE prev_SupersampleMode;
         //For detecting screen size change.
         private Vector2Int prev_ScreenXY;
         private Vector2Int orig_ScreenXY;
@@ -91,11 +91,11 @@ namespace Graphics.CTAA
         AssetBundle assetBundle;
         void SetResources()
         {
-            if (assetBundle == null)       
+            if (assetBundle == null)
                 assetBundle = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("ctaa.unity3d"));
 
-            if (ctaaMat == null)              ctaaMat           = new Material(assetBundle.LoadAsset<Shader>("assets/shaders/ctaa_pc.shader"));
-            if (mat_enhance == null)          mat_enhance       = new Material(assetBundle.LoadAsset<Shader>("assets/shaders/ctaa_enhance_pc.shader"));
+            if (ctaaMat == null) ctaaMat = new Material(assetBundle.LoadAsset<Shader>("assets/shaders/ctaa_pc.shader"));
+            if (mat_enhance == null) mat_enhance = new Material(assetBundle.LoadAsset<Shader>("assets/shaders/ctaa_enhance_pc.shader"));
         }
         void ClearResources()
         {
@@ -133,7 +133,7 @@ namespace Graphics.CTAA
         {
             if (ChangedSuperSamplingMode())
             {
-                if (SupersampleMode == 0)
+                if (SupersampleMode == CTAA_MODE.STANDARD)
                     MainCamera.targetTexture = null;
             }
 
@@ -150,36 +150,36 @@ namespace Graphics.CTAA
                 orig_ScreenXY.Set(MainCamera.pixelWidth, MainCamera.pixelHeight);
             }
 
-            m_LayerRenderCam.enabled = (SupersampleMode > 1) ? true : false;
+            m_LayerRenderCam.enabled = (SupersampleMode > CTAA_MODE.STANDARD) ? true : false;
             int depth = 0;
             bool preCreate = true;
             UpdateRT(ref upScaleRT, "RT_Upscale",
-                (SupersampleMode > 0) ? orig_ScreenXY.x << 1 : orig_ScreenXY.x,
-                (SupersampleMode > 0) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
+                (SupersampleMode > CTAA_MODE.STANDARD) ? orig_ScreenXY.x << 1 : orig_ScreenXY.x,
+                (SupersampleMode > CTAA_MODE.STANDARD) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
                 depth, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, FilterMode.Bilinear, TextureWrapMode.Clamp, preCreate);
             UpdateRT(ref rtAccum0, "RT_Accum0",
-                (SupersampleMode == 1) ? orig_ScreenXY.x << 1 : orig_ScreenXY.x,
-                (SupersampleMode == 1) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
+                (SupersampleMode == CTAA_MODE.CINA_ULTRA) ? orig_ScreenXY.x << 1 : orig_ScreenXY.x,
+                (SupersampleMode == CTAA_MODE.CINA_ULTRA) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
                 depth, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Default, FilterMode.Bilinear, TextureWrapMode.Clamp, preCreate);
             UpdateRT(ref rtAccum1, "RT_Accum1",
-                (SupersampleMode == 2) ? orig_ScreenXY.x << 1 : orig_ScreenXY.x,
-                (SupersampleMode == 2) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
+                (SupersampleMode == CTAA_MODE.CINA_ULTRA) ? orig_ScreenXY.x << 1 : orig_ScreenXY.x,
+                (SupersampleMode == CTAA_MODE.CINA_ULTRA) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
                 depth, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Default, FilterMode.Bilinear, TextureWrapMode.Clamp, preCreate);
             UpdateRT(ref afterPreEnhace, "RT_AfterPreEnhace",
-                (SupersampleMode > 0) ? orig_ScreenXY.x << 1 : orig_ScreenXY.x,
-                (SupersampleMode > 0) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
+                (SupersampleMode > CTAA_MODE.STANDARD) ? orig_ScreenXY.x << 1 : orig_ScreenXY.x,
+                (SupersampleMode > CTAA_MODE.STANDARD) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
                 depth, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Default, FilterMode.Bilinear, TextureWrapMode.Clamp, preCreate);
 
-            //if (SupersampleMode > 1)
-            //{
-            //    Graphics.Instance.Log.LogMessage($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
-            //              $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y} => Upscaled Size: {orig_ScreenXY.x << 1}x{orig_ScreenXY.y << 1}");
-            //}
-            //else
-            //{
-            //    Graphics.Instance.Log.LogMessage($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
-            //              $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y}");
-            //}
+            if (SupersampleMode > CTAA_MODE.STANDARD)
+            {
+                Debug.Log($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
+                          $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y} => Upscaled Size: {orig_ScreenXY.x << 1}x{orig_ScreenXY.y << 1}");
+            }
+            else
+            {
+                Debug.Log($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
+                          $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y}");
+            }
         }
         void ClearRT()
         {
@@ -257,8 +257,8 @@ namespace Graphics.CTAA
         {
             MainCamera = GetComponent<Camera>();
         }
-        private bool ChangedSuperSamplingMode() => 0 != SupersampleMode;
-        private void WriteSuperSamplingMode() => prev_SupersampleMode = 0;
+        private bool ChangedSuperSamplingMode() => prev_SupersampleMode != SupersampleMode;
+        private void WriteSuperSamplingMode() => prev_SupersampleMode = SupersampleMode;
         private bool ChangedScreenSize() => (prev_ScreenXY.x != MainCamera.pixelWidth) || (prev_ScreenXY.y != MainCamera.pixelHeight);
         private void WriteScreenSize() { prev_ScreenXY.x = MainCamera.pixelWidth; prev_ScreenXY.y = MainCamera.pixelHeight; }
         private bool NullRT() => (upScaleRT == null) || (rtAccum0 == null) || (rtAccum1 == null) || (afterPreEnhace == null);
@@ -274,7 +274,7 @@ namespace Graphics.CTAA
                 SetCTAACameras();
                 SetRT();
             }
-            if (SupersampleMode > 1)
+            if (SupersampleMode > CTAA_MODE.STANDARD)
             {
                 MainCamera.targetTexture = upScaleRT;
             }

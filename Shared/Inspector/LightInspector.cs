@@ -1,6 +1,9 @@
 ﻿using Graphics.Settings;
 using KKAPI.Studio;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.VR;
+using static Graphics.Inspector.Inspector;
 using static Graphics.Inspector.Util;
 using static Graphics.LightManager;
 
@@ -17,55 +20,34 @@ namespace Graphics.Inspector
         private static float lightbox = Inspector.Height * 0.25f;
         internal static void Draw(GlobalSettings renderingSettings, LightManager lightManager, LightingSettings lightingSettings, bool showAdvanced)
         {
-            GUIStyle TabHeader = new GUIStyle(GUIStyles.tabcontent);
-            TabHeader.padding = new RectOffset(25, 25, 0, 0);
-            TabHeader.margin = new RectOffset(0, 0, 15, 0);
-            TabHeader.normal.background = null;
-            TabHeader.fixedHeight = 61;
-            //TabHeader.fixedWidth = 200;
+            float lightbuttonwidth = Inspector.Width * 0.32f;
 
             GUIStyle Tab = new GUIStyle(GUIStyles.tabcontent);
             Tab.padding = new RectOffset(25, 25, 15, 15);
             Tab.margin = new RectOffset(0, 0, 0, 5);
             Tab.normal.background = null;
-            //Tab.fixedHeight = 56;
-            //Tab.fixedWidth = 200;
-
-            //GUIStyle LightSetting = new GUIStyle(GUI.skin.box);
-            //LightSetting.padding = new RectOffset(25, 25, 0, 25);
-            //LightSetting.normal.background = null;
-            ////LightSetting.fixedHeight = 56;
 
             GUIStyle LightList = new GUIStyle(GUIStyles.tabsmall);
             LightList.margin = new RectOffset(0, 0, 0, 10);
             LightList.padding = new RectOffset(10, 10, 10, 4);
-            //LightList.normal.background = null;
-            //LightList.fixedWidth = 400;
-            //LightList.fixedHeight = 400;
 
             GUIStyle LightButton = new GUIStyle(GUIStyles.tabsmall);
             LightButton.margin = new RectOffset(0, 0, 0, 0);
             LightButton.padding = new RectOffset(0, 0, 0, 0);
-            //LightButton.normal.background = null;
-            LightButton.fixedWidth = Inspector.Width * 0.32f;
+
+            LightButton.fixedWidth = lightbuttonwidth;
             LightButton.fixedHeight = lightbox;
 
             GUIStyle LightListBox = new GUIStyle(GUIStyles.tabcontent);
             LightListBox.margin = new RectOffset(0, 0, 0, 0);
             LightListBox.padding = new RectOffset(0, 0, 0, 0);
             LightListBox.normal.background = null;
-            LightListBox.fixedWidth = Inspector.Width * 0.32f;
+            LightListBox.fixedWidth = lightbuttonwidth;
             //LightListBox.fixedHeight = 400;
 
             GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);
             TabContent.padding = new RectOffset(0, 0, 0, 0);
             TabContent.margin = new RectOffset(0, 0, 0, 0);
-            //TabContent.normal.background = null;
-
-            //GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);
-            //TabContent.padding = new RectOffset(0, 0, 0, 0);
-            //TabContent.margin = new RectOffset(0, 0, 0, 0);
-            //EmptyBoxR.normal.background = null;
 
             int width = Inspector.Width;
 
@@ -76,7 +58,7 @@ namespace Graphics.Inspector
 
                 GUILayout.BeginHorizontal();
                 {
-                    if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Studio)
+                    if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Studio && showAdvanced)
                     {
                         if (GUILayout.Button("Save Map Lights to Preset"))
                         {
@@ -271,213 +253,7 @@ namespace Graphics.Inspector
 
                         if (null != lightManager.SelectedLight)
                         {
-                            if (lightManager.SelectedLight.Enabled)
-                            {
-                                AlloyAreaLight alloyLight = null;
-                                if (lightManager.UseAlloyLight)
-                                {
-                                    alloyLight = lightManager.SelectedLight.Light.GetComponent<AlloyAreaLight>();
-                                }
-                                if (Graphics.Instance.IsStudio())
-                                {
-                                    string currentAliasedName = PerLightSettings.NameForLight(lightManager.SelectedLight.Light);
-                                    //GUILayout.Space(10);
-                                    GUILayout.BeginHorizontal(TabHeader, GUILayout.ExpandWidth(false));
-                                    {
-
-                                        Text("LIGHT NAME", currentAliasedName, lightName =>
-                                        {
-
-
-                                            if (lightName != currentAliasedName && lightName != lightManager.SelectedLight.Light.name)
-                                            {
-                                                PerLightSettings.SetAlias(lightManager.SelectedLight.Light, lightName);
-                                            }
-                                            else if (lightName == lightManager.SelectedLight.Light.name && PerLightSettings.AliasedLight(lightManager.SelectedLight.Light))
-                                            {
-                                                PerLightSettings.ClearAlias(lightManager.SelectedLight.Light);
-                                            }
-                                            if (lightManager.SelectedLight != null && lightManager.SelectedLight.Light != null)
-                                            {
-                                                string currentLightName = lightManager.SelectedLight.Light.name;
-
-                                                if (lightName != currentLightName && !string.IsNullOrEmpty(lightName))
-                                                {
-                                                    lightManager.SelectedLight.Light.name = lightName;
-                                                }
-                                                else if (lightName == currentLightName && PerLightSettings.AliasedLight(lightManager.SelectedLight.Light))
-                                                {
-                                                    PerLightSettings.ClearAlias(lightManager.SelectedLight.Light);
-                                                }
-                                            }
-                                        },
-                                        !lightManager.SelectedLight.Light.transform.IsChildOf(GameObject.Find("StudioScene/Camera").transform));
-
-                                    }
-                                    GUILayout.EndHorizontal();
-                                }
-                                else
-                                {
-                                    GUILayout.BeginHorizontal(Tab);
-                                    Label(lightManager.SelectedLight.Light.name, "", true);
-
-                                    GUILayout.EndHorizontal();
-                                }                               
-                                {
-                                    GUILayout.BeginVertical(Tab);
-                                    Label("COLOR", "", true);
-                                    SliderColor("Color", lightManager.SelectedLight.Color, c => lightManager.SelectedLight.Color = c);
-
-                                    //if (renderingSettings.LightsUseColorTemperature)
-                                    //{
-                                    //    SliderTemp("Temperature (K)", lightManager.SelectedLight.Light.colorTemperature, 1f, 30000f, "N0", t =>
-                                    //        lightManager.SelectedLight.Light.colorTemperature = t);
-                                    //}
-
-                                    GUILayout.Space(30);
-                                    Label("SHADOWS", "", true);
-                                    Selection("Shadow Type", lightManager.SelectedLight.Shadows, type => lightManager.SelectedLight.Shadows = type);
-                                    Slider("Strength", lightManager.SelectedLight.Light.shadowStrength, 0f, 1f, "N2", strength => lightManager.SelectedLight.Light.shadowStrength = strength);
-                                    if (LightType.Directional == lightManager.SelectedLight.Type && renderingSettings.UsePCSS)
-                                        Slider("Resolution", lightManager.SelectedLight.ShadowCustomResolution, 0, PCSSLight.MaxShadowCustomResolution, resolution => lightManager.SelectedLight.ShadowCustomResolution = resolution);
-                                    else
-                                        Selection("Resolution", lightManager.SelectedLight.Light.shadowResolution, resolution => lightManager.SelectedLight.Light.shadowResolution = resolution, 2);
-                                    Slider("Bias", lightManager.SelectedLight.Light.shadowBias, 0f, 2f, "N3", bias => lightManager.SelectedLight.Light.shadowBias = bias);
-                                    Slider("Normal Bias", lightManager.SelectedLight.Light.shadowNormalBias, 0f, 3f, "N2", nbias => lightManager.SelectedLight.Light.shadowNormalBias = nbias);
-                                    Slider("Near Plane", lightManager.SelectedLight.Light.shadowNearPlane, 0f, 10f, "N2", np => lightManager.SelectedLight.Light.shadowNearPlane = np);
-                                    GUILayout.Space(30);
-                                    Label("INTENSITY", "", true);
-                                    Slider("Intensity", lightManager.SelectedLight.Intensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N2", i => lightManager.SelectedLight.Intensity = i);
-                                    Slider("Indirect Multiplier", lightManager.SelectedLight.Light.bounceIntensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N0", bi => lightManager.SelectedLight.Light.bounceIntensity = bi);
-                                    GUILayout.Space(10);
-                                    if (lightManager.SelectedLight.Type == LightType.Directional)
-                                    {
-                                        bool isSun = ReferenceEquals(lightManager.SelectedLight.Light, RenderSettings.sun);
-                                        //if (null != RenderSettings.sun && !isSun)
-                                        Toggle("Sun Source", isSun, false, suns =>
-                                        {
-                                            if (suns)
-                                            {
-                                                RenderSettings.sun = lightManager.SelectedLight.Light;
-                                                //ConnectSunToUnderwater.ConnectSun();
-                                            }
-                                            else
-                                            {
-                                                RenderSettings.sun = null;
-                                            }
-                                        });
-
-                                        //if (null != Graphics.Instance.CameraSettings.MainCamera && null == segi)
-                                        //segi = Graphics.Instance.CameraSettings.MainCamera.GetComponent<SEGI.SEGI>();
-
-                                        //if (null != segi && segi.enabled)
-                                        //{
-                                        //    bool isSEGISun = ReferenceEquals(lightManager.SelectedLight.Light, segi.sun);
-                                        //    if (null != segi.sun && !isSEGISun)
-                                        //    GUI.enabled = false;
-                                        //    Toggle("SEGI Sun source", isSEGISun, false, sun =>
-                                        //    {
-                                        //        if (sun)
-                                        //        {
-                                        //            segi.sun = lightManager.SelectedLight.Light;
-                                        //        }
-                                        //        else
-                                        //        {
-                                        //            segi.sun = null;
-                                        //        }
-                                        //    });
-                                        //    GUI.enabled = true;
-                                        //}
-
-                                        if (lightManager.SelectedLight.Light.name != "Cam Light" || !lightManager.SelectedLight.Light.transform.IsChildOf(GameObject.Find("StudioScene/Camera").transform))
-                                        {
-                                            if (!lightManager.SelectedLight.AdditionalCamLight)
-                                            {
-                                                Vector3 rot = lightManager.SelectedLight.Rotation;
-                                                GUILayout.Space(30);
-                                                Label("POSITION", "", true);
-                                                Slider("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
-                                                Slider("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
-
-                                                if (rot != lightManager.SelectedLight.Rotation)
-                                                {
-                                                    lightManager.SelectedLight.Rotation = rot;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (!StudioAPI.InsideStudio)
-                                                {
-                                                    GraphicsAdditionalCamLight graphicsAdditionalCamLight = lightManager.SelectedLight.Light.gameObject.GetComponent<GraphicsAdditionalCamLight>();
-                                                    Vector3 rot = graphicsAdditionalCamLight.OriginalRotation.eulerAngles;
-                                                    GUILayout.Space(30);
-                                                    Label("POSITION", "", true);
-                                                    Slider("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
-                                                    Slider("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
-
-                                                    if (rot != graphicsAdditionalCamLight.OriginalRotation.eulerAngles)
-                                                    {
-                                                        graphicsAdditionalCamLight.OriginalRotation = Quaternion.Euler(rot);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    Vector3 rot = lightManager.SelectedLight.OciLight.guideObject.changeAmount.rot;
-                                                    GUILayout.Space(30);
-                                                    Label("POSITION", "", true);
-                                                    Slider("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
-                                                    Slider("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
-
-                                                    if (rot != lightManager.SelectedLight.OciLight.guideObject.changeAmount.rot)
-                                                    {
-                                                        lightManager.SelectedLight.OciLight.guideObject.changeAmount.rot = rot;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Slider("Light Range", lightManager.SelectedLight.Range, 0.1f, 500f, "N1", range => { lightManager.SelectedLight.Range = range; });
-                                        if (lightManager.SelectedLight.Type == LightType.Spot)
-                                        {
-                                            Slider("Spot Angle", lightManager.SelectedLight.SpotAngle, 1f, 179f, "N1", angle => { lightManager.SelectedLight.SpotAngle = angle; });
-                                        }
-                                    }
-                                    GUILayout.Space(10);
-                                    if (lightManager.UseAlloyLight && alloyLight.HasSpecularHighlight && null != alloyLight)
-                                    {
-                                        Slider("Specular Highlight", alloyLight.Radius, 0f, 1f, "N2", i => alloyLight.Radius = i);
-
-                                        if (lightManager.SelectedLight.Type == LightType.Point)
-                                        {
-                                            Slider("Length", alloyLight.Length, 0f, 1f, "N2", i => alloyLight.Length = i);
-                                        }
-                                    }
-                                    if (!lightManager.SelectedLight.IsNotAdditionalCamAvailable && (lightManager.SelectedLight.Type == LightType.Directional || lightManager.SelectedLight.Type == LightType.Spot))
-                                    {
-                                        Toggle("Additional Cam Light", lightManager.SelectedLight.AdditionalCamLight, false, addCamLight => lightManager.SelectedLight.AdditionalCamLight = addCamLight);
-                                    }
-                                    SelectionMask("Culling Mask", lightManager.SelectedLight.Light.cullingMask, mask => lightManager.SelectedLight.Light.cullingMask = mask, 2);
-                                    if (showAdvanced)
-                                    {
-                                        Selection("Render Mode", lightManager.SelectedLight.Light.renderMode, mode => lightManager.SelectedLight.Light.renderMode = mode);
-                                        
-                                    }
-
-                                    GUILayout.EndVertical();
-                                }
-                                
-
-                            }
-                            else
-                            {
-                                GUILayout.BeginVertical(Tab);
-                                {
-                                    Label("Selected light is disabled.", "");
-                                }
-                                GUILayout.EndVertical();
-                            }
+                            DrawLightSettings(lightManager, renderingSettings);
                         }
                         else
                         {
@@ -488,15 +264,6 @@ namespace Graphics.Inspector
                             GUILayout.EndVertical();
                         }
                         GUILayout.FlexibleSpace();
-                        GUILayout.BeginVertical(Tab);
-                        {
-                            Label("GLOBAL SETTINGS", "", true);
-                            Toggle("Use Alloy Light", lightManager.UseAlloyLight, false, useAlloy => lightManager.UseAlloyLight = useAlloy);
-                            Toggle("Lights Use Linear Intensity", renderingSettings.LightsUseLinearIntensity, false, useLinear => renderingSettings.LightsUseLinearIntensity = useLinear);
-                            //Toggle("Lights Use Color Temperature", renderingSettings.LightsUseColorTemperature, false, useTemperature => renderingSettings.LightsUseColorTemperature = useTemperature);
-                            GUILayout.Space(15);
-                        }
-                        GUILayout.EndVertical();
                     }
                     GUILayout.EndVertical();
                     GUILayout.EndScrollView();
@@ -512,25 +279,329 @@ namespace Graphics.Inspector
             }
 
         }
+        private static bool IsLightNameValid(string lightName, string currentAliasedName)
+        {
+            return !string.IsNullOrEmpty(lightName) && lightName != currentAliasedName;
+        }
 
-        //private static void LightGroup(LightManager lightManager, string typeName, LightSettings.LightType type)
-        //{
+        private static void UpdateLightName(string lightName, LightManager lightManager, string currentAliasedName)
+        {
+            var selectedLight = lightManager.SelectedLight?.Light;
+            if (selectedLight == null) return;
 
-        //    GUIStyle EmptyBoxR = new GUIStyle(GUI.skin.box);
-        //    EmptyBoxR.padding = new RectOffset(25, 25, 0, 0);
-        //    EmptyBoxR.normal.background = null;
+            string currentLightName = selectedLight.name;
 
-        //    EmptyBoxR.fixedHeight = 56;
-        //    EmptyBoxR.fixedWidth = 400;
+            if (IsLightNameValid(lightName, currentAliasedName) && lightName != currentLightName)
+            {
+                selectedLight.name = lightName;
+            }
+            else if (lightName == currentLightName && PerLightSettings.AliasedLight(selectedLight))
+            {
+                PerLightSettings.ClearAlias(selectedLight);
+            }
+        }
 
-        //    GUILayout.BeginHorizontal(EmptyBoxR);
-        //    {
-        //        Label(typeName, "", true);
-        //        //GUILayout.FlexibleSpace();
+        private static void HandleAlias(string lightName, LightManager lightManager, string currentAliasedName)
+        {
+            if (IsLightNameValid(lightName, currentAliasedName))
+            {
+                PerLightSettings.SetAlias(lightManager.SelectedLight.Light, lightName);
+            }
+            else if (lightName == lightManager.SelectedLight.Light.name && PerLightSettings.AliasedLight(lightManager.SelectedLight.Light))
+            {
+                PerLightSettings.ClearAlias(lightManager.SelectedLight.Light);
+            }
+        }
+        private static void DrawLightSettings(LightManager lightManager, GlobalSettings renderingSettings)
+        {
+            GUIStyle TabHeader = new GUIStyle(GUIStyles.tabcontent);
+            TabHeader.padding = new RectOffset(25, 25, 0, 0);
+            TabHeader.margin = new RectOffset(0, 0, 15, 0);
+            TabHeader.normal.background = null;
+            TabHeader.fixedHeight = 61;
+            //TabHeader.fixedWidth = 200;
 
-        //    }
-        //    GUILayout.EndHorizontal();
-        //}
+
+            GUIStyle Tab = new GUIStyle(GUIStyles.tabcontent);
+            Tab.padding = new RectOffset(25, 25, 15, 15);
+            Tab.margin = new RectOffset(0, 0, 0, 5);
+            Tab.normal.background = null;
+
+            if (lightManager.SelectedLight.Enabled)
+            {
+                AlloyAreaLight alloyLight = null;
+                if (lightManager.UseAlloyLight)
+                {
+                    alloyLight = lightManager.SelectedLight.Light.GetComponent<AlloyAreaLight>();
+                }
+                if (Graphics.Instance.IsStudio())
+                {
+                    string currentAliasedName = PerLightSettings.NameForLight(lightManager.SelectedLight.Light);
+                    //GUILayout.Space(10);
+
+
+                    GUILayout.BeginHorizontal(TabHeader, GUILayout.ExpandWidth(false));
+                    {
+                        Text("LIGHT NAME", currentAliasedName, lightName =>
+                        {
+                            HandleAlias(lightName, lightManager, currentAliasedName);
+                            UpdateLightName(lightName, lightManager, currentAliasedName);
+                        },
+                        !lightManager.SelectedLight.Light.transform.IsChildOf(GameObject.Find("StudioScene/Camera").transform));
+                    }
+                    GUILayout.EndHorizontal();
+                }
+                else
+                {
+                    GUILayout.BeginHorizontal(Tab);
+                    Label(lightManager.SelectedLight.Light.name, "", true);
+
+                    GUILayout.EndHorizontal();
+                }
+
+                GUILayout.BeginVertical(Tab);
+                //------------------------------PutlogicHere
+                switch (lightManager.SelectedLight.Type)
+                {
+                    case LightType.Point:
+                        DrawPointLightSettings(lightManager, alloyLight, renderingSettings);
+                        break;
+                    case LightType.Directional:
+                        DrawDirectionalLightSettings(lightManager, alloyLight, renderingSettings);
+                        break;
+                    case LightType.Spot:
+                        DrawSpotLightSettings(lightManager, alloyLight, renderingSettings);
+                        break;
+                    default:
+                        GUILayout.Label("Unknown light type");
+                        break;
+                }
+                GUILayout.EndVertical();
+            }
+            else
+            {
+                GUILayout.BeginVertical(Tab);
+                {
+                    Label("Selected light is disabled.", "");
+                }
+                GUILayout.EndVertical();
+            }
+        }
+
+        private static void DrawDirectionalLightSettings(LightManager lightManager, AlloyAreaLight alloyLight, GlobalSettings renderingSettings)
+        {
+            DrawBasicSettings(lightManager, renderingSettings);
+            //Sun
+            DrawSunSettings(lightManager);
+            //Position
+            DrawPositionSetting(lightManager);
+            //Additional Cam
+            DrawAdditionalCamLight(lightManager);
+            //Shadows
+            DrawDirShadowsSettings(lightManager);
+            //Layers
+            DrawLayersSettings(lightManager);
+            //Alloy
+            DrawAlloySettings(lightManager, alloyLight);
+        }
+        private static void DrawSpotLightSettings(LightManager lightManager, AlloyAreaLight alloyLight, GlobalSettings renderingSettings)
+        {
+            DrawBasicSettings(lightManager, renderingSettings);
+            //Position
+            DrawSpotControls(lightManager);
+            //Additional Cam
+            DrawAdditionalCamLight(lightManager);
+            //Shadows
+            DrawLocalShadowsSettings(lightManager);
+            //Layers
+            DrawLayersSettings(lightManager);
+            //Alloy
+            DrawAlloySettings(lightManager, alloyLight);
+        }
+        private static void DrawPointLightSettings(LightManager lightManager, AlloyAreaLight alloyLight, GlobalSettings renderingSettings)
+        {
+            DrawBasicSettings(lightManager, renderingSettings);
+            //Position
+            DrawPointControls(lightManager);
+            //Additional Cam
+            DrawAdditionalCamLight(lightManager);
+            //Shadows
+            DrawLocalShadowsSettings(lightManager);
+            //Layers
+            DrawLayersSettings(lightManager);
+            //Alloy
+            DrawAlloySettings(lightManager, alloyLight);
+        }
+
+        private static void DrawBasicSettings(LightManager lightManager, GlobalSettings renderingSettings)
+        {
+            Label("COLOR", "", true);
+            GUILayout.Space(10);
+            SliderColor("Color", lightManager.SelectedLight.Color, c => lightManager.SelectedLight.Color = c);
+            GUILayout.Space(20);
+            Label("INTENSITY", "", true);
+            GUILayout.Space(10);
+            Slider("Intensity", lightManager.SelectedLight.Intensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N2", i => lightManager.SelectedLight.Intensity = i);
+            //Slider("Indirect Multiplier", lightManager.SelectedLight.Light.bounceIntensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N0", bi => lightManager.SelectedLight.Light.bounceIntensity = bi);
+            ToggleAlt("Linear Intensity", renderingSettings.LightsUseLinearIntensity, false, useLinear => renderingSettings.LightsUseLinearIntensity = useLinear);
+        }
+        private static void DrawSunSettings(LightManager lightManager)
+        {
+            bool isSun = ReferenceEquals(lightManager.SelectedLight.Light, RenderSettings.sun);
+            GUILayout.Space(20);
+            Label("SUN", "", true);
+            GUILayout.Space(10);
+            ToggleAlt("Sun Source", isSun, false, suns =>
+            {
+                if (suns)
+                {
+                    RenderSettings.sun = lightManager.SelectedLight.Light;
+                    //ConnectSunToUnderwater.ConnectSun();
+                }
+                else
+                {
+                    RenderSettings.sun = null;
+                }
+            });
+        }
+        private static void DrawAdditionalCamLight(LightManager lightManager)
+        {
+            if (!lightManager.SelectedLight.IsNotAdditionalCamAvailable)
+            {
+                GUILayout.Space(20);
+                ToggleAlt("Additional Cam Light", lightManager.SelectedLight.AdditionalCamLight, false, addCamLight => lightManager.SelectedLight.AdditionalCamLight = addCamLight);
+            }
+        }
+        private static void DrawPositionSetting(LightManager lightManager)
+        {
+            if (lightManager.SelectedLight.Light.name != "Cam Light" || !lightManager.SelectedLight.Light.transform.IsChildOf(GameObject.Find("StudioScene/Camera").transform))
+            {
+                if (!lightManager.SelectedLight.AdditionalCamLight)
+                {
+                    Vector3 rot = lightManager.SelectedLight.Rotation;
+                    GUILayout.Space(20);
+                    Label("POSITION", "", true);
+                    GUILayout.Space(10);
+                    Slider("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
+                    Slider("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
+
+                    if (rot != lightManager.SelectedLight.Rotation)
+                    {
+                        lightManager.SelectedLight.Rotation = rot;
+                    }
+                }
+                else
+                {
+                    if (!StudioAPI.InsideStudio)
+                    {
+                        GraphicsAdditionalCamLight graphicsAdditionalCamLight = lightManager.SelectedLight.Light.gameObject.GetComponent<GraphicsAdditionalCamLight>();
+                        Vector3 rot = graphicsAdditionalCamLight.OriginalRotation.eulerAngles;
+                        GUILayout.Space(20);
+                        Label("POSITION", "", true);
+                        GUILayout.Space(10);
+                        Slider("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
+                        Slider("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
+
+                        if (rot != graphicsAdditionalCamLight.OriginalRotation.eulerAngles)
+                        {
+                            graphicsAdditionalCamLight.OriginalRotation = Quaternion.Euler(rot);
+                        }
+                    }
+                    else
+                    {
+                        Vector3 rot = lightManager.SelectedLight.OciLight.guideObject.changeAmount.rot;
+                        GUILayout.Space(20);
+                        Label("POSITION", "", true);
+                        GUILayout.Space(10);
+                        Slider("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
+                        Slider("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
+
+                        if (rot != lightManager.SelectedLight.OciLight.guideObject.changeAmount.rot)
+                        {
+                            lightManager.SelectedLight.OciLight.guideObject.changeAmount.rot = rot;
+                        }
+                    }
+                }
+            }
+        }
+        private static void DrawPointControls(LightManager lightManager)
+        {
+            GUILayout.Space(30);
+            Slider("Light Range", lightManager.SelectedLight.Range, 0.1f, 500f, "N1", range => { lightManager.SelectedLight.Range = range; });
+        }
+        private static void DrawSpotControls(LightManager lightManager)
+        {
+            GUILayout.Space(30);
+            Slider("Light Range", lightManager.SelectedLight.Range, 0.1f, 500f, "N1", range => { lightManager.SelectedLight.Range = range; });
+            Slider("Spot Angle", lightManager.SelectedLight.SpotAngle, 1f, 179f, "N1", angle => { lightManager.SelectedLight.SpotAngle = angle; });
+
+        }
+        private static void DrawAlloySettings(LightManager lightManager, AlloyAreaLight alloyLight)
+        {
+            GUI.enabled = false;
+
+            GUILayout.Space(20);
+            Label("SPECULARITY", "", true);
+            GUILayout.Space(10);
+            ToggleAlt("Use Alloy Light", lightManager.UseAlloyLight, false, useAlloy => lightManager.UseAlloyLight = false);
+            GUILayout.Space(10);
+            if (lightManager.UseAlloyLight && null != alloyLight)
+            {
+                ToggleAlt("Specular Highlight", alloyLight.HasSpecularHighlight, false, highlight => alloyLight.HasSpecularHighlight = highlight);
+                if (alloyLight.HasSpecularHighlight)
+                {
+                    GUILayout.Space(10);
+                    Slider("Specular Size", alloyLight.Radius, 0f, 1f, "N2", i => alloyLight.Radius = i);
+
+                    if (lightManager.SelectedLight.Type == LightType.Point)
+                    {
+                        GUILayout.Space(10);
+                        Slider("Length", alloyLight.Length, 0f, 1f, "N2", i => alloyLight.Length = i);
+                    }
+                }
+            }
+            GUI.enabled = true;
+        }
+        private static void DrawDirShadowsSettings(LightManager lightManager)
+        {
+            GUILayout.Space(20);
+            Label("SHADOWS", "", true);
+            GUILayout.Space(10);
+            Selection("Shadow Type", lightManager.SelectedLight.Shadows, type => lightManager.SelectedLight.Shadows = type);
+            if (lightManager.SelectedLight.Shadows == LightShadows.Soft)
+            {
+                Slider("Strength", lightManager.SelectedLight.Light.shadowStrength, 0f, 1f, "N2", strength => lightManager.SelectedLight.Light.shadowStrength = strength);
+                Slider("Bias", lightManager.SelectedLight.Light.shadowBias, 0f, 2f, "N3", bias => lightManager.SelectedLight.Light.shadowBias = bias);
+                Slider("Normal Bias", lightManager.SelectedLight.Light.shadowNormalBias, 0f, 3f, "N2", nbias => lightManager.SelectedLight.Light.shadowNormalBias = nbias);
+                Slider("Near Plane", lightManager.SelectedLight.Light.shadowNearPlane, 0f, 10f, "N2", np => lightManager.SelectedLight.Light.shadowNearPlane = np);
+                Selection("Resolution", lightManager.SelectedLight.Light.shadowResolution, resolution => lightManager.SelectedLight.Light.shadowResolution = resolution, 2);
+
+            }
+        }
+        private static void DrawLocalShadowsSettings(LightManager lightManager)
+        {
+            GUILayout.Space(20);
+            Label("SHADOWS", "", true);
+            GUILayout.Space(10);
+            Selection("Shadow Type", lightManager.SelectedLight.Shadows, type => lightManager.SelectedLight.Shadows = type);
+            if (lightManager.SelectedLight.Shadows == LightShadows.Soft)
+            {
+                Slider("Strength", lightManager.SelectedLight.Light.shadowStrength, 0f, 1f, "N2", strength => lightManager.SelectedLight.Light.shadowStrength = strength);
+                Slider("Bias", lightManager.SelectedLight.Light.shadowBias, 0f, 2f, "N3", bias => lightManager.SelectedLight.Light.shadowBias = bias);
+                Slider("Normal Bias", lightManager.SelectedLight.Light.shadowNormalBias, 0f, 3f, "N2", nbias => lightManager.SelectedLight.Light.shadowNormalBias = nbias);
+                Slider("Near Plane", lightManager.SelectedLight.Light.shadowNearPlane, 0f, 10f, "N2", np => lightManager.SelectedLight.Light.shadowNearPlane = np);
+                Selection("Resolution", lightManager.SelectedLight.Light.shadowResolution, resolution => lightManager.SelectedLight.Light.shadowResolution = resolution, 2);
+
+            }
+        }
+
+        private static void DrawLayersSettings(LightManager lightManager)
+        {
+            GUILayout.Space(20);
+            Label("LAYERS", "", true);
+            GUILayout.Space(10);
+            SelectionMask("Culling Mask", lightManager.SelectedLight.Light.cullingMask, mask => lightManager.SelectedLight.Light.cullingMask = mask, 2);
+        }
 
         private static GameObject lightToDestroy = null;
         private static void LightOverviewModule(LightManager lightManager, LightObject l)
@@ -560,7 +631,6 @@ namespace Graphics.Inspector
 
             GUILayout.EndHorizontal();
         }
-
         public static void OnLightNameChanged(string newLightName, LightManager lightManager)
         {
             if (lightManager.SelectedLight != null && lightManager.SelectedLight.Light != null)
@@ -577,5 +647,7 @@ namespace Graphics.Inspector
                 }
             }
         }
+
+
     }
 }

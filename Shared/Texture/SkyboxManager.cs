@@ -4,6 +4,7 @@ using MessagePack;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -22,7 +23,6 @@ namespace Graphics.Textures
         public bool projection;
         public float horizon;
         public float scale;
-
 
         public SkyboxParams(float exposure, float rotation, Color tint, string selectedCubeMap, bool projection, float horizon, float scale)
         {
@@ -122,7 +122,7 @@ namespace Graphics.Textures
                 if (Skyboxbg.IsKeywordEnabled("_GROUNDPROJECTION"))
                 {
                     Skyboxbg.EnableKeyword("_GROUNDPROJECTION");
-                }    
+                }
                 else
                 {
                     Skyboxbg.DisableKeyword("_GROUNDPROJECTION");
@@ -311,7 +311,7 @@ namespace Graphics.Textures
             if (Skybox.shader.name == "Skybox/Cubemap")
             {
                 ReplaceShader();
-            }        
+            }
             ApplySkybox();
             yield return null;
             ApplySkyboxParams();
@@ -384,30 +384,57 @@ namespace Graphics.Textures
 
         internal override IEnumerator LoadPreview(string filePath)
         {
-            AssetBundleCreateRequest assetBundleCreateRequest = AssetBundle.LoadFromFileAsync(filePath);
-            yield return assetBundleCreateRequest;
-            AssetBundle cubemapbundle = assetBundleCreateRequest?.assetBundle;
-            AssetBundleRequest bundleRequest = assetBundleCreateRequest?.assetBundle?.LoadAssetAsync<Cubemap>("skybox");
-            yield return bundleRequest;
-            if (null == bundleRequest || null == bundleRequest.asset)
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
+            string pngFilePath = Path.Combine(Path.GetDirectoryName(filePath), fileNameWithoutExtension + ".png");
+
+
+            if (!File.Exists(pngFilePath))
             {
+                AssetBundleCreateRequest assetBundleCreateRequest = AssetBundle.LoadFromFileAsync(filePath);
+                yield return assetBundleCreateRequest;
+                AssetBundle cubemapbundle = assetBundleCreateRequest?.assetBundle;
+                AssetBundleRequest bundleRequest = assetBundleCreateRequest?.assetBundle?.LoadAssetAsync<Cubemap>("skybox");
+                yield return bundleRequest;
+                if (null == bundleRequest || null == bundleRequest.asset)
+                {
+                    _assetsToLoad--;
+                    yield break;
+                }
+                Cubemap cubemap = bundleRequest.asset as Cubemap;
+                Texture2D texture = new Texture2D(cubemap.width, cubemap.height);
+                Color[] CubeMapColors = cubemap.GetPixels(CubemapFace.PositiveX);
+                texture.SetPixels(CubeMapColors);
+                Util.ResizeTexture(texture, 128, 128, true);
+
+                // Сохраняем текстуру как PNG
+                byte[] TextureBytes = texture.EncodeToPNG();
+                File.WriteAllBytes(pngFilePath, TextureBytes);
+
+                Previews.Add(texture);
+                TexturePaths.Add(filePath);
+                cubemapbundle.Unload(false);
+                cubemapbundle = null;
+                bundleRequest = null;
+                assetBundleCreateRequest = null;
+                CubeMapColors = null;
+                texture = null;
+                //_assetsToLoad--;
                 _assetsToLoad--;
-                yield break;
+                Graphics.Instance.Log.LogMessage($"Preview for {filePath} generated.");
             }
-            Cubemap cubemap = bundleRequest.asset as Cubemap;
-            Texture2D texture = new Texture2D(cubemap.width, cubemap.height);
-            Color[] CubeMapColors = cubemap.GetPixels(CubemapFace.PositiveX);
-            texture.SetPixels(CubeMapColors);
-            Util.ResizeTexture(texture, 128, 128, true);
-            Previews.Add(texture);
-            TexturePaths.Add(filePath);
-            cubemapbundle.Unload(false);
-            cubemapbundle = null;
-            bundleRequest = null;
-            assetBundleCreateRequest = null;
-            CubeMapColors = null;
-            texture = null;
-            _assetsToLoad--;
+            else
+            {
+                byte[] textureByte = File.ReadAllBytes(pngFilePath);
+                Texture2D texture = KKAPI.Utilities.TextureUtils.LoadTexture(textureByte);
+                Util.ResizeTexture(texture, 128, 128, false);
+
+                Previews.Add(texture);
+                TexturePaths.Add(filePath);
+                texture = null;
+                _assetsToLoad--;
+
+            }
+
         }
 
         internal ReflectionProbe DefaultReflectionProbe()
@@ -416,12 +443,12 @@ namespace Graphics.Textures
             {
                 SetupDefaultReflectionProbe(Graphics.Instance.LightingSettings);
             }
-                            
+
             return _probe;
         }
 
         internal void SetupDefaultReflectionProbe(LightingSettings lights, bool forceDefaultCreation = false)
-        {            
+        {
             ReflectionProbe[] rps = GetReflectinProbes();
 
             bool needDefaultProbe = !(rps.Where(probe => probe.mode == ReflectionProbeMode.Realtime && probe != _probe).ToArray().Length > 0);
@@ -464,7 +491,7 @@ namespace Graphics.Textures
             {
                 Graphics.Instance.Log.LogInfo($"Disabling Default Reflection Probe");
                 DestroyImmediate(_probeGameObject);
-            }            
+            }
         }
 
         internal ReflectionProbe[] GetReflectinProbes()

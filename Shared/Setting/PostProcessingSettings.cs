@@ -44,6 +44,8 @@ namespace Graphics.Settings
 
         public bool PostVolumeMap = false;
 
+        public bool filterDithering = true;
+
         public AmbientOcclusionList AOList;
         //public PixelizeList PixList;
         //public GlitchList GList;
@@ -383,6 +385,12 @@ namespace Graphics.Settings
         internal Transform VolumeTriggerSetting => _postProcessLayer.volumeTrigger;
 
         public LayerMask VolumeLayerSetting => PostProcessLayer.volumeLayer;
+
+        public bool FilterDithering
+        {
+            get => filterDithering;
+            set => filterDithering = value;
+        }
 
         public float JitterSpread
         {

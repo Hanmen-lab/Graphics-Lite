@@ -5,6 +5,7 @@ using UnityEngine.Rendering.PostProcessing;
 using System.Collections.Generic;
 using Illusion.Extensions;
 using System.Linq;
+using Graphics.CTAA;
 
 namespace Graphics
 {
@@ -48,7 +49,7 @@ namespace Graphics
         [Range(0, 10f)] public bool ShowCameras;
         public bool ShowGUI;
         private SSS_convolution sss_convolution;
-
+        private CTAA.CTAA_PC ctaa;
         public bool MirrorSSS;
 
         [HideInInspector] public RenderTexture SSS_ProfileTex, SSS_ProfileTexR, LightingTex, LightingTexBlurred, LightingTexR, LightingTexBlurredR;
@@ -151,6 +152,9 @@ namespace Graphics
                     LightingCamera = LightingCameraGO.GetComponent<Camera>();
                     LightingCamera.enabled = false;
                     LightingCamera.depth = -846;
+
+                    ctaa = LightingCameraGO.AddComponent<CTAA.CTAA_PC>();
+
                     sss_convolution = LightingCameraGO.AddComponent<SSS_convolution>();
                     sss_convolution.BlurShader = Shader.Find("Hidden/SeparableSSS");
                     if (null == sss_convolution.BlurShader && null != _separableSSS)
@@ -377,7 +381,17 @@ namespace Graphics
                 //        }
                 //    }
                 //}
-
+                if (ctaa is null)
+                {
+                    ctaa = LightingCamera.gameObject.GetComponent<CTAA.CTAA_PC>();
+                }
+                ctaa.enabled = CTAAManager.settings.Enabled;
+                ctaa.TemporalStability = CTAAManager.settings.TemporalStability.value;
+                ctaa.HdrResponse = CTAAManager.settings.HdrResponse.value;
+                ctaa.EdgeResponse = CTAAManager.settings.EdgeResponse.value;
+                ctaa.AdaptiveSharpness = CTAAManager.settings.AdaptiveSharpness.value;
+                ctaa.TemporalJitterScale = CTAAManager.settings.TemporalJitterScale.value;
+                ctaa.SupersampleMode = CTAAManager.settings.Mode;
 
                 // if (SurfaceScattering)
                 {

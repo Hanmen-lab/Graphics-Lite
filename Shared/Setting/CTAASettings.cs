@@ -17,7 +17,7 @@ namespace Graphics.Settings
         public FloatValue EdgeResponse = new FloatValue(0.5f, false);
         public FloatValue AdaptiveSharpness = new FloatValue(0.2f, false);
         public FloatValue TemporalJitterScale = new FloatValue(0.475f, false);
-        //public IntValue Mode = new IntValue(0, false);
+        public CTAA_MODE Mode = CTAA_MODE.STANDARD;
 
         public enum CTAA_MODE
         {
