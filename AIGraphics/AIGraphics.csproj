@@ -20,7 +20,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>D:\AI-Syoujyo\BepInEx\plugins\gps\</OutputPath>
+    <OutputPath>..\..\..\..\..\Games\HS2 R14\BepInEx\Plugins\Graphics\</OutputPath>
     <DefineConstants>TRACE;DEBUG;AI</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

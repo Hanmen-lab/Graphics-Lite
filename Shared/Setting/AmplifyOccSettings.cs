@@ -33,7 +33,7 @@ namespace Graphics.Settings
             High,
             VeryHigh
         }
-        public FloatValue Intensity = new FloatValue (1.0f, false);
+        public FloatValue Intensity = new FloatValue(1.0f, false);
         public Color Tint = new Color(0, 0, 0);
         public FloatValue Radius = new FloatValue(2.0f, false);
         public FloatValue PowerExponent = new FloatValue(1.8f, false);
@@ -58,14 +58,14 @@ namespace Graphics.Settings
         public FloatValue FilterBlending = new FloatValue(0.80f, false);
         public FloatValue FilterResponse = new FloatValue(0.50f, false);
 
-        public void Load(AmplifyOcclusionEffect amplifyocc)
+        public void Load(AOE amplifyocc)
         {
             if (amplifyocc == null)
                 return;
 
             amplifyocc.enabled = Enabled;
-            amplifyocc.ApplyMethod = (AmplifyOcclusionEffect.ApplicationMethod)ApplyMethod;
-            amplifyocc.PerPixelNormals = (AmplifyOcclusionEffect.PerPixelNormalSource)PerPixelNormals;
+            amplifyocc.ApplyMethod = (AOE.ApplicationMethod)ApplyMethod;
+            amplifyocc.PerPixelNormals = (AOE.PerPixelNormalSource)PerPixelNormals;
             //amplifyocc.SampleCount = (AmplifyOcclusionEffect.SampleCountLevel)SampleCount;
             amplifyocc.Intensity = Intensity.value;
             amplifyocc.Tint = Tint;
@@ -94,7 +94,7 @@ namespace Graphics.Settings
 
         }
 
-        public void Save(AmplifyOcclusionEffect amplifyocc)
+        public void Save(AOE amplifyocc)
         {
             if (amplifyocc == null)
                 return;
