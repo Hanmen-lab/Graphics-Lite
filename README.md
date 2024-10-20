@@ -30,6 +30,7 @@ If you want to have FUll Premium version you can get it on my sites. The Lite ve
 ## Full version
 [Gumroad](https://hanmen.gumroad.com/l/gfxdev)  
 [Patreon](https://www.patreon.com/hanmen)  
+[Afdian](https://afdian.com/a/hanmen)
 
 ## Previews
 You can find some demo footages on my youtube channel:  
