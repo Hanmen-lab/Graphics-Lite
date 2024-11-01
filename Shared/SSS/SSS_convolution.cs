@@ -1,144 +1,146 @@
 ﻿using Graphics;
-using System.Collections;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+
 [ExecuteInEditMode]
 public class SSS_convolution : MonoBehaviour
 {
-    //public bool Enabled = true;
-    float FOV_compensation = 0;
-    float initFOV;
+    private float initFOV;
     [HideInInspector] public bool AllowMSAA;
-    [HideInInspector]
-    [Range(0, 1f)]
-    public float BlurRadius = 1;
-    [HideInInspector]
-    public Shader BlurShader = null;
-    Camera _ThisCamera;
-    [HideInInspector]
-    public RenderTextureFormat rtFormat;
-    [HideInInspector]
-    public Material _BlurMaterial = null;
-    Material BlurMaterial
-    {
-        get
-        {
-            if (_BlurMaterial == null && BlurShader)
-            {
-                _BlurMaterial = new Material(BlurShader)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
-            }
-            return _BlurMaterial;
-        }
-    }
-    [HideInInspector]
-    [Range(0, 10)]
-    public int iterations = 3;
-    Camera ParentCamera;
+    [HideInInspector][Range(0, 1)] public float BlurRadius = 1;
+    [HideInInspector] public Shader BlurShader = null;
+    private Camera ThisCamera;
+    [HideInInspector] public RenderTextureFormat rtFormat;
+    [HideInInspector] public BlurMaterials BlurMaterial = null;
+    [HideInInspector][Range(0, 10)] public int iterations = 3;
+    [HideInInspector] public RenderTexture blurred;
 
-    void OnEnable()
+    private void OnEnable()
     {
-     
-        _ThisCamera = gameObject.GetComponent<Camera>();
+        ThisCamera = gameObject.GetComponent<Camera>();
+        Camera parentCamera;
         try
         {
-            ParentCamera = transform.parent.GetComponent<Camera>();
+            parentCamera = transform.parent.GetComponent<Camera>();
         }
         catch
         {
-            ParentCamera = FindObjectOfType<SSS>().GetComponent<Camera>();
+            parentCamera = FindObjectOfType<SSS>().GetComponent<Camera>();
         }
-
-        initFOV = ParentCamera.fieldOfView;
+        initFOV = parentCamera.fieldOfView;
     }
-    //private void Update()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.P))
-    //        Enabled = !Enabled;
-    //}
-    // Called by the camera to apply the image effect
-    //[SerializeField]
-    RenderTexture buffer;
-    [HideInInspector]
-    public RenderTexture blurred;
-    int AA = 1;
-    float Pitagoras(float x, float y)
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private float Pitagoras(int x, int y)
     {
         return Mathf.Sqrt(x * x + y * y);
     }
 
     [ImageEffectOpaque]
-    void OnRenderImage(RenderTexture source, RenderTexture destination)
+    private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-
-        // if (Enabled)
+        if (iterations > 0)
         {
-            FOV_compensation = initFOV / _ThisCamera.fieldOfView;
-            //BlurMaterial.SetFloat("BlurRadius", BlurRadius * FOV_compensation);
+            const float Reciprocal_Pitagoras_1920_1080 = 0.0004539455922523694f;
 
             int rtW = source.width;
             int rtH = source.height;
-            float ScreenSizeCorrection = Pitagoras(rtH, rtW) / Pitagoras(1920, 1080);
-         
-            BlurRadius *= FOV_compensation;
-            BlurRadius *= ScreenSizeCorrection;//so everything will be fine with high-res screenshots
-            //float ratio = rtW / rtH;
-            //print(ratio);
-            //https://github.com/Heep042/Unity-Graphics-Demo/blob/master/Assets/Standard%20Assets/Effects/ImageEffects/Scripts/Bloom.cs
-            if (_ThisCamera.allowMSAA && QualitySettings.antiAliasing > 0 && AllowMSAA)
-            {
-                AA = QualitySettings.antiAliasing;
-            }
-            else
+            BlurRadius *= initFOV / ThisCamera.fieldOfView;
+            BlurRadius *= Pitagoras(rtW, rtH) * Reciprocal_Pitagoras_1920_1080;
+            Vector4 offset1 = new Vector4(0, BlurRadius, 0, 0);
+            Vector4 offset2 = new Vector4(BlurRadius, 0, 0, 0);
+            int AA = QualitySettings.antiAliasing;
+            if (!ThisCamera.allowMSAA || AA <= 0 || !AllowMSAA)
             {
                 AA = 1;
             }
-
-            buffer = RenderTexture.GetTemporary(rtW, rtH, 0, rtFormat, RenderTextureReadWrite.Linear, AA);
-
-            UnityEngine.Graphics.Blit(source, buffer);
-
-            for (int i = 0; i < iterations; i++)
-            //foreach (int i in iterations)
+            RenderTexture buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0, rtFormat, RenderTextureReadWrite.Linear, AA);
+            BlurMaterial.SetVector(Shader.PropertyToID("_TexelOffsetScale"), offset1, offset2);
+            UnityEngine.Graphics.Blit(source, buffer1, BlurMaterial[0]);
+            int i = iterations;
+            if (--i != 0)
             {
-                // Blur vertical
                 RenderTexture buffer2 = RenderTexture.GetTemporary(rtW, rtH, 0, rtFormat, RenderTextureReadWrite.Linear, AA);
-                BlurMaterial.SetVector("_TexelOffsetScale", new Vector4(0, BlurRadius, 0, 0));
-                UnityEngine.Graphics.Blit(buffer, buffer2, BlurMaterial);
-                RenderTexture.ReleaseTemporary(buffer);
-                buffer = buffer2;
-
-                // Blur horizontal
-                buffer2 = RenderTexture.GetTemporary(rtW, rtH, 0, rtFormat, RenderTextureReadWrite.Linear, AA);
-                BlurMaterial.SetVector("_TexelOffsetScale", new Vector4(BlurRadius, 0, 0, 0));
-                UnityEngine.Graphics.Blit(buffer, buffer2, BlurMaterial);
-                RenderTexture.ReleaseTemporary(buffer);
-                buffer = buffer2;
-
-
-                //Circular blur
-                /* RenderTexture buffer2 = RenderTexture.GetTemporary(rtW, rtH, 0, rtFormat, RenderTextureReadWrite.Linear, AA);
-                 BlurMaterial.SetFloat("_TexelOffsetScale", BlurRadius * FOV_compensation);
-                 Graphics.Blit(buffer, buffer2, BlurMaterial);
-                 RenderTexture.ReleaseTemporary(buffer);
-                 buffer = buffer2;*/
+                do
+                {
+                    UnityEngine.Graphics.Blit(buffer1, buffer2, BlurMaterial[1]);
+                    UnityEngine.Graphics.Blit(buffer2, buffer1, BlurMaterial[0]);
+                } while (--i != 0);
+                RenderTexture.ReleaseTemporary(buffer2);
             }
-
-            Debug.Assert(blurred);
-            UnityEngine.Graphics.Blit(buffer, blurred);
-
-            UnityEngine.Graphics.Blit(source, destination);
-            RenderTexture.ReleaseTemporary(buffer);
+            UnityEngine.Graphics.Blit(buffer1, blurred, BlurMaterial[1]);
+            RenderTexture.ReleaseTemporary(buffer1);
         }
-        //else
-        //{
-        //    Graphics.Blit(source, destination);
-        //    Graphics.Blit(source, blurred);
-        //}
+        else
+        {
+            UnityEngine.Graphics.Blit(source, blurred);
+        }
+        UnityEngine.Graphics.Blit(source, destination);
+    }
+
+    public class BlurMaterials
+    {
+        private Material[] materials = new Material[2];
+
+        public Material this[int i] => materials[i];
+
+        public HideFlags hideFlags
+        {
+            set
+            {
+                materials[0].hideFlags = value;
+                materials[1].hideFlags = value;
+            }
+        }
+
+        public BlurMaterials(Shader shader)
+        {
+            materials[0] = new Material(shader);
+            materials[1] = new Material(shader);
+        }
+
+        public void SetFloat(int nameID, float value)
+        {
+            materials[0].SetFloat(nameID, value);
+            materials[1].SetFloat(nameID, value);
+        }
+
+        public void SetInt(int nameID, int value)
+        {
+            materials[0].SetInt(nameID, value);
+            materials[1].SetInt(nameID, value);
+        }
+
+        public void SetColor(int nameID, Color value)
+        {
+            materials[0].SetColor(nameID, value);
+            materials[1].SetColor(nameID, value);
+        }
+
+        public void SetVector(int nameID, Vector4 value1, Vector4 value2)
+        {
+            materials[0].SetVector(nameID, value1);
+            materials[1].SetVector(nameID, value2);
+        }
+
+        public void SetTexture(int nameID, Texture value)
+        {
+            materials[0].SetTexture(nameID, value);
+            materials[1].SetTexture(nameID, value);
+        }
+
+        public void EnableKeyword(string keyword, bool enable)
+        {
+            if (enable)
+            {
+                materials[0].EnableKeyword(keyword);
+                materials[1].EnableKeyword(keyword);
+            }
+            else
+            {
+                materials[0].DisableKeyword(keyword);
+                materials[1].DisableKeyword(keyword);
+            }
+        }
     }
 }
-
-
-
