@@ -629,7 +629,7 @@ namespace Graphics.AmplifyOcclusion
 
                         if (m_targetCamera.cameraType != UnityEngine.CameraType.SceneView)
                         {
-                            Graphics.Instance.Log.LogMessage("[AmplifyOcclusion] GBuffer Normals only available in Camera Deferred Shading mode. Switched to Camera source.");
+                            Graphics.Instance.Log.LogWarning("[AmplifyOcclusion] GBuffer Normals only available in Camera Deferred Shading mode. Switched to Camera source.");
                         }
                     }
 
@@ -642,7 +642,7 @@ namespace Graphics.AmplifyOcclusion
 
                         if (m_targetCamera.cameraType != UnityEngine.CameraType.SceneView)
                         {
-                            Graphics.Instance.Log.LogMessage("[AmplifyOcclusion] Deferred Method requires a Deferred Shading path. Switching to Post Effect Method.");
+                            Graphics.Instance.Log.LogWarning("[AmplifyOcclusion] Deferred Method requires a Deferred Shading path. Switching to Post Effect Method.");
                         }
                     }
                 }
@@ -658,6 +658,19 @@ namespace Graphics.AmplifyOcclusion
                         if (m_targetCamera.cameraType != UnityEngine.CameraType.SceneView)
                         {
                             UnityEngine.Debug.LogWarning("[AmplifyOcclusion] Camera Normals not supported for Deferred Method. Switching to GBuffer Normals.");
+                        }
+                    }
+
+                    if (ApplyMethod == ApplicationMethod.PostEffect)
+                    {
+                        m_paramsChanged = true;
+                        ApplyMethod = ApplicationMethod.Deferred;
+                        AmplifyOccManager.settings.ApplyMethod = (Settings.AmplifyOccSettings.ApplicationMethod)ApplicationMethod.Deferred;
+                        AmplifyOccManager.UpdateSettings();
+
+                        if (m_targetCamera.cameraType != UnityEngine.CameraType.SceneView)
+                        {
+                            UnityEngine.Debug.LogWarning("Switching Apply Method to Deferred.");
                         }
                     }
                 }
