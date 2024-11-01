@@ -63,7 +63,7 @@ namespace Graphics.Inspector
                         Label("Buffer size", sss.LightingTex.width + " x " + sss.LightingTex.height);
                         Label("Light pass shader", sss.LightingPassShader is null ? "NULL" : sss.LightingPassShader.name);
                         Selection("View Buffer", sss.toggleTexture, texture => sss.toggleTexture = texture);
-                        Toggle("Debug distance", sss.DEBUG_DISTANCE, false, debug => sss.DEBUG_DISTANCE = debug);
+                        Toggle("Debug distance", sss.DebugDistance, false, debug => sss.DebugDistance = debug);
 
                         GUILayout.Space(20);
                         Label("EDGE TEST", "", true);
