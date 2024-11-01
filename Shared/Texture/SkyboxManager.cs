@@ -273,7 +273,7 @@ namespace Graphics.Textures
         {
             SkyboxManager skyboxManager = this;
 
-            if (filePath == "" || !File.Exists(filePath)) yield break;
+            if (filePath == "") yield break;
 
             if (filePath.Contains(".cube"))
             {
@@ -281,10 +281,16 @@ namespace Graphics.Textures
                 if (num == -1)
                     num = filePath.LastIndexOf('/');
                 string fileSearchPattern = filePath.Substring(num + 1);
+
+                Graphics.Instance.Log.LogInfo($"Loading Skybox {fileSearchPattern}");
                 List<string> files = Util.GetFiles(skyboxManager.AssetPath, fileSearchPattern);
                 if (files.Count != 0)
                 {
                     filePath = files[0];
+                }
+                else
+                {
+                    yield break;
                 }
             }
 
