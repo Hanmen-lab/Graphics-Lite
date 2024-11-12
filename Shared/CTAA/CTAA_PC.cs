@@ -17,7 +17,7 @@ namespace Graphics.CTAA
     {
         //CTAA Standard => None
         [Space(5)]
-        public bool CTAA_Enabled = true;
+        public bool Enabled = true;
         [Header("CTAA Settings")]
         //Supersample mode can now be changed at runtime via Enum.
         [Tooltip("Super Sample Mode")]
@@ -264,7 +264,7 @@ namespace Graphics.CTAA
         private bool NullRT() => (upScaleRT == null) || (rtAccum0 == null) || (rtAccum1 == null) || (afterPreEnhace == null);
         void OnPreCull()
         {
-            if (CTAA_Enabled == false)
+            if (Enabled == false)
                 return;
             //SetCB();
             if (ChangedSuperSamplingMode() ||
@@ -282,7 +282,7 @@ namespace Graphics.CTAA
         }
         void OnRenderImage(RenderTexture source, RenderTexture destination)
         {
-            if (CTAA_Enabled)
+            if (Enabled)
             {
                 SetCTAA_Parameters();
                 //Use Sharpening

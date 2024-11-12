@@ -315,7 +315,6 @@ namespace Graphics.AmplifyOcclusion
                         m_occlusionRTFormat = RenderTextureFormat.ARGBHalf;
                     }
                 }
-
                 return true;
             }
             return false;
@@ -324,22 +323,6 @@ namespace Graphics.AmplifyOcclusion
 
         void OnEnable()
         {
-
-            //assetBundle = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("amplifyocc.unity3d"));
-            //if (occ_shader == null) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load asset bunle 'amplifyocc.unity3d'");
-
-            //occ_shader = assetBundle.LoadAsset<Shader>("Assets/AmplifyOcclusion/Resources/Occlusion.shader");
-            //if (occ_shader == null) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load shader 'Hidden/AmplifyOcclusion/Occlusion'");
-
-            //blur_shader = assetBundle.LoadAsset<Shader>("Assets/AmplifyOcclusion/Resources/Blur.shader");
-            //if (blur_shader == null) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load shader 'Hidden/AmplifyOcclusion/Blur'");
-
-            //apply_shader = assetBundle.LoadAsset<Shader>("Assets/AmplifyOcclusion/Resources/Apply.shader");
-            //if (apply_shader == null) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load shader 'Hidden/AmplifyOcclusion/Apply'");
-
-            //assetBundle.Unload(false);
-
-
             m_myID = m_nextID;
             m_myIDstring = m_myID.ToString();
             m_nextID++;

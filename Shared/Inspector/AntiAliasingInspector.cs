@@ -57,34 +57,37 @@ namespace Graphics.Inspector
                 }
                 else if (PostProcessingSettings.Antialiasing.CTAA == postProcessingSettings.AntialiasingMode)
                 {
+                    CTAAManager.settings.Enabled = true;
+                    CTAAManager.UpdateSettings();
+
                     Label("SETTINGS", "", true);
                     GUILayout.Space(10);
                     Slider("Temporal Stability", CTAAManager.settings.TemporalStability.value, 3, 16,
-                        stability => CTAAManager.settings.TemporalStability.value = stability,
+                        stability => { CTAAManager.settings.TemporalStability.value = stability; CTAAManager.UpdateSettings(); },
                         CTAAManager.settings.TemporalStability.overrideState,
-                        overrideState => CTAAManager.settings.TemporalStability.overrideState = overrideState);
+                        overrideState => { CTAAManager.settings.TemporalStability.overrideState = overrideState; CTAAManager.UpdateSettings(); });
                     Slider("HDR Response", CTAAManager.settings.HdrResponse.value, 0.001f, 4f, "N3",
-                        hdrResponse => CTAAManager.settings.HdrResponse.value = hdrResponse,
+                        hdrResponse => { CTAAManager.settings.HdrResponse.value = hdrResponse; CTAAManager.UpdateSettings(); },
                         CTAAManager.settings.HdrResponse.overrideState,
-                        overrideState => CTAAManager.settings.HdrResponse.overrideState = overrideState);
+                        overrideState => { CTAAManager.settings.HdrResponse.overrideState = overrideState; CTAAManager.UpdateSettings(); });
                     Slider("Edge Response", CTAAManager.settings.EdgeResponse.value, 0f, 2f, "N1",
-                        edgeResponse => CTAAManager.settings.EdgeResponse.value = edgeResponse,
+                        edgeResponse => { CTAAManager.settings.EdgeResponse.value = edgeResponse; CTAAManager.UpdateSettings(); },
                         CTAAManager.settings.EdgeResponse.overrideState,
-                        overrideState => CTAAManager.settings.EdgeResponse.overrideState = overrideState);
+                        overrideState => { CTAAManager.settings.EdgeResponse.overrideState = overrideState; CTAAManager.UpdateSettings(); });
                     Slider("Adaptive Sharpness", CTAAManager.settings.AdaptiveSharpness.value, 0f, 1.5f, "N1",
-                        adaptiveSharpness => CTAAManager.settings.AdaptiveSharpness.value = adaptiveSharpness,
+                        adaptiveSharpness => { CTAAManager.settings.AdaptiveSharpness.value = adaptiveSharpness; CTAAManager.UpdateSettings(); },
                         CTAAManager.settings.AdaptiveSharpness.overrideState,
-                        overrideState => CTAAManager.settings.AdaptiveSharpness.overrideState = overrideState);
+                        overrideState => { CTAAManager.settings.AdaptiveSharpness.overrideState = overrideState; CTAAManager.UpdateSettings(); });
                     Slider("Temporal Jitter Scale", CTAAManager.settings.TemporalJitterScale.value, 0f, 0.5f, "N3",
-                        temporalJitterScale => CTAAManager.settings.TemporalJitterScale.value = temporalJitterScale,
+                        temporalJitterScale => { CTAAManager.settings.TemporalJitterScale.value = temporalJitterScale; CTAAManager.UpdateSettings(); },
                         CTAAManager.settings.TemporalJitterScale.overrideState,
-                        overrideState => CTAAManager.settings.TemporalJitterScale.overrideState = overrideState);
+                        overrideState => { CTAAManager.settings.TemporalJitterScale.overrideState = overrideState; CTAAManager.UpdateSettings(); });
                     GUILayout.Space(10);
                     Label("Warning!", "Don't use with Rendered Screenshot (F11)! with 1.0+ upsampling. Will cause blurry artifacts.", false);
                     Label("", "Decrease 'Temporal Jitter Scale' if you have problem with pantyhose/tight clothing flickering.", false);
-                    Selection("Mode", CTAAManager.settings.Mode, mode => CTAAManager.settings.Mode = mode);
-                    if (CTAAManager.settings.Mode > 0)
-                        GUILayout.Space(10);
+                    Selection("Mode", CTAAManager.settings.Mode, mode => { CTAAManager.settings.Mode = mode; CTAAManager.UpdateSettings(); });
+                    //if (CTAAManager.settings.Mode > 0)
+                    //GUILayout.Space(10);
                     ToggleAlt("FILTER DITHERING", postProcessingSettings.FilterDithering, true, filter => postProcessingSettings.FilterDithering = filter);
                     if (postProcessingSettings.FilterDithering)
                     {

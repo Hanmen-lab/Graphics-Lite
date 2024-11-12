@@ -4,6 +4,7 @@ using Graphics.GTAO;
 using Graphics.AmplifyOcclusion;
 using Graphics.VAO;
 //using Graphics.AmplifyBloom;
+using Graphics.CTAA;
 using Graphics.Hooks;
 using Graphics.SEGI;
 using Graphics.Inspector;
@@ -64,6 +65,7 @@ namespace Graphics
         //private ConnectSunToUnderwaterManager _connectorManager;
         //private LuxWater_UnderwaterBlurManager _underwaterBlur;
         //private ShinySSRRManager _shinyssrrManager;
+        private CTAAManager _ctaaManager;
         private SSSManager _sssManager;
         private SEGIManager _segiManager;
         private GTAOManager _gtaoManager;
@@ -175,6 +177,9 @@ namespace Graphics
 
             _ditheredshadowsManager = new DitheredShadowsManager();
             _ditheredshadowsManager.Initialize();
+
+            _ctaaManager = new CTAAManager();
+            _ctaaManager.Initialize();
 
             if (KKAPI.Studio.StudioAPI.InsideStudio)
                 smartphoneScanner = this.gameObject.AddComponent<HoohSmartphoneScanner>();

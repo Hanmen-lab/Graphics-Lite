@@ -383,7 +383,7 @@ namespace Graphics.Settings
                 brightness = new FloatValue(layer.brightness);
                 postExposure = new FloatValue(layer.postExposure);
                 contrast = new FloatValue(layer.contrast);
-                temperature = new FloatValue(layer.temperature);                
+                temperature = new FloatValue(layer.temperature);
                 ldrLutIndex = new IntValue(Graphics.Instance.PostProcessingManager.CurrentLUTIndex, layer.ldrLut.overrideState);
                 externalLutIndex = new IntValue(Graphics.Instance.PostProcessingManager.Current3DLUTIndex, layer.externalLut.overrideState);
             }
@@ -455,7 +455,7 @@ namespace Graphics.Settings
             if (layer != null)
             {
                 focusPuller = PostProcessingInspector.AutoFocusEnabled;
-                focusSpeed = PostProcessingInspector.GetAutoFocusSpeedFromGameSession(); 
+                focusSpeed = PostProcessingInspector.GetAutoFocusSpeedFromGameSession();
                 enabled = new BoolValue(layer.enabled);
                 focusDistance = new FloatValue(layer.focusDistance);
                 aperture = new FloatValue(layer.aperture);
@@ -682,34 +682,110 @@ namespace Graphics.Settings
     public struct AgxColorParams
     {
         public BoolValue enabled;
-        public FloatValue temperature;
+        public FloatValue mixerGreenOutGreenIn;
+        public FloatValue mixerGreenOutBlueIn;
+        public FloatValue mixerBlueOutRedIn;
+        public FloatValue mixerBlueOutGreenIn;
+        public FloatValue mixerBlueOutBlueIn;
+        public Vector4Value lift;
+        public Vector4Value gamma;
+        public FloatValue mixerGreenOutRedIn;
+        public Vector4Value gain;
+        public FloatValue mixerRedOutBlueIn;
+        public FloatValue mixerRedOutGreenIn;
+        public FloatValue mixerRedOutRedIn;
         public FloatValue tint;
+        public ColorValue colorFilter;
+        public FloatValue hueShift;
         public FloatValue saturation;
         public FloatValue brightness;
+        public FloatValue contrast;
+        public FloatValue temperature;
+        //public BoolValue useBackgroundLut;
+        //public IntValue backgroundLutIndex;
+        //public FloatValue backgroundBlendStart;
+        //public FloatValue backgroundBlendRange;
+        public BoolValue external;
 
-        public void Save(AgxColor layer)
+        public void Save(AgXColor layer)
         {
             if (layer != null)
             {
                 enabled = new BoolValue(layer.enabled);
-                temperature = new FloatValue(layer.temperature);
+                mixerGreenOutGreenIn = new FloatValue(layer.mixerGreenOutGreenIn);
+                mixerGreenOutBlueIn = new FloatValue(layer.mixerGreenOutBlueIn);
+                mixerBlueOutRedIn = new FloatValue(layer.mixerBlueOutRedIn);
+                mixerBlueOutGreenIn = new FloatValue(layer.mixerBlueOutGreenIn);
+                mixerBlueOutBlueIn = new FloatValue(layer.mixerBlueOutBlueIn);
+                lift = new Vector4Value(layer.lift);
+                gamma = new Vector4Value(layer.gamma);
+                mixerGreenOutRedIn = new FloatValue(layer.mixerGreenOutRedIn);
+                gain = new Vector4Value(layer.gain);
+                mixerRedOutBlueIn = new FloatValue(layer.mixerRedOutBlueIn);
+                mixerRedOutGreenIn = new FloatValue(layer.mixerRedOutGreenIn);
+                mixerRedOutRedIn = new FloatValue(layer.mixerRedOutRedIn);
                 tint = new FloatValue(layer.tint);
+                colorFilter = new ColorValue(layer.colorFilter);
+                hueShift = new FloatValue(layer.hueShift);
                 saturation = new FloatValue(layer.saturation);
                 brightness = new FloatValue(layer.brightness);
+                contrast = new FloatValue(layer.contrast);
+                temperature = new FloatValue(layer.temperature);
+                //useBackgroundLut = new BoolValue(layer.useBackgroundLut);
+                //backgroundLutIndex = new IntValue(Graphics.Instance.PostProcessingManager.CurrentLUTIndex, layer.backgroundLut.overrideState);
+                //backgroundBlendStart = new FloatValue(layer.backgroundBlendStart);
+                //backgroundBlendRange = new FloatValue(layer.backgroundBlendRange);
+                external = new BoolValue(layer.external);
             }
         }
 
-        public void Load(AgxColor layer)
+        public void Load(AgXColor layer)
         {
             if (layer != null)
             {
                 enabled.Fill(layer.enabled);
                 layer.active = layer.enabled.value;
-                temperature.Fill(layer.temperature);
+                mixerGreenOutGreenIn.Fill(layer.mixerGreenOutGreenIn);
+                mixerGreenOutBlueIn.Fill(layer.mixerGreenOutBlueIn);
+                mixerBlueOutRedIn.Fill(layer.mixerBlueOutRedIn);
+                mixerBlueOutGreenIn.Fill(layer.mixerBlueOutGreenIn);
+                mixerBlueOutBlueIn.Fill(layer.mixerBlueOutBlueIn);
+                if (lift.value == null)
+                    lift.value = new float[] { 1f, 1f, 1f, 0f };
+                lift.Fill(layer.lift);
+                if (gamma.value == null)
+                    gamma.value = new float[] { 1f, 1f, 1f, 0f };
+                gamma.Fill(layer.gamma);
+                mixerGreenOutRedIn.Fill(layer.mixerGreenOutRedIn);
+                if (gain.value == null)
+                    gain.value = new float[] { 1f, 1f, 1f, 0f };
+                gain.Fill(layer.gain);
+                mixerRedOutBlueIn.Fill(layer.mixerRedOutBlueIn);
+                mixerRedOutGreenIn.Fill(layer.mixerRedOutGreenIn);
+                mixerRedOutRedIn.Fill(layer.mixerRedOutRedIn);
                 tint.Fill(layer.tint);
+                if (colorFilter.value == null)
+                    colorFilter.value = new float[] { 1f, 1f, 1f };
+                colorFilter.Fill(layer.colorFilter);
+                hueShift.Fill(layer.hueShift);
                 saturation.Fill(layer.saturation);
                 brightness.Fill(layer.brightness);
+                contrast.Fill(layer.contrast);
+                temperature.Fill(layer.temperature);
+                //useBackgroundLut.Fill(layer.useBackgroundLut);
+                //backgroundBlendStart.Fill(layer.backgroundBlendStart);
+                //backgroundBlendRange.Fill(layer.backgroundBlendRange);
+                external.Fill(layer.external);
+                //Graphics.Instance.StartCoroutine(WaitForLut(layer));
             }
         }
+        //public System.Collections.IEnumerator WaitForLut(AgXColor layer)
+        //{
+        //    while (!Graphics.Instance.PostProcessingManager.LUTReady())
+        //        yield return null;
+        //    layer.backgroundLut.value = Graphics.Instance.PostProcessingManager.LoadLUT(backgroundLutIndex.value);
+        //    layer.backgroundLut.overrideState = backgroundLutIndex.overrideState;
+        //    yield break;
+        //}
     }
 }

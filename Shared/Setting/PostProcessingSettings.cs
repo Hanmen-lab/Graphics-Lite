@@ -117,7 +117,7 @@ namespace Graphics.Settings
         internal Vignette vignetteLayer;
         internal Camera initialCamera;
         internal MotionBlur motionBlurLayer;
-        internal AgxColor agxColorLayer;
+        internal AgXColor agxColorLayer;
 
         #if AI
 
@@ -250,7 +250,7 @@ namespace Graphics.Settings
 
             if (!SettingValues.profile.TryGetSettings(out agxColorLayer))
             {
-                agxColorLayer = SettingValues.profile.AddSettings<AgxColor>();
+                agxColorLayer = SettingValues.profile.AddSettings<AgXColor>();
                 agxColorLayer.enabled.value = false;
             }
 
@@ -318,7 +318,7 @@ namespace Graphics.Settings
                 paramMotionBlur.Save(motionBlurLayer);
             }
 
-            if (Volume.profile.TryGetSettings(out AgxColor agxColorLayer))
+            if (Volume.profile.TryGetSettings(out AgXColor agxColorLayer))
             {
                 paramAgxColor.Save(agxColorLayer);
             }
@@ -376,7 +376,7 @@ namespace Graphics.Settings
                 paramMotionBlur.Load(motionBlurLayer);
             }
 
-            if (Volume.profile.TryGetSettings(out AgxColor agxColorLayer))
+            if (Volume.profile.TryGetSettings(out AgXColor agxColorLayer))
             {
                 paramAgxColor.Load(agxColorLayer);
             }

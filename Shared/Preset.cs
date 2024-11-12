@@ -4,7 +4,6 @@ using Graphics.GTAO;
 using Graphics.SEGI;
 using Graphics.GlobalFog;
 using Graphics.VAO;
-//using Graphics.AmplifyBloom;
 using Graphics.Settings;
 using Graphics.Textures;
 using MessagePack;
@@ -28,9 +27,7 @@ namespace Graphics
         public GTAOSettings gtao;
         public CTAASettings ctaa;
         public GlobalFogSettings fog;
-        //public ShinySSRRSettings shinyssrr;
         public VAOSettings vao;
-        //public AmplifyBloomSettings amplifybloom;
         public AmplifyOccSettings amplifyocc;
         public SEGISettings segi;
         //public UnderWaterRenderingSettings underwater;
@@ -51,14 +48,13 @@ namespace Graphics
             this.vao = VAOManager.settings;
             this.ctaa = CTAAManager.settings;
             this.fog = GlobalFogManager.settings;
-            //this.shinyssrr = ShinySSRRManager.settings;
             this.vao = VAOManager.settings;
-
+            this.ctaa = CTAAManager.settings;
             this.amplifyocc = AmplifyOccManager.settings;
+            this.ditheredShadows = new DitheredShadowsSettings();
             //this.underwater = LuxWater_UnderWaterRenderingManager.settings;
             //this.trigger = new WaterVolumeTriggerSettings();
             //this.connectSun = new ConnectSunToUnderwaterSettings();
-            this.ditheredShadows = new DitheredShadowsSettings();
 
             // Skybox setting is generated when preset is being saved.
             skyboxSetting = null;
@@ -72,14 +68,12 @@ namespace Graphics
             gtao = GTAOManager.settings;
             ctaa = CTAAManager.settings;
             fog = GlobalFogManager.settings;
-            //shinyssrr = ShinySSRRManager.settings;
             vao = VAOManager.settings;
-            //amplifybloom = AmplifyBloomManager.settings;
             amplifyocc = AmplifyOccManager.settings;
+            ditheredShadows = DitheredShadowsManager.settings;
             //underwater = LuxWater_UnderWaterRenderingManager.settings;
             //trigger = LuxWater_WaterVolumeTriggerManager.settings;
             //connectSun = ConnectSunToUnderwaterManager.settings;
-            ditheredShadows = DitheredShadowsManager.settings;
             SkyboxManager manager = Graphics.Instance.SkyboxManager;
 
             Material mat = manager.Skybox;
@@ -232,12 +226,6 @@ namespace Graphics
 #if DEBUG
             Graphics.Instance.Log.LogInfo($"Done with Amplify Occlusion");
 #endif
-//            ShinySSRRManager.settings = shinyssrr;
-//            ShinySSRRManager.UpdateSettings();
-//#if DEBUG
-//            Graphics.Instance.Log.LogInfo($"Done with ShinySSRR");
-//#endif
-
             if (ctaa == null)
                 ctaa = new CTAASettings();
             CTAAManager.settings = ctaa;

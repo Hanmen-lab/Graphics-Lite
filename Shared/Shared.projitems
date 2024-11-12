@@ -276,4 +276,7 @@
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Resources\UI\" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\userlut.unity3d" />
+  </ItemGroup>
 </Project>

@@ -443,7 +443,9 @@ namespace Graphics.Inspector
                     Selection("Mode", (PostProcessingSettings.GradingMode)settings.colorGradingLayer.gradingMode.value, mode => settings.colorGradingLayer.gradingMode.value = (UnityEngine.Rendering.PostProcessing.GradingMode)mode);
                     if (GradingMode.External != settings.colorGradingLayer.gradingMode.value)
                     {
-                        settings.agxColorLayer.active = false; settings.agxColorLayer.enabled.Override(false);
+                        settings.agxColorLayer.active = true;
+                        settings.agxColorLayer.enabled.Override(true);
+                        settings.agxColorLayer.external.Override(false);
                         if (GradingMode.LowDefinitionRange == settings.colorGradingLayer.gradingMode.value)
                         {
                             Selection("LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
@@ -487,32 +489,79 @@ namespace Graphics.Inspector
                             settings.colorGradingLayer.gamma.overrideState, overrideSate => settings.colorGradingLayer.gamma.overrideState = overrideSate, "Gamma range", -1.5f, 3f);
                         SliderColor("Gain", settings.colorGradingLayer.gain.value, colour => settings.colorGradingLayer.gain.value = colour, false,
                             settings.colorGradingLayer.gain.overrideState, overrideSate => settings.colorGradingLayer.gain.overrideState = overrideSate, "Gain range", -1.5f, 3f);
+                        //GUILayout.Space(30);
+                        //Label("USER LUT", "", true);
+                        //GUILayout.Space(10);
+                        //ToggleAlt("External", settings.agxColorLayer.external, false, external => settings.agxColorLayer.external.Override(external));
+                        //ToggleAlt("Use Background LUT", settings.agxColorLayer.useBackgroundLut, false, useBackgroundLut => settings.agxColorLayer.useBackgroundLut.Override(useBackgroundLut));
+                        //if (settings.agxColorLayer.useBackgroundLut)
+                        //{
+                        //    GUILayout.Space(10);
+                        //    Selection("Background LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
+                        //        lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.agxColorLayer.backgroundLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
+                        //        settings.agxColorLayer.backgroundLut.overrideState, overrideState => settings.agxColorLayer.backgroundLut.overrideState = overrideState);
+                        //    GUILayout.Space(10);
+                        //    Slider("LUT Start", settings.agxColorLayer.backgroundBlendStart.value, 0, 1000, "N2", blend => settings.agxColorLayer.backgroundBlendStart.value = blend,
+                        //        settings.agxColorLayer.backgroundBlendStart.overrideState, overrideState => settings.agxColorLayer.backgroundBlendStart.overrideState = overrideState);
+                        //    Slider("LUT End", settings.agxColorLayer.backgroundBlendRange.value, 0, 1000, "N2", blend => settings.agxColorLayer.backgroundBlendRange.value = blend,
+                        //        settings.agxColorLayer.backgroundBlendRange.overrideState, overrideState => settings.agxColorLayer.backgroundBlendRange.overrideState = overrideState);
+                        //}
                     }
                     else
                     {
-                        settings.agxColorLayer.active = true; settings.agxColorLayer.enabled.Override(true);
+                        settings.agxColorLayer.active = true;
+                        settings.agxColorLayer.enabled.Override(true);
+                        settings.agxColorLayer.external.Override(true);
+
                         Selection("Enable", postprocessingManager.Current3DLUTName, postprocessingManager.LUT3DNames,
                             lut3d => { if (lut3d != postprocessingManager.Current3DLUTName) { settings.colorGradingLayer.externalLut.value = postprocessingManager.Load3DLUT(lut3d); } }, 2,
                             settings.colorGradingLayer.externalLut.overrideState, overrideState => settings.colorGradingLayer.externalLut.overrideState = overrideState);
                         GUILayout.Space(30);
                         if (settings.agxColorLayer != null)
-                        {                
+                        {
                             if (settings.agxColorLayer.enabled.value)
                             {
                                 GUILayout.Space(30);
                                 Label("WHITE BALANCE", "", true);
                                 GUILayout.Space(10);
-                                Slider("Temperature", settings.agxColorLayer.temperature.value, -1f, 1f, "N2", temperature => settings.agxColorLayer.temperature.value = temperature,
+                                Slider("Temperature", settings.agxColorLayer.temperature.value, -100, 100, "N1", temperature => settings.agxColorLayer.temperature.value = temperature,
                                     settings.agxColorLayer.temperature.overrideState, overrideState => settings.agxColorLayer.temperature.overrideState = overrideState);
-                                Slider("Tint", settings.agxColorLayer.tint.value, -1f, 1f, "N2", tint => settings.agxColorLayer.tint.value = tint,
+                                Slider("Tint", settings.agxColorLayer.tint.value, -100, 100, "N1", tint => settings.agxColorLayer.tint.value = tint,
                                     settings.agxColorLayer.tint.overrideState, overrideState => settings.agxColorLayer.tint.overrideState = overrideState);
                                 GUILayout.Space(10);
                                 Label("TONE", "", true);
                                 GUILayout.Space(10);
-                                Slider("Saturation", settings.agxColorLayer.saturation.value, 0f, 2f, "N2", saturation => settings.agxColorLayer.saturation.value = saturation,
+                                Slider("Hue Shift", settings.agxColorLayer.hueShift.value, -180, 180, "N1", hueShift => settings.agxColorLayer.hueShift.value = hueShift,
+                                    settings.agxColorLayer.hueShift.overrideState, overrideState => settings.agxColorLayer.hueShift.overrideState = overrideState);
+                                Slider("Saturation", settings.agxColorLayer.saturation.value, -100, 100, "N1", saturation => settings.agxColorLayer.saturation.value = saturation,
                                     settings.agxColorLayer.saturation.overrideState, overrideState => settings.agxColorLayer.saturation.overrideState = overrideState);
-                                Slider("Brightness", settings.agxColorLayer.brightness.value, -0.9f, 1f, "N2", brightness => settings.agxColorLayer.brightness.value = brightness,
+                                Slider("Brightness", settings.agxColorLayer.brightness.value, -100, 100, "N1", brightness => settings.agxColorLayer.brightness.value = brightness,
                                     settings.agxColorLayer.brightness.overrideState, overrideState => settings.agxColorLayer.brightness.overrideState = overrideState);
+                                //Slider("Contrast", settings.agxColorLayer.contrast.value, -100, 100, "N1", contrast => settings.agxColorLayer.contrast.value = contrast,
+                                //    settings.agxColorLayer.contrast.overrideState, overrideState => settings.agxColorLayer.contrast.overrideState = overrideState);
+                                SliderColor("Lift", settings.agxColorLayer.lift.value, colour => settings.agxColorLayer.lift.value = colour, false,
+                                    settings.agxColorLayer.lift.overrideState, overrideState => settings.agxColorLayer.lift.overrideState = overrideState, "Lift range", -1.5f, 3f);
+                                SliderColor("Gamma", settings.agxColorLayer.gamma.value, colour => settings.agxColorLayer.gamma.value = colour, false,
+                                    settings.agxColorLayer.gamma.overrideState, overrideSate => settings.agxColorLayer.gamma.overrideState = overrideSate, "Gamma range", -1.5f, 3f);
+                                SliderColor("Gain", settings.agxColorLayer.gain.value, colour => settings.agxColorLayer.gain.value = colour, false,
+                                    settings.agxColorLayer.gain.overrideState, overrideSate => settings.agxColorLayer.gain.overrideState = overrideSate, "Gain range", -1.5f, 3f);
+                                //GUILayout.Space(30);
+                                //Label("USER LUT", "", true);
+                                //GUILayout.Space(10);
+                                //ToggleAlt("External", settings.agxColorLayer.external, false, external => settings.agxColorLayer.external.Override(external));
+                                //ToggleAlt("Use Background LUT", settings.agxColorLayer.useBackgroundLut, false, useBackgroundLut => settings.agxColorLayer.useBackgroundLut.Override(useBackgroundLut));
+                                //if (settings.agxColorLayer.useBackgroundLut)
+                                //{
+                                //    GUILayout.Space(10);
+                                //    Selection("Background LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
+                                //        lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.agxColorLayer.backgroundLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
+                                //        settings.agxColorLayer.backgroundLut.overrideState, overrideState => settings.agxColorLayer.backgroundLut.overrideState = overrideState);
+                                //    GUILayout.Space(10);
+                                //    Slider("LUT Start", settings.agxColorLayer.backgroundBlendStart.value, 0, 1000, "N2", blend => settings.agxColorLayer.backgroundBlendStart.value = blend,
+                                //        settings.agxColorLayer.backgroundBlendStart.overrideState, overrideState => settings.agxColorLayer.backgroundBlendStart.overrideState = overrideState);
+                                //    Slider("LUT End", settings.agxColorLayer.backgroundBlendRange.value, 0, 1000, "N2", blend => settings.agxColorLayer.backgroundBlendRange.value = blend,
+                                //        settings.agxColorLayer.backgroundBlendRange.overrideState, overrideState => settings.agxColorLayer.backgroundBlendRange.overrideState = overrideState);
+                                //}
                             }
                         }
                     }

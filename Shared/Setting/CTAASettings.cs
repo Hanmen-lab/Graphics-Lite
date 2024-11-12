@@ -29,7 +29,6 @@ namespace Graphics.Settings
         public void Load(CTAA_PC ctaa)
         {
             ctaa.enabled = Enabled;
-            ctaa.CTAA_Enabled = Enabled;
 
             ctaa.SupersampleMode = 0;
 
