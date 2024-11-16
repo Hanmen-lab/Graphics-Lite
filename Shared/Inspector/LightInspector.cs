@@ -329,11 +329,11 @@ namespace Graphics.Inspector
 
             if (lightManager.SelectedLight.Enabled)
             {
-                AlloyAreaLight alloyLight = null;
-                if (lightManager.UseAlloyLight)
-                {
-                    alloyLight = lightManager.SelectedLight.Light.GetComponent<AlloyAreaLight>();
-                }
+                //AlloyAreaLight alloyLight = null;
+                //if (lightManager.UseAlloyLight)
+                //{
+                //    alloyLight = lightManager.SelectedLight.Light.GetComponent<AlloyAreaLight>();
+                //}
                 if (Graphics.Instance.IsStudio())
                 {
                     string currentAliasedName = PerLightSettings.NameForLight(lightManager.SelectedLight.Light);
@@ -364,13 +364,13 @@ namespace Graphics.Inspector
                 switch (lightManager.SelectedLight.Type)
                 {
                     case LightType.Point:
-                        DrawPointLightSettings(lightManager, alloyLight, renderingSettings);
+                        DrawPointLightSettings(lightManager, /*alloyLight,*/ renderingSettings);
                         break;
                     case LightType.Directional:
-                        DrawDirectionalLightSettings(lightManager, alloyLight, renderingSettings);
+                        DrawDirectionalLightSettings(lightManager, /*alloyLight,*/ renderingSettings);
                         break;
                     case LightType.Spot:
-                        DrawSpotLightSettings(lightManager, alloyLight, renderingSettings);
+                        DrawSpotLightSettings(lightManager, /*alloyLight,*/ renderingSettings);
                         break;
                     default:
                         GUILayout.Label("Unknown light type");
@@ -388,7 +388,7 @@ namespace Graphics.Inspector
             }
         }
 
-        private static void DrawDirectionalLightSettings(LightManager lightManager, AlloyAreaLight alloyLight, GlobalSettings renderingSettings)
+        private static void DrawDirectionalLightSettings(LightManager lightManager, GlobalSettings renderingSettings)
         {
             DrawBasicSettings(lightManager, renderingSettings);
             //Sun
@@ -402,9 +402,9 @@ namespace Graphics.Inspector
             //Layers
             DrawLayersSettings(lightManager);
             //Alloy
-            DrawAlloySettings(lightManager, alloyLight);
+            //DrawAlloySettings(lightManager, alloyLight);
         }
-        private static void DrawSpotLightSettings(LightManager lightManager, AlloyAreaLight alloyLight, GlobalSettings renderingSettings)
+        private static void DrawSpotLightSettings(LightManager lightManager, GlobalSettings renderingSettings)
         {
             DrawBasicSettings(lightManager, renderingSettings);
             //Position
@@ -416,9 +416,9 @@ namespace Graphics.Inspector
             //Layers
             DrawLayersSettings(lightManager);
             //Alloy
-            DrawAlloySettings(lightManager, alloyLight);
+            //DrawAlloySettings(lightManager, alloyLight);
         }
-        private static void DrawPointLightSettings(LightManager lightManager, AlloyAreaLight alloyLight, GlobalSettings renderingSettings)
+        private static void DrawPointLightSettings(LightManager lightManager, /*AlloyAreaLight alloyLight,*/ GlobalSettings renderingSettings)
         {
             DrawBasicSettings(lightManager, renderingSettings);
             //Position
@@ -430,7 +430,7 @@ namespace Graphics.Inspector
             //Layers
             DrawLayersSettings(lightManager);
             //Alloy
-            DrawAlloySettings(lightManager, alloyLight);
+            //DrawAlloySettings(lightManager, alloyLight);
         }
 
         private static void DrawBasicSettings(LightManager lightManager, GlobalSettings renderingSettings)
@@ -536,32 +536,32 @@ namespace Graphics.Inspector
             Slider("Spot Angle", lightManager.SelectedLight.SpotAngle, 1f, 179f, "N1", angle => { lightManager.SelectedLight.SpotAngle = angle; });
 
         }
-        private static void DrawAlloySettings(LightManager lightManager, AlloyAreaLight alloyLight)
-        {
-            GUI.enabled = false;
+        //private static void DrawAlloySettings(LightManager lightManager, AlloyAreaLight alloyLight)
+        //{
+        //    GUI.enabled = false;
 
-            GUILayout.Space(20);
-            Label("SPECULARITY", "", true);
-            GUILayout.Space(10);
-            ToggleAlt("Use Alloy Light", lightManager.UseAlloyLight, false, useAlloy => lightManager.UseAlloyLight = false);
-            GUILayout.Space(10);
-            if (lightManager.UseAlloyLight && null != alloyLight)
-            {
-                ToggleAlt("Specular Highlight", alloyLight.HasSpecularHighlight, false, highlight => alloyLight.HasSpecularHighlight = highlight);
-                if (alloyLight.HasSpecularHighlight)
-                {
-                    GUILayout.Space(10);
-                    Slider("Specular Size", alloyLight.Radius, 0f, 1f, "N2", i => alloyLight.Radius = i);
+        //    GUILayout.Space(20);
+        //    Label("SPECULARITY", "", true);
+        //    GUILayout.Space(10);
+        //    ToggleAlt("Use Alloy Light", lightManager.UseAlloyLight, false, useAlloy => lightManager.UseAlloyLight = false);
+        //    GUILayout.Space(10);
+        //    if (lightManager.UseAlloyLight && null != alloyLight)
+        //    {
+        //        ToggleAlt("Specular Highlight", alloyLight.HasSpecularHighlight, false, highlight => alloyLight.HasSpecularHighlight = highlight);
+        //        if (alloyLight.HasSpecularHighlight)
+        //        {
+        //            GUILayout.Space(10);
+        //            Slider("Specular Size", alloyLight.Radius, 0f, 1f, "N2", i => alloyLight.Radius = i);
 
-                    if (lightManager.SelectedLight.Type == LightType.Point)
-                    {
-                        GUILayout.Space(10);
-                        Slider("Length", alloyLight.Length, 0f, 1f, "N2", i => alloyLight.Length = i);
-                    }
-                }
-            }
-            GUI.enabled = true;
-        }
+        //            if (lightManager.SelectedLight.Type == LightType.Point)
+        //            {
+        //                GUILayout.Space(10);
+        //                Slider("Length", alloyLight.Length, 0f, 1f, "N2", i => alloyLight.Length = i);
+        //            }
+        //        }
+        //    }
+        //    GUI.enabled = true;
+        //}
         private static void DrawDirShadowsSettings(LightManager lightManager)
         {
             GUILayout.Space(20);

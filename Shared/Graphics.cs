@@ -31,7 +31,7 @@ namespace Graphics
     {
         public const string GUID = "ore.graphics";
         public const string PluginName = "Graphics";
-        public const string Version = "1.2.7";
+        public const string Version = "1.3.0";
 
         public static ConfigEntry<KeyCode> ConfigShortcut { get; private set; }
         public static ConfigEntry<string> ConfigCubeMapPath { get; private set; }
@@ -59,19 +59,17 @@ namespace Graphics
         private LightManager _lightManager;
         private PostProcessingManager _postProcessingManager;
         private PresetManager _presetManager;
+        private CTAAManager _ctaaManager;
+        private SSSManager _sssManager;
+        private SEGIManager _segiManager;
         private GlobalFogManager _globalfogManager;
         //private LuxWater_UnderWaterRenderingManager _underwaterManager;
         //private LuxWater_WaterVolumeTriggerManager _waterVolumeTriggerManager;
         //private ConnectSunToUnderwaterManager _connectorManager;
         //private LuxWater_UnderwaterBlurManager _underwaterBlur;
-        //private ShinySSRRManager _shinyssrrManager;
-        private CTAAManager _ctaaManager;
-        private SSSManager _sssManager;
-        private SEGIManager _segiManager;
         private GTAOManager _gtaoManager;
         private AmplifyOccManager _amplifyoccManager;
         private VAOManager _vaoManager;
-
         private DitheredShadowsManager _ditheredshadowsManager;
 
         private Inspector.Inspector _inspector;
@@ -83,7 +81,8 @@ namespace Graphics
         internal LightingSettings LightingSettings { get; private set; }
         internal PostProcessingSettings PostProcessingSettings { get; private set; }
         internal AmplifyOccSettings AmplifyOcclusionSettings { get; private set; }
-        internal SSSSettings SSSSettings { get; private set; }
+
+        //internal SSSSettings SSSSettings { get; private set; }
        // internal SEGISettings SEGISettings { get; private set; }
 
         internal BepInEx.Logging.ManualLogSource Log => Logger;
@@ -136,14 +135,15 @@ namespace Graphics
             CameraSettings = new CameraSettings();
             LightingSettings = new LightingSettings();
 
-            _segiManager = new SEGIManager();
-            _segiManager.Initialize();
+            _ctaaManager = new CTAAManager();
+            _ctaaManager.Initialize();
 
-            SSSSettings = new SSSSettings();
             _sssManager = new SSSManager();
             _sssManager.Initialize();
-
             SSSMirrorHooks.InitializeMirrorHooks();
+
+            _segiManager = new SEGIManager();
+            _segiManager.Initialize();
 
             _gtaoManager = new GTAOManager();
             _gtaoManager.Initialize();
@@ -178,9 +178,6 @@ namespace Graphics
             _ditheredshadowsManager = new DitheredShadowsManager();
             _ditheredshadowsManager.Initialize();
 
-            _ctaaManager = new CTAAManager();
-            _ctaaManager.Initialize();
-
             if (KKAPI.Studio.StudioAPI.InsideStudio)
                 smartphoneScanner = this.gameObject.AddComponent<HoohSmartphoneScanner>();
 
@@ -203,8 +200,6 @@ namespace Graphics
 
             yield return new WaitUntil(PCSSLight.LoadAssets);
             yield return new WaitUntil(SEGI.SEGI.LoadAssets);
-            //yield return new WaitUntil(AmplifyOcclusionEffect.LoadAssets);
-            //yield return new WaitUntil(TiltShift.TiltShift.LoadAssets);
 
             _inspector = new Inspector.Inspector(this);
             _isLoaded = true;
@@ -235,11 +230,9 @@ namespace Graphics
 
         internal SkyboxManager SkyboxManager => _skyboxManager;
         internal PostProcessingManager PostProcessingManager => _postProcessingManager;
-        //internal AmplifyBloomManager AmplifyBloomManager => _amplifyBloomManager;
         internal LightManager LightManager => _lightManager;
         internal PresetManager PresetManager => _presetManager;
-        internal SSSManager SSSManager => _sssManager;
-        //internal SEGIManager SEGIManager => _segiManager;
+        //internal SSSManager SSSManager => _sssManager;
 
         internal void OnGUI()
         {

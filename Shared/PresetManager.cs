@@ -49,7 +49,7 @@ namespace Graphics
 
         internal void Save(string presetName)
         {
-            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams, _parent.SSSSettings);
+            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams);
             string path = Graphics.ConfigPresetPath.Value; // Runtime Config Preset Path.
             string targetPath = Path.Combine(path, presetName + ".preset");
             preset.Save(targetPath);
@@ -75,7 +75,7 @@ namespace Graphics
 
         internal void SaveDefault(PresetDefaultType defaultType)
         {
-            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams, _parent.SSSSettings);
+            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams);
             string targetPath = Path.Combine(_defaultsPath, defaultType.ToString() + ".default");
             preset.Save(targetPath);
             Graphics.Instance.Log.LogInfo(string.Format("Saved New Default: {0}", defaultType));
@@ -83,7 +83,7 @@ namespace Graphics
 
         internal PluginData GetExtendedData()
         {
-            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams, _parent.SSSSettings);
+            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams);
             PluginData saveData = new PluginData();
             preset.UpdateParameters();
             byte[] presetData = preset.Serialize();
@@ -94,7 +94,7 @@ namespace Graphics
 
         internal bool Load(string presetName)
         {
-            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams, _parent.SSSSettings);
+            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams);
             presetName = presetName == null ? "default" : presetName;
             string targetPath = PresetPath(presetName);
             return preset.Load(targetPath, presetName);
@@ -135,7 +135,7 @@ namespace Graphics
 
         internal bool LoadDefault(PresetDefaultType defaultType)
         {
-            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams, _parent.SSSSettings);
+            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams);
             string presetName = defaultType.ToString();
             string targetPath = Path.Combine(_defaultsPath, presetName + ".default");
             if (!preset.Load(targetPath, presetName))
@@ -157,7 +157,7 @@ namespace Graphics
 
         internal bool RestoreDefault(PresetDefaultType defaultType)
         {
-            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams, _parent.SSSSettings);
+            Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams);
             string presetName = defaultType.ToString();
             //string targetPath = Path.Combine(_defaultsPath, presetName + ".factory");
             byte[] presetBytes = ResourceUtils.GetEmbeddedResource(presetName + ".factory");
@@ -174,7 +174,7 @@ namespace Graphics
                 byte[] presetData = (byte[])val;
                 if (!presetData.IsNullOrEmpty())
                 {
-                    Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams, _parent.SSSSettings);
+                    Preset preset = new Preset(_parent.Settings, _parent.CameraSettings, _parent.LightingSettings, _parent.PostProcessingSettings, _parent.SkyboxManager.skyboxParams);
                     preset.Load(presetData);
                 }
             }

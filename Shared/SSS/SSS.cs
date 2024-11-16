@@ -89,7 +89,7 @@ namespace Graphics
         static readonly string _DITHER_EDGE_TEST = "DITHER_EDGE_TEST";
         static readonly string _OFFSET_EDGE_TEST = "OFFSET_EDGE_TEST";
 
-        public bool Enabled { get; set; }
+        //public bool Enabled { get; set; }
 
         internal float Downsampling { get; set; }
 
@@ -372,7 +372,7 @@ namespace Graphics
 
         private void OnPreRender()
         {
-            if (Enabled && cam != (object)null)
+            if (enabled && cam != (object)null)
             {
                 Shader.DisableKeyword(_SCENE_VIEW);
                 //LightingPassShader ??= Shader.Find("Hidden/LightingPass") ?? _lightingPass;
@@ -527,7 +527,7 @@ namespace Graphics
             }
 
             #region Debug
-            if (sss_buffers_viewer && Enabled)
+            if (sss_buffers_viewer && enabled)
             {
                 switch (toggleTexture)
                 {

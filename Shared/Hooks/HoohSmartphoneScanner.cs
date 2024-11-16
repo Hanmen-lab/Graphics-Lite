@@ -48,7 +48,7 @@ namespace Graphics
             {
                 SSS camSSS = cam.gameObject.AddComponent<SSS>();
                 camSSS.enabled = true;
-                camSSS.Enabled = true;
+                //camSSS.Enabled = true;
                 SSSManager.RegisterAdditionalInstance(camSSS);
                 Graphics.Instance.Log.LogInfo($"Adding SSS Component to Camera: {cam.name} GO: {cam.gameObject.name}");
             }

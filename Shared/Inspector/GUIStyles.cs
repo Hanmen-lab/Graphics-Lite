@@ -155,7 +155,6 @@ namespace Graphics.Inspector
             newSkin.box.stretchHeight = false;
 
 
-
             texData = ResourceUtils.GetEmbeddedResource("PopupWindowOff.png");
             LoadImage(_winNormalBackground, texData);
             Object.DontDestroyOnLoad(_winNormalBackground);

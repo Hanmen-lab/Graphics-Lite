@@ -20,36 +20,36 @@ namespace Graphics
         public GlobalSettings global;
         public CameraSettings camera;
         public LightingSettings lights;
-        public PostProcessingSettings pp;
-        public SSSSettings sss;
         public SkyboxParams skybox;
         public SkyboxSettings skyboxSetting;
-        public GTAOSettings gtao;
+        public PostProcessingSettings pp;
         public CTAASettings ctaa;
-        public GlobalFogSettings fog;
-        public VAOSettings vao;
-        public AmplifyOccSettings amplifyocc;
+        public SSSSettings sss;
         public SEGISettings segi;
+        public VAOSettings vao;
+        public GTAOSettings gtao;
+        public AmplifyOccSettings amplifyocc;
+        public GlobalFogSettings fog;
+        public DitheredShadowsSettings ditheredShadows;
         //public UnderWaterRenderingSettings underwater;
         //public WaterVolumeTriggerSettings trigger;
         //public ConnectSunToUnderwaterSettings connectSun;
-        public DitheredShadowsSettings ditheredShadows;
 
-        public Preset(GlobalSettings global, CameraSettings camera, LightingSettings lights, PostProcessingSettings pp, SkyboxParams skybox, SSSSettings sss)
+        public Preset(GlobalSettings global, CameraSettings camera, LightingSettings lights, PostProcessingSettings pp, SkyboxParams skybox)
         {
             this.camera = camera;
             this.global = global;
             this.lights = lights;
             this.pp = pp;
             this.skybox = skybox;
-            this.sss = sss;
+            this.ctaa = CTAAManager.settings;
+            this.sss = SSSManager.settings;
             this.segi = SEGIManager.settings;
             this.gtao = GTAOManager.settings;
             this.vao = VAOManager.settings;
             this.ctaa = CTAAManager.settings;
             this.fog = GlobalFogManager.settings;
             this.vao = VAOManager.settings;
-            this.ctaa = CTAAManager.settings;
             this.amplifyocc = AmplifyOccManager.settings;
             this.ditheredShadows = new DitheredShadowsSettings();
             //this.underwater = LuxWater_UnderWaterRenderingManager.settings;
@@ -63,7 +63,7 @@ namespace Graphics
         public void UpdateParameters()
         {
             pp.SaveParameters();
-            sss?.SaveParameters();
+            sss = SSSManager.settings;
             segi = SEGIManager.settings;
             gtao = GTAOManager.settings;
             ctaa = CTAAManager.settings;
@@ -175,7 +175,8 @@ namespace Graphics
 #if DEBUG
             Graphics.Instance.Log.LogInfo($"Done with Post Processing Stack");
 #endif
-            sss?.LoadParameters();
+            SSSManager.settings = sss;
+            SSSManager.UpdateSettings();
 #if DEBUG
             Graphics.Instance.Log.LogInfo($"Done with SSS");
 #endif

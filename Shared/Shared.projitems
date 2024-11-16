@@ -165,7 +165,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Setting\PerLightSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\ReflectionProbeSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\VAOSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SSSManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SSS\SSSManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patch\Studio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PCSS\PCSSLight.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Preset.cs" />

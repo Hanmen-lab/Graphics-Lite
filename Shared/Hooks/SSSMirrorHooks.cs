@@ -51,7 +51,7 @@ namespace Graphics
         //        Graphics.Instance.Log.LogInfo($"Adding SSS Component to Camera: {planeCam.name} GO: {planeCam.gameObject.name}");
                 SSS mirrorSSS = planeCam.gameObject.AddComponent<SSS>();
                 mirrorSSS.enabled = true;
-                mirrorSSS.Enabled = true;
+                //mirrorSSS.Enabled = true;
                 SSSManager.RegisterAdditionalInstance(mirrorSSS);
 
                 if (Graphics.Instance.CameraSettings.MainCamera != null && Graphics.Instance.CameraSettings.MainCamera.stereoEnabled)
@@ -81,7 +81,7 @@ namespace Graphics
                 Graphics.Instance.Log.LogInfo($"Adding SSS Component to Camera: {reflectionCamera.name} GO: {reflectionCamera.gameObject.name}");
                 SSS mirrorSSS = reflectionCamera.gameObject.AddComponent<SSS>();
                 mirrorSSS.enabled = true;
-                mirrorSSS.Enabled = true;
+                //mirrorSSS.Enabled = true;
                 mirrorSSS.MirrorSSS = true;
                 SSSManager.RegisterAdditionalInstance(mirrorSSS);
             }
