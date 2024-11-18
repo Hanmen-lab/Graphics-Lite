@@ -246,6 +246,10 @@ namespace Graphics.CTAA
             ClearCTAACameras();
             ClearResources();
             ClearRT();
+            MainCamera.ResetWorldToCameraMatrix();     // < ----- Unity 2017 Up
+            MainCamera.ResetProjectionMatrix();        // < ----- Unity 2017 Up
+
+            MainCamera.nonJitteredProjectionMatrix = MainCamera.projectionMatrix;
         }
         private void OnDestroy()
         {
