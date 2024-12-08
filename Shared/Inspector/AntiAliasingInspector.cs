@@ -85,7 +85,7 @@ namespace Graphics.Inspector
                     GUILayout.Space(10);
                     Label("Warning!", "Don't use with Rendered Screenshot (F11)! with 1.0+ upsampling. Will cause blurry artifacts.", false);
                     Label("", "Decrease 'Temporal Jitter Scale' if you have problem with pantyhose/tight clothing flickering.", false);
-                    Selection("Mode", CTAAManager.settings.Mode, mode => { CTAAManager.settings.Mode = mode; CTAAManager.UpdateSettings(); });
+                    Selection("Mode", CTAAManager.settings.SupersampleMode, mode => { CTAAManager.settings.SupersampleMode = mode; CTAAManager.UpdateSettings(); });
                     //if (CTAAManager.settings.Mode > 0)
                     //GUILayout.Space(10);
                     ToggleAlt("FILTER DITHERING", postProcessingSettings.FilterDithering, true, filter => postProcessingSettings.FilterDithering = filter);

@@ -267,8 +267,11 @@ namespace Graphics
                     lightingCamera.enabled = false;
                     lightingCamera.depth = -846;
 
-                    if (ctaa == null)
+                    if (!ctaa)
+                    {
                         ctaa = lightingCameraGO.AddComponent<CTAA_PC>();
+                        ctaa.enabled = CTAAManager.settings.Enabled;
+                    }
 
                     if (!sss_convolution)
                         sss_convolution = lightingCameraGO.AddComponent<SSS_convolution>();

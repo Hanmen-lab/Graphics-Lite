@@ -17,7 +17,8 @@ namespace Graphics.Settings
         public FloatValue EdgeResponse = new FloatValue(0.5f, false);
         public FloatValue AdaptiveSharpness = new FloatValue(0.2f, false);
         public FloatValue TemporalJitterScale = new FloatValue(0.475f, false);
-        public CTAA_MODE Mode = CTAA_MODE.STANDARD;
+        public CTAA_MODE SupersampleMode = CTAA_MODE.STANDARD;
+        //public BoolValue AntiShimmerMode = new BoolValue(false, false);
 
         public enum CTAA_MODE
         {
@@ -29,8 +30,9 @@ namespace Graphics.Settings
         public void Load(CTAA_PC ctaa)
         {
             ctaa.enabled = Enabled;
+            //ctaa.CTAA_Enabled = Enabled;
 
-            ctaa.SupersampleMode = 0;
+            ctaa.SupersampleMode = SupersampleMode;
 
             if (TemporalStability.overrideState)
                 ctaa.TemporalStability = TemporalStability.value;
@@ -56,6 +58,8 @@ namespace Graphics.Settings
                 ctaa.TemporalJitterScale = TemporalJitterScale.value;
             else
                 ctaa.TemporalJitterScale = 0.475f;
+
+            //ctaa.AntiShimmerMode = AntiShimmerMode.value;
         }
     }
 }
