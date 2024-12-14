@@ -42,7 +42,7 @@ namespace Graphics.Settings
                 {
                     value = new Color32(170, 188, 243, 255);
                 }
-                RenderSettings.ambientLight = value;
+                RenderSettings.ambientLight = AmbientLight;
             }
 
         }
@@ -55,7 +55,7 @@ namespace Graphics.Settings
                 {
                     value = new Color32(170, 188, 243, 255);
                 }
-                RenderSettings.ambientSkyColor = value;
+                RenderSettings.ambientSkyColor = SkyColor;
             }
         }
 
@@ -68,7 +68,7 @@ namespace Graphics.Settings
                 {
                     value = new Color32(185, 195, 205, 255);
                 }
-                RenderSettings.ambientEquatorColor = value;
+                RenderSettings.ambientEquatorColor = EquatorColor;
             }
         }
 
@@ -81,7 +81,7 @@ namespace Graphics.Settings
                 {
                     value = new Color(204, 109, 41, 255);
                 }
-                RenderSettings.ambientGroundColor = value;
+                RenderSettings.ambientGroundColor = GroundColor;
             }
         }
 

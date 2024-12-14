@@ -7,31 +7,41 @@ namespace Graphics.Settings
     [MessagePackObject(true)]
     public class SSSSettings
     {
+        public enum ToggleTexture
+        {
+            LightingTex = 1,
+            LightingTexBlurred = 2,
+            ProfileTex = 3,
+            None = 0
+        }
+
         public bool Enabled;
         //public int presetVersion = -1;
-        public float BlurSize = 2.5f; // Small Values by default.
-        public Color sssColor = Color.red; // red by default.
+        public float BlurSize = 2.5f;
+        public Color sssColor = Color.red;
         public bool Debug = false;
         public bool DebugDistance = false;
         public float DepthTest;
-        public bool Dither; // disabled by default.
+        public bool Dither;
         public float DitherIntensity;
         public float DitherScale;
         public float DownscaleFactor = 1; // Default Resolution by default.
         public bool EdgeDitherNoise;
         public bool FixPixelLeaks;
         public float FixPixelLeaksNormal;
-        public int LayerBitMask;
+        public int LayerBitMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Chara")) | (1 << LayerMask.NameToLayer("Map"));
         public int MaxDistance = 10000;
         public float NormalTest;
         public int ProcessIterations = 1;
         public float ProfileColorTest;
-        public bool ProfilePerObject;
+        public bool ProfilePerObject = true;
         public float ProfileRadiusTest;
         public bool ProfileTest;
         public int ShaderIterations = 1;
-        public SSS.ToggleTexture ToggleTexture;
+        public ToggleTexture ViewBuffer;
         public bool CTAAEnable;
+
+        //public LayerMask SSS_Layer = (1 << LayerMask.NameToLayer("Chara")) | (1 << LayerMask.NameToLayer("Map"));
 
         public void Load(SSS instance)
         {
@@ -45,11 +55,13 @@ namespace Graphics.Settings
             instance.ShaderIterations = ShaderIterations;
             instance.Downsampling = DownscaleFactor;
             instance.maxDistance = MaxDistance;
+            if (LayerBitMask == (1 << LayerMask.NameToLayer("Default")))
+                LayerBitMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Chara")) | (1 << LayerMask.NameToLayer("Map"));
             instance.SSS_Layer = LayerBitMask;
             instance.Dither = Dither;
             instance.DitherIntensity = DitherIntensity;
             instance.DitherScale = DitherScale;
-            instance.toggleTexture = ToggleTexture;
+            instance.toggleTexture = (SSS.ToggleTexture)ViewBuffer;
             instance.DepthTest = DepthTest;
             instance.NormalTest = NormalTest;
             instance.DitherEdgeTest = EdgeDitherNoise;
@@ -81,11 +93,11 @@ namespace Graphics.Settings
             ShaderIterations = instance.ShaderIterations;
             DownscaleFactor = instance.Downsampling;
             MaxDistance = instance.maxDistance;
-            LayerBitMask = instance.SSS_Layer;
+            //LayerBitMask = instance.SSS_Layer;
             Dither = instance.Dither;
             DitherIntensity = instance.DitherIntensity;
             DitherScale = instance.DitherScale;
-            ToggleTexture = instance.toggleTexture;
+            ViewBuffer = (ToggleTexture)instance.toggleTexture;
             DepthTest = instance.DepthTest;
             NormalTest = instance.NormalTest;
             EdgeDitherNoise = instance.DitherEdgeTest;

@@ -64,7 +64,7 @@ namespace Graphics.Inspector
                         if (sssinstance.LightingTex)
                             Label("Buffer size", sssinstance.LightingTex.width + " x " + sssinstance.LightingTex.height);
                         Label("Light pass shader", sssinstance.LightingPassShader is null ? "NULL" : sssinstance.LightingPassShader.name);
-                        Selection("View Buffer", sssinstance.toggleTexture, texture => sssinstance.toggleTexture = texture);
+                        Selection("View Buffer", sss.ViewBuffer, texture => { sss.ViewBuffer = texture; SSSManager.UpdateSettings(); });
                         Toggle("Debug distance", sss.DebugDistance, false, debug => { sss.DebugDistance = debug; SSSManager.UpdateSettings(); });
 
                         GUILayout.Space(20);

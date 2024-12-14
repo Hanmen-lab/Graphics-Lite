@@ -15,10 +15,10 @@ namespace Graphics
     {
         public enum ToggleTexture
         {
-            LightingTex,
-            LightingTexBlurred,
-            ProfileTex,
-            None
+            LightingTex = 1,
+            LightingTexBlurred = 2,
+            ProfileTex = 3,
+            None = 0
         }
 
         private Camera cam;
@@ -89,13 +89,10 @@ namespace Graphics
         static readonly string _DITHER_EDGE_TEST = "DITHER_EDGE_TEST";
         static readonly string _OFFSET_EDGE_TEST = "OFFSET_EDGE_TEST";
 
-        //public bool Enabled { get; set; }
-
         internal float Downsampling { get; set; }
-
         internal float ScatteringRadius { get; set; }
-
         internal int ScatteringIterations { get; set; }
+        internal LayerMask SSS_Layer { get; set; }
 
         internal float DepthTest
         {
@@ -337,11 +334,7 @@ namespace Graphics
 
         private void OnEnable()
         {
-            if (SSS_Layer == 0)
-            {
-                SSS_Layer = LayerMask.NameToLayer("Chara");
-                Graphics.Instance.Log.LogInfo($"Setting SSS layer from Nothing to {LayerMask.LayerToName(SSS_Layer)}");
-            }
+            SSS_Layer = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Chara")) | (1 << LayerMask.NameToLayer("Map"));
 
             //optional
             //Utilities.CreateLayer("SSS pass");
@@ -625,7 +618,7 @@ namespace Graphics
         }
 
         #region layer
-        [HideInInspector] public LayerMask SSS_Layer;
+
         private SSS_buffers_viewer sss_buffers_viewer;
 
         //[SerializeField]
