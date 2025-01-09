@@ -18,7 +18,7 @@ namespace Graphics.Settings
         public FloatValue AdaptiveSharpness = new FloatValue(0.2f, false);
         public FloatValue TemporalJitterScale = new FloatValue(0.475f, false);
         public CTAA_MODE SupersampleMode = CTAA_MODE.STANDARD;
-        //public BoolValue AntiShimmerMode = new BoolValue(false, false);
+        public BoolValue AntiShimmerMode = new BoolValue(false, false);
 
         public enum CTAA_MODE
         {
@@ -59,7 +59,7 @@ namespace Graphics.Settings
             else
                 ctaa.TemporalJitterScale = 0.475f;
 
-            //ctaa.AntiShimmerMode = AntiShimmerMode.value;
+            ctaa.AntiShimmerMode = AntiShimmerMode.value;
         }
     }
 }

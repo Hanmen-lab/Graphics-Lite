@@ -31,9 +31,10 @@ namespace Graphics
         public AmplifyOccSettings amplifyocc;
         public GlobalFogSettings fog;
         public DitheredShadowsSettings ditheredShadows;
-        //public UnderWaterRenderingSettings underwater;
-        //public WaterVolumeTriggerSettings trigger;
-        //public ConnectSunToUnderwaterSettings connectSun;
+        public UnderWaterRenderingSettings underwater;
+        public WaterVolumeTriggerSettings trigger;
+        public ConnectSunToUnderwaterSettings connectSun;
+        public FocusSettings focus;
 
         public Preset(GlobalSettings global, CameraSettings camera, LightingSettings lights, PostProcessingSettings pp, SkyboxParams skybox)
         {
@@ -52,9 +53,10 @@ namespace Graphics
             this.vao = VAOManager.settings;
             this.amplifyocc = AmplifyOccManager.settings;
             this.ditheredShadows = new DitheredShadowsSettings();
-            //this.underwater = LuxWater_UnderWaterRenderingManager.settings;
-            //this.trigger = new WaterVolumeTriggerSettings();
-            //this.connectSun = new ConnectSunToUnderwaterSettings();
+            this.underwater = LuxWater_UnderWaterRenderingManager.settings;
+            this.trigger = new WaterVolumeTriggerSettings();
+            this.connectSun = new ConnectSunToUnderwaterSettings();
+            this.focus = FocusManager.settings;
 
             // Skybox setting is generated when preset is being saved.
             skyboxSetting = null;
@@ -71,9 +73,10 @@ namespace Graphics
             vao = VAOManager.settings;
             amplifyocc = AmplifyOccManager.settings;
             ditheredShadows = DitheredShadowsManager.settings;
-            //underwater = LuxWater_UnderWaterRenderingManager.settings;
-            //trigger = LuxWater_WaterVolumeTriggerManager.settings;
-            //connectSun = ConnectSunToUnderwaterManager.settings;
+            underwater = LuxWater_UnderWaterRenderingManager.settings;
+            trigger = LuxWater_WaterVolumeTriggerManager.settings;
+            connectSun = ConnectSunToUnderwaterManager.settings;
+            focus = FocusManager.settings;
             SkyboxManager manager = Graphics.Instance.SkyboxManager;
 
             Material mat = manager.Skybox;
@@ -202,20 +205,18 @@ namespace Graphics
 #if DEBUG
             Graphics.Instance.Log.LogInfo($"Done with Global Fog");
 #endif
+            LuxWater_UnderWaterRenderingManager.settings = underwater;
+            LuxWater_UnderWaterRenderingManager.UpdateSettings();
 
-            //LuxWater_UnderWaterRenderingManager.settings = underwater;
-            //LuxWater_UnderWaterRenderingManager.UpdateSettings();
+            LuxWater_WaterVolumeTriggerManager.settings = trigger;
+            LuxWater_WaterVolumeTriggerManager.UpdateSettings();
 
-            //LuxWater_WaterVolumeTriggerManager.settings = trigger;
-            //LuxWater_WaterVolumeTriggerManager.UpdateSettings();
+            ConnectSunToUnderwaterManager.settings = connectSun;
+            ConnectSunToUnderwaterManager.UpdateSettings();
 
-            //ConnectSunToUnderwaterManager.settings = connectSun;
-            //ConnectSunToUnderwaterManager.UpdateSettings();
-
-//#if DEBUG
-//            Graphics.Instance.Log.LogInfo($"Done with LuxWater");
-//#endif
-
+#if DEBUG
+            Graphics.Instance.Log.LogInfo($"Done with LuxWater");
+#endif
             VAOManager.settings = vao;
             VAOManager.UpdateSettings();
 #if DEBUG
@@ -233,7 +234,12 @@ namespace Graphics
             CTAAManager.UpdateSettings();
 #if DEBUG
             Graphics.Instance.Log.LogInfo($"Done with CTAA");
-#endif           
+#endif
+            FocusManager.settings = focus;
+            FocusManager.UpdateSettings();
+#if DEBUG
+            Graphics.Instance.Log.LogInfo($"Done with FocusPuller");
+#endif
 
             SkyboxManager manager = Graphics.Instance.SkyboxManager;
             if (manager)

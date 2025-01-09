@@ -111,7 +111,18 @@
     <Compile Include="$(MSBuildThisFileDirectory)AmplifyOcclusion\AmplifyOcclusionCommon.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AmplifyOcclusion\AmplifyOcclusionEffect.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AmplifyOcclusion\AmplifyOcclusionManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FocusPuller\FocusManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FocusPuller\FocusSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Inspector\ReflectionProbeInspector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\ConnectSunToUnderwater.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\ConnectSunToUnderwaterManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\ConnectSunToUnderwaterSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\UnderWaterBlurManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\UnderWaterBlurSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\UnderWaterRenderingManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\UnderWaterRenderingSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\WaterVolumeTriggerManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuxWater\WaterVolumeTriggerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PostProcessingManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Texture\EmbeddedTextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Texture\InternalTextureManager.cs" />
@@ -131,7 +142,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Alloy\AlloyUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Alloy\AreaLight\AlloyAreaLight.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CullingMaskExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FocusPuller.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FocusPuller\FocusPuller.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GraphicsAdditionalCamLight.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GTAO\GroundTruthAmbientOcclusion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GTAO\GTAOManager.cs" />

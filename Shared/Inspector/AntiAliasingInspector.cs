@@ -83,11 +83,24 @@ namespace Graphics.Inspector
                         CTAAManager.settings.TemporalJitterScale.overrideState,
                         overrideState => { CTAAManager.settings.TemporalJitterScale.overrideState = overrideState; CTAAManager.UpdateSettings(); });
                     GUILayout.Space(10);
-                    Label("Warning!", "Don't use with Rendered Screenshot (F11)! with 1.0+ upsampling. Will cause blurry artifacts.", false);
-                    Label("", "Decrease 'Temporal Jitter Scale' if you have problem with pantyhose/tight clothing flickering.", false);
-                    Selection("Mode", CTAAManager.settings.SupersampleMode, mode => { CTAAManager.settings.SupersampleMode = mode; CTAAManager.UpdateSettings(); });
+                    ToggleAlt("Anti Shimmer", CTAAManager.settings.AntiShimmerMode.value, false, antiShimmer => { CTAAManager.settings.AntiShimmerMode.value = antiShimmer; CTAAManager.UpdateSettings(); });
+                    GUILayout.Space(10);
+                    Label("", "Eliminates Micro Shimmer - Suitable for Architectural Visualisation, CAD, Engineering or non-moving objects. Camera can be moved.", false);
+                    GUILayout.Space(10);
+                    Selection("Upscale Mode", CTAAManager.settings.SupersampleMode, mode => { CTAAManager.settings.SupersampleMode = mode; CTAAManager.UpdateSettings(); });
                     //if (CTAAManager.settings.Mode > 0)
-                    //GUILayout.Space(10);
+                    if (CTAAManager.settings.SupersampleMode != CTAASettings.CTAA_MODE.STANDARD)
+                    {
+                        GUILayout.Space(10);
+                        Label("Warning!", "CINA SOFT & CINA ULTRA not working with rendered screenshots F11, use normal screenshots F9 instead.", false);
+                    }
+                    else
+                    {
+                        GUILayout.Space(10);
+                        Label("Warning!", "Don't use with Rendered Screenshot (F11)! with 1.0+ upsampling. Will cause blurry artifacts.", false);
+                    }
+                    GUILayout.Space(10);
+                    //Label("", "Decrease 'Temporal Jitter Scale' if you have problem with pantyhose/tight clothing flickering.", false);
                     ToggleAlt("FILTER DITHERING", postProcessingSettings.FilterDithering, true, filter => postProcessingSettings.FilterDithering = filter);
                     if (postProcessingSettings.FilterDithering)
                     {
@@ -97,6 +110,7 @@ namespace Graphics.Inspector
                     {
                         Shader.DisableKeyword("_TEMPORALFILTER_ON");
                     }
+
 
                     CTAAManager.settings.Load(Graphics.Instance.CameraSettings.MainCamera.GetComponent<CTAA_PC>());
                 }

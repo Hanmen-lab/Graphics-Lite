@@ -31,7 +31,7 @@ namespace Graphics
     {
         public const string GUID = "ore.graphics";
         public const string PluginName = "Graphics";
-        public const string Version = "1.4.2";
+        public const string Version = "1.5.0";
 
         public static ConfigEntry<KeyCode> ConfigShortcut { get; private set; }
         public static ConfigEntry<string> ConfigCubeMapPath { get; private set; }
@@ -63,14 +63,15 @@ namespace Graphics
         private SSSManager _sssManager;
         private SEGIManager _segiManager;
         private GlobalFogManager _globalfogManager;
-        //private LuxWater_UnderWaterRenderingManager _underwaterManager;
-        //private LuxWater_WaterVolumeTriggerManager _waterVolumeTriggerManager;
-        //private ConnectSunToUnderwaterManager _connectorManager;
-        //private LuxWater_UnderwaterBlurManager _underwaterBlur;
+        private LuxWater_UnderWaterRenderingManager _underwaterManager;
+        private LuxWater_WaterVolumeTriggerManager _waterVolumeTriggerManager;
+        private ConnectSunToUnderwaterManager _connectorManager;
+        private LuxWater_UnderwaterBlurManager _underwaterBlur;
         private GTAOManager _gtaoManager;
         private AmplifyOccManager _amplifyoccManager;
         private VAOManager _vaoManager;
         private DitheredShadowsManager _ditheredshadowsManager;
+        private FocusManager _focusManager;
 
         private Inspector.Inspector _inspector;
 
@@ -83,7 +84,7 @@ namespace Graphics
         internal AmplifyOccSettings AmplifyOcclusionSettings { get; private set; }
 
         //internal SSSSettings SSSSettings { get; private set; }
-       // internal SEGISettings SEGISettings { get; private set; }
+        //internal SEGISettings SEGISettings { get; private set; }
 
         internal BepInEx.Logging.ManualLogSource Log => Logger;
 
@@ -157,17 +158,20 @@ namespace Graphics
             _globalfogManager = new GlobalFogManager();
             _globalfogManager.Initialize();
 
-            //_underwaterManager = new LuxWater_UnderWaterRenderingManager();
-            //_underwaterManager.Initialize();
+            _underwaterManager = new LuxWater_UnderWaterRenderingManager();
+            _underwaterManager.Initialize();
 
-            //_waterVolumeTriggerManager = new LuxWater_WaterVolumeTriggerManager();
-            //_waterVolumeTriggerManager.Initialize();
+            _waterVolumeTriggerManager = new LuxWater_WaterVolumeTriggerManager();
+            _waterVolumeTriggerManager.Initialize();
 
-            //_connectorManager = new ConnectSunToUnderwaterManager();
-            //_connectorManager.Initialize();
+            _connectorManager = new ConnectSunToUnderwaterManager();
+            _connectorManager.Initialize();
 
-            //_underwaterBlur = new LuxWater_UnderwaterBlurManager();
-            //_underwaterBlur.Initialize();
+            _underwaterBlur = new LuxWater_UnderwaterBlurManager();
+            _underwaterBlur.Initialize();
+
+            _focusManager = new FocusManager();
+            _focusManager.Initialize();
 
             PostProcessingSettings = new PostProcessingSettings(CameraSettings.MainCamera);
             _postProcessingManager = Instance.GetOrAddComponent<PostProcessingManager>();
@@ -227,12 +231,10 @@ namespace Graphics
         }
 
         internal KKAPI.Studio.UI.ToolbarToggle studioToolbarToggle;
-
         internal SkyboxManager SkyboxManager => _skyboxManager;
         internal PostProcessingManager PostProcessingManager => _postProcessingManager;
         internal LightManager LightManager => _lightManager;
         internal PresetManager PresetManager => _presetManager;
-        //internal SSSManager SSSManager => _sssManager;
 
         internal void OnGUI()
         {

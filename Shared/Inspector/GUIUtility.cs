@@ -647,18 +647,32 @@ namespace Graphics.Inspector
             label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
             GUILayout.BeginHorizontal();
 
-            // Сначала отображаем чекбокс
-            bool newToggle = GUILayout.Toggle(toggle, "", GUILayout.Width(20)); // Ширина чекбокса
+            // Draw checkbox
+            bool newToggle = GUILayout.Toggle(toggle, "", GUILayout.Width(20));
 
-            // Затем отображаем лейбл с учетом состояния bold
             if (bold)
             {
-                GUIStyle boldStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold };
+                GUIStyle boldStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontStyle = FontStyle.Bold,
+                    border = new RectOffset(7, 7, 7, 7),
+                    //margin = new RectOffset(4, 4, 6, 6),
+                    padding = new RectOffset(0, 0, 5, 7),
+                    overflow = new RectOffset(0, 0, 0, 0)
+                };
                 GUILayout.Label(label, boldStyle, GUILayout.ExpandWidth(true));
             }
             else
             {
-                GUILayout.Label(label, GUILayout.ExpandWidth(true));
+                GUIStyle normalStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontStyle = FontStyle.Normal,
+                    border = new RectOffset(7, 7, 7, 7),
+                    //margin = new RectOffset(4, 4, 6, 6),
+                    padding = new RectOffset(0, 0, 5, 7),
+                    overflow = new RectOffset(0, 0, 0, 0)
+                };
+                GUILayout.Label(label, normalStyle, GUILayout.ExpandWidth(true));
             }
 
             GUILayout.EndHorizontal();

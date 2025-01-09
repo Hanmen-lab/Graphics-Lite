@@ -281,7 +281,7 @@ namespace Graphics.Inspector
             newSkin.label.hover.textColor = Color.black;
             newSkin.label.active.textColor = Color.black;
             newSkin.label.focused.textColor = Color.black;
-            newSkin.label.border = new RectOffset(0, 0, 0, 0);
+            newSkin.label.border = new RectOffset(7, 7, 7, 7);
             newSkin.label.margin = new RectOffset(4, 4, 2, 2); //new RectOffset(4, 4, 2, 2);
             newSkin.label.padding = new RectOffset(2, 2, 1, 2); //new RectOffset(2, 2, 1, 2);
             newSkin.label.overflow = new RectOffset(0, 0, 0, 0); //new RectOffset(2, 2, 1, 2);
@@ -604,10 +604,10 @@ namespace Graphics.Inspector
             };
 
             boldlabel.normal.textColor = newSkin.label.normal.textColor;
-            boldlabel.border = newSkin.label.border;
-            boldlabel.margin = new RectOffset(4, 4, 6, 4); //newSkin.label.margin;
-            boldlabel.padding = newSkin.label.padding;
-            boldlabel.overflow = newSkin.label.overflow;
+            boldlabel.border = new RectOffset(7, 7, 7, 7);
+            boldlabel.margin = new RectOffset(4, 4, 6, 6);
+            boldlabel.padding = new RectOffset(3, 3, 5, 7);
+            boldlabel.overflow = new RectOffset(0, 0, 0, 0);
             boldlabel.stretchWidth = newSkin.label.stretchWidth;
             boldlabel.stretchHeight = newSkin.label.stretchHeight;
             boldlabel.fontStyle = FontStyle.Bold;

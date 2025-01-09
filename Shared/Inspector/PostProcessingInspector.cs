@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 using static Graphics.Inspector.Util;
 using Graphics.AmplifyOcclusion;
+using static Illusion.Game.Utils;
+using System.Collections.Generic;
 
 
 namespace Graphics.Inspector
@@ -625,38 +627,71 @@ namespace Graphics.Inspector
                 Switch(renderSettings.FontSize, "DEPTH OF FIELD", settings.depthOfFieldLayer.enabled.value, true, enabled => settings.depthOfFieldLayer.active = settings.depthOfFieldLayer.enabled.value = enabled);
                 if (settings.depthOfFieldLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
-                    if (null != Graphics.Instance.CameraSettings.MainCamera && null == focusPuller)
-                    {
-                        focusPuller = Graphics.Instance.CameraSettings.MainCamera.gameObject.GetOrAddComponent<FocusPuller>();
-                        if (null != focusPuller)
-                        {
-                            focusPuller.enabled = _autoFocusEnabled;
-                            focusPuller.Speed = _autoFocusSpeed;
-                        }
-                    }
+                    FocusSettings focusSettings = FocusManager.settings;
+                    FocusPuller focusPuller = FocusManager.FocusInstance;
 
-                    if (null != focusPuller)
+                    GUILayout.Space(30);
+                    ToggleAlt("Focus On Object", focusSettings.Enabled, false, focus => { focusSettings.Enabled = focus; FocusManager.UpdateSettings(); });
+                    if (focusSettings.Enabled)
                     {
-                        ToggleAlt("Auto Focus", focusPuller.enabled, false, enabled => focusPuller.enabled = enabled);
-                        Slider("Auto Focus Speed", focusPuller.Speed, FocusPuller.MinSpeed, FocusPuller.MaxSpeed, "N2", speed => focusPuller.Speed = speed, focusPuller.enabled);
+                        GUILayout.Space(10);
+                        if (KKAPI.Studio.StudioAPI.InsideStudio)
+                        {
+                            GUILayout.ExpandHeight(true);
+                            GUILayout.BeginHorizontal();
+                            if (Button("Focus on selected node", true))
+                            {
+                                var TreeNodeCtrl = Singleton<Studio.Studio>.Instance.treeNodeCtrl;
+                                var p = TreeNodeCtrl.selectNodes[0];
+                                if (!Studio.Studio.Instance.dicInfo.TryGetValue(p, out Studio.ObjectCtrlInfo objectCtrlInfo) || // If an object is selected...
+                                    !(objectCtrlInfo is Studio.OCIFolder ociFolderOld && ociFolderOld.objectItem.name == "DOF Target")) // make sure that object isn't an existing DOF Target
+                                {
+                                    // Delete all other DOF Targets
+                                    List<Studio.TreeNodeObject> deathNote = new List<Studio.TreeNodeObject>();
+                                    foreach (var i in Studio.Studio.Instance.dicInfo)
+                                        if (i.Value is Studio.OCIFolder ociFolder && ociFolder.objectItem.name == "DOF Target")
+                                            deathNote.Add(i.Key);
+                                    foreach (var i in deathNote)
+                                        if (i != null)
+                                            TreeNodeCtrl.DeleteNode(i);
+                                    // Add DOF Target
+                                    Singleton<Studio.Studio>.Instance.AddFolder();
+                                    var n = TreeNodeCtrl.selectNodes[0];
+                                    if (Studio.Studio.Instance.dicInfo.TryGetValue(n, out objectCtrlInfo))
+                                        if (objectCtrlInfo is Studio.OCIFolder ociFolder)
+                                        {
+                                            TreeNodeCtrl.SetParent(n, p);
+                                            ociFolder.name = "DOF Target";
+                                            ociFolder.objectItem.name = "DOF Target";
+                                            ociFolder.guideObject.changeAmount.m_Pos = Vector3.zero;
+                                            ociFolder.guideObject.changeAmount.onChangePos();
+                                        }
+                                }
+                            }
+                            GUILayout.EndHorizontal();
+                            GUILayout.Space(10);
+                        }
+
+                        GUI.enabled = false;
+                        Dimension("Target Position", focusPuller.TargetPosition);
+                        GUI.enabled = true;
+                        Slider("Focus Speed", focusSettings.Speed.value, 1f, 12f, "N1", speed => { focusSettings.Speed.value = speed; FocusManager.UpdateSettings(); },
+                            focusSettings.Speed.overrideState, overrideState => { focusSettings.Speed.overrideState = overrideState; FocusManager.UpdateSettings(); });
                     }
                     Slider("Focal Distance", settings.depthOfFieldLayer.focusDistance.value, 0.1f, 1000f, "N2", focusDistance => settings.depthOfFieldLayer.focusDistance.value = focusDistance,
                         settings.depthOfFieldLayer.focusDistance.overrideState && !focusPuller.enabled, overrideState => settings.depthOfFieldLayer.focusDistance.overrideState = overrideState);
+                    GUILayout.Space(30);
+                    Label("LENS SETTINGS", "", true);
+                    GUILayout.Space(5);
                     Slider("Aperture", settings.depthOfFieldLayer.aperture.value, 1f, 22f, "N1", aperture => settings.depthOfFieldLayer.aperture.value = aperture,
                         settings.depthOfFieldLayer.aperture.overrideState, overrideState => settings.depthOfFieldLayer.aperture.overrideState = overrideState);
                     Slider("Focal Length", settings.depthOfFieldLayer.focalLength.value, 10f, 600f, "N0", focalLength => settings.depthOfFieldLayer.focalLength.value = focalLength,
                         settings.depthOfFieldLayer.focalLength.overrideState, overrideState => settings.depthOfFieldLayer.focalLength.overrideState = overrideState);
+                    GUILayout.Space(30);
+                    Label("BLUR SETTINGS", "", true);
+                    GUILayout.Space(5);
                     Selection("Max Blur Size", settings.depthOfFieldLayer.kernelSize.value, kernelSize => settings.depthOfFieldLayer.kernelSize.value = kernelSize, -1,
                         settings.depthOfFieldLayer.kernelSize.overrideState, overrideState => settings.depthOfFieldLayer.kernelSize.overrideState = overrideState);
-
-                    if (showAdvanced)
-                    {
-                        GUI.enabled = false;
-                        Label("Max Distance", focusPuller.MaxDistance.ToString());
-                        Dimension("Target Position", focusPuller.TargetPosition);
-                        GUI.enabled = true;
-                    }
                 }
                 GUILayout.EndVertical();
             }
@@ -772,47 +807,47 @@ namespace Graphics.Inspector
                 GUILayout.EndVertical();
             }
 
-            //if (LuxWater_UnderWaterRenderingManager.settings != null)
-            //{
-            //    UnderWaterRenderingSettings underwaterSettings = LuxWater_UnderWaterRenderingManager.settings;
-            //    WaterVolumeTriggerSettings triggerSettings = LuxWater_WaterVolumeTriggerManager.settings;
-            //    ConnectSunToUnderwaterSettings connectSettings = ConnectSunToUnderwaterManager.settings;
-            //    UnderWaterBlurSettings blurSettings = LuxWater_UnderwaterBlurManager.settings;
-            //    GUILayout.BeginVertical(SmallTab);
+            if (LuxWater_UnderWaterRenderingManager.settings != null)
+            {
+                UnderWaterRenderingSettings underwaterSettings = LuxWater_UnderWaterRenderingManager.settings;
+                WaterVolumeTriggerSettings triggerSettings = LuxWater_WaterVolumeTriggerManager.settings;
+                ConnectSunToUnderwaterSettings connectSettings = ConnectSunToUnderwaterManager.settings;
+                UnderWaterBlurSettings blurSettings = LuxWater_UnderwaterBlurManager.settings;
+                GUILayout.BeginVertical(SmallTab);
 
-            //    Switch(renderSettings.FontSize, "UNDERWATER RENDERING", underwaterSettings.Enabled, true, enabled =>
-            //    {
-            //        underwaterSettings.Enabled = enabled;
-            //        triggerSettings.Enabled = enabled;
-            //        connectSettings.Enabled = enabled;
-            //        LuxWater_UnderWaterRenderingManager.UpdateSettings();
-            //        LuxWater_WaterVolumeTriggerManager.UpdateSettings();
-            //        ConnectSunToUnderwaterManager.UpdateSettings();
-            //    });
+                Switch(renderSettings.FontSize, "UNDERWATER RENDERING", underwaterSettings.Enabled, true, enabled =>
+                {
+                    underwaterSettings.Enabled = enabled;
+                    triggerSettings.Enabled = enabled;
+                    connectSettings.Enabled = enabled;
+                    LuxWater_UnderWaterRenderingManager.UpdateSettings();
+                    LuxWater_WaterVolumeTriggerManager.UpdateSettings();
+                    ConnectSunToUnderwaterManager.UpdateSettings();
+                });
 
-            //    if (underwaterSettings.Enabled)
-            //    {
-            //        GUILayout.Space(30);
-            //        Label("Info", "Requires Water Volume");
-            //        GUILayout.Space(5);
-            //        LightSelector(lightManager, "Sun Source", RenderSettings.sun, light => 
-            //        {   
-            //            RenderSettings.sun = light; 
-            //            ConnectSunToUnderwater.ConnectSun();
-            //        });
+                if (underwaterSettings.Enabled)
+                {
+                    GUILayout.Space(30);
+                    Label("Info", "Requires Water Volume");
+                    GUILayout.Space(5);
+                    LightSelector(lightManager, "Sun Source", RenderSettings.sun, light =>
+                    {
+                        RenderSettings.sun = light;
+                        ConnectSunToUnderwater.ConnectSun();
+                    });
 
-            //        GUILayout.Space(30);
-            //        ToggleAlt("Underwater Blur", blurSettings.Enabled, false, underwaterBlur => { blurSettings.Enabled = underwaterBlur; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
-            //        if (blurSettings.Enabled)
-            //        {
-            //            Slider("Blur Spread", blurSettings.BlurSpread.value, 0.1f, 1f, "N2", spread => { blurSettings.BlurSpread.value = spread; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
-            //            Slider("Blur Down Sample", blurSettings.BlurDownSample.value, 1, 8, downSample => { blurSettings.BlurDownSample.value = downSample; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
-            //            Slider("Blur Iterations", blurSettings.BlurIterations.value, 1, 8, iterations => { blurSettings.BlurIterations.value = iterations; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
-            //        }
-            //    }
+                    GUILayout.Space(30);
+                    ToggleAlt("Underwater Blur", blurSettings.Enabled, false, underwaterBlur => { blurSettings.Enabled = underwaterBlur; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
+                    if (blurSettings.Enabled)
+                    {
+                        Slider("Blur Spread", blurSettings.BlurSpread.value, 0.1f, 1f, "N2", spread => { blurSettings.BlurSpread.value = spread; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
+                        Slider("Blur Down Sample", blurSettings.BlurDownSample.value, 1, 8, downSample => { blurSettings.BlurDownSample.value = downSample; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
+                        Slider("Blur Iterations", blurSettings.BlurIterations.value, 1, 8, iterations => { blurSettings.BlurIterations.value = iterations; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
+                    }
+                }
 
-            //    GUILayout.EndVertical();
-            //}
+                GUILayout.EndVertical();
+            }
 
             GUILayout.EndScrollView();
 

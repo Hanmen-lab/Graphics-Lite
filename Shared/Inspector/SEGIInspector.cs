@@ -101,7 +101,7 @@ namespace Graphics.Inspector
                             GUILayout.Space(2);
                             Slider("Soft Sunlight", segiSettings.softSunlight, 0f, 16f, "N2", soft => { segiSettings.softSunlight = soft; SEGIManager.UpdateSettings(); });
                             GUILayout.Space(5);
-                            LightSelector(lightManager, "Sun Source", RenderSettings.sun, light => { RenderSettings.sun = light; SEGIManager.UpdateSettings(); /*ConnectSunToUnderwater.ConnectSun();*/ });
+                            LightSelector(lightManager, "Sun Source", RenderSettings.sun, light => { RenderSettings.sun = light; SEGIManager.UpdateSettings(); ConnectSunToUnderwater.ConnectSun(); });
 
                             GUILayout.Space(30);
                             Label("SKY PROPERTIES", "", true);

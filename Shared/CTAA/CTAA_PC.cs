@@ -8,6 +8,7 @@ using System.Collections;
 using KKAPI.Utilities;
 using System.Collections.Generic;
 using static Graphics.Settings.CTAASettings;
+using Graphics.Settings;
 
 namespace Graphics.CTAA
 {
@@ -40,7 +41,7 @@ namespace Graphics.CTAA
         [Space(5)]
         //It's not a function for gaming. Don't use it.
         //[Tooltip("Eliminates Micro Shimmer - (No Dynamic Objects) Suitable for Architectural Visualisation, CAD, Engineering or non-moving objects. Camera can be moved.")]
-        //public bool AntiShimmerMode = false;
+        public bool AntiShimmerMode = false;
 
         public bool MSAA_Control = false;
         public int m_MSAA_Level = 0;
@@ -72,6 +73,8 @@ namespace Graphics.CTAA
 
         private static readonly float[] x_jit = { 0.5f, -0.25f, 0.75f, -0.125f, 0.625f, 0.575f, -0.875f, 0.0625f, -0.3f, 0.75f, -0.25f, -0.625f, 0.325f, 0.975f, -0.075f, 0.625f };
         private static readonly float[] y_jit = { 0.33f, -0.66f, 0.51f, 0.44f, -0.77f, 0.12f, -0.55f, 0.88f, -0.83f, 0.14f, 0.71f, -0.34f, 0.87f, -0.12f, 0.75f, 0.08f };
+        
+        PostProcessingSettings postProcessingSettings = Graphics.Instance.PostProcessingSettings;
 
         public bool moveActive = true;
         public float speed = 0.002f;
@@ -85,7 +88,7 @@ namespace Graphics.CTAA
             preEnhanceClamp = Mathf.Lerp(0.005f, 0.12f, AdaptiveSharpness);
             jitterScale = TemporalJitterScale;
             //It's not a function for gaming. Don't use it.
-            //ctaaMat.SetFloat(CTAA_ShaderIDs._AntiShimmer, (AntiShimmerMode ? 1.0f : 0.0f));
+            ctaaMat.SetFloat(CTAA_ShaderIDs._AntiShimmer, (AntiShimmerMode ? 1.0f : 0.0f));
             ctaaMat.SetVector(CTAA_ShaderIDs._delValues, new Vector4(0.01f, 2.0f, 0.5f, 0.3f));
         }
         AssetBundle assetBundle;
@@ -216,6 +219,11 @@ namespace Graphics.CTAA
 
             MainCamera.depthTextureMode |= DepthTextureMode.Depth;
             MainCamera.depthTextureMode |= DepthTextureMode.MotionVectors;
+
+            if (postProcessingSettings.FilterDithering)
+            {
+                Shader.EnableKeyword("_TEMPORALFILTER_ON");
+            }
         }
         void LateUpdate()
         {

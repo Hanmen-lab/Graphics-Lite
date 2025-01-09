@@ -458,7 +458,7 @@ namespace Graphics.Inspector
                 if (suns)
                 {
                     RenderSettings.sun = lightManager.SelectedLight.Light;
-                    //ConnectSunToUnderwater.ConnectSun();
+                    ConnectSunToUnderwater.ConnectSun();
                 }
                 else
                 {
