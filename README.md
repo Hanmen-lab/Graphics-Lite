@@ -7,9 +7,9 @@ Post Processing plugin for AIGirl and HoneySelect2
 This is the separate free branch of my main Graphics Plugin Updates. It Contains the core fixes and optimizations developed for the 6 months of constant updates.  
 
 - NEW UI
-- CTAA Fix
 - SEGI optimizations
 - File Paths Fixes
+- Cubemaps & External textures caching
 - GlobalFog (Legacy) exposed
 - AgX Color Grading
 - New Skybox shader (Ground Projection)
@@ -17,12 +17,17 @@ This is the separate free branch of my main Graphics Plugin Updates. It Contains
 - Amplify Occlusion
 - Underwater Rendering + Volumes
 - New DOF Focus
+- CTAA improvements
+- CTAA Upscaling
+- IGN Dithering filter for clothing & hair
+- Spectral LUTs for Chromatic Aberration
 
 This version DOES NOT includes: 
 - AIOv3 Skyboxes
 - Beautify Bloom + Sun Flares
 - CRT Tube Effect
 - SunShafts HDR
+- Tilt Shift Bokeh Effect
 - Pixelize Effects
 - Glitch Effects
 - Light Leaks Effect
@@ -35,8 +40,8 @@ This version DOES NOT includes:
 - Next-Gen Soft Shadows
 - Screen Space Shadows
 - FrostFX screen freezing
+- Geometric Specular AA
   
-
 If you want to have FUll version you can get it on my sites. The Lite version will be updated accordingly.
 ## Full version
 [Gumroad](https://hanmen.gumroad.com/l/gfxdev)  
