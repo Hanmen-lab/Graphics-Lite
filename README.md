@@ -15,10 +15,11 @@ This is the separate free branch of my main Graphics Plugin Updates. It Contains
 - New Skybox shader (Ground Projection)
 - Dithered Shadows
 - Amplify Occlusion
-
-This version DOES NOT include: 
-- AIOv3 Skyboxes
 - Underwater Rendering + Volumes
+- New DOF Focus
+
+This version DOES NOT includes: 
+- AIOv3 Skyboxes
 - Beautify Bloom + Sun Flares
 - CRT Tube Effect
 - SunShafts HDR
@@ -29,8 +30,14 @@ This version DOES NOT include:
 - ASCII Fx
 - Edge Detection
 - Sharpen
+- Advanced Depth Of Field
+- Atmospheric Fog
+- Next-Gen Soft Shadows
+- Screen Space Shadows
+- FrostFX screen freezing
+  
 
-If you want to have FUll Premium version you can get it on my sites. The Lite version will be updated hopefully from time to time if I had crucial updates.
+If you want to have FUll version you can get it on my sites. The Lite version will be updated accordingly.
 ## Full version
 [Gumroad](https://hanmen.gumroad.com/l/gfxdev)  
 [Patreon](https://www.patreon.com/hanmen)  
