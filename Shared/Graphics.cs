@@ -201,7 +201,6 @@ namespace Graphics
             //Graphics.Instance.CameraSettings.MainCamera.gameObject.AddComponent<NVIDIA.Ansel>();
             //ansel.Start();
 
-
             _skyboxManager = Instance.GetOrAddComponent<SkyboxManager>();
             _skyboxManager.Parent = this;
             _skyboxManager.AssetPath = ConfigCubeMapPath.Value;
