@@ -41,6 +41,9 @@
       <HintPath>..\packages\IllusionLibs.BepInEx.Harmony.2.9.0\lib\net35\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Ansel">
+      <HintPath>..\..\..\..\..\Games\HS2 R14\BepInEx\Plugins\Ansel.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.HoneySelect2.Assembly-CSharp.2020.5.29.4\lib\net46\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -48,6 +51,10 @@
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.HoneySelect2.Assembly-CSharp-firstpass.2020.5.29.4\lib\net46\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Aura2_Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Games\HS2 R14\BepInEx\Plugins\Aura2_Core.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx, Version=5.4.20.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.BepInEx.5.4.20\lib\net35\BepInEx.dll</HintPath>
@@ -64,6 +71,14 @@
     <Reference Include="HS2_ExtensibleSaveFormat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ExtensibleSaveFormat.HoneySelect2.19.2.1\lib\net46\HS2_ExtensibleSaveFormat.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="HS2_Hooah, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Games\HS2 R14\BepInEx\Plugins\HS2_Hooah.dll</HintPath>
+    </Reference>
+    <Reference Include="HS2_HooahUtility, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Games\HS2 R14\BepInEx\Plugins\HS2_HooahUtility.dll</HintPath>
     </Reference>
     <Reference Include="IL, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.HoneySelect2.IL.2020.5.29.4\lib\net46\IL.dll</HintPath>

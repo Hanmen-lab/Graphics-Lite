@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using NVIDIA;
 
 namespace Graphics
 {
@@ -31,7 +32,7 @@ namespace Graphics
     {
         public const string GUID = "ore.graphics";
         public const string PluginName = "Graphics";
-        public const string Version = "1.5.0";
+        public const string Version = "1.5.5";
 
         public static ConfigEntry<KeyCode> ConfigShortcut { get; private set; }
         public static ConfigEntry<string> ConfigCubeMapPath { get; private set; }
@@ -72,6 +73,7 @@ namespace Graphics
         private VAOManager _vaoManager;
         private DitheredShadowsManager _ditheredshadowsManager;
         private FocusManager _focusManager;
+        private AuraManager _auraManager;
 
         private Inspector.Inspector _inspector;
 
@@ -139,6 +141,9 @@ namespace Graphics
             _ctaaManager = new CTAAManager();
             _ctaaManager.Initialize();
 
+            _auraManager = new AuraManager();
+            _auraManager.Initialize();
+
             _sssManager = new SSSManager();
             _sssManager.Initialize();
             SSSMirrorHooks.InitializeMirrorHooks();
@@ -177,6 +182,7 @@ namespace Graphics
             _postProcessingManager = Instance.GetOrAddComponent<PostProcessingManager>();
             _postProcessingManager.Parent = this;
             _postProcessingManager.LensDirtTexturesPath = ConfigLensDirtPath.Value;
+            PostProcessingSettings.UpdateFilterDithering();
             DontDestroyOnLoad(_postProcessingManager);
 
             _ditheredshadowsManager = new DitheredShadowsManager();
@@ -189,11 +195,18 @@ namespace Graphics
 
             if (KKAPI.Studio.StudioAPI.InsideStudio)
                 StudioReset.InitializeStudioHooks();
-            
+
+            //NVIDIA.Ansel ansel = Graphics.Instance.CameraSettings.MainCamera.GetOrAddComponent<Ansel>();
+            //Destroy(ansel);
+            //Graphics.Instance.CameraSettings.MainCamera.gameObject.AddComponent<NVIDIA.Ansel>();
+            //ansel.Start();
+
+
             _skyboxManager = Instance.GetOrAddComponent<SkyboxManager>();
             _skyboxManager.Parent = this;
             _skyboxManager.AssetPath = ConfigCubeMapPath.Value;
             _skyboxManager.Logger = Logger;
+            _skyboxManager.Initialize();
             DontDestroyOnLoad(_skyboxManager);
 
             LocalizationManager.Parent = this;

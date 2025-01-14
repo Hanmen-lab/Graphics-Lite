@@ -49,6 +49,13 @@ namespace Graphics.Textures
 
         public static SkyboxSettings dynSkyboxSetting;
 
+        public static FourPointGradientSkyboxSetting dynFourPointGradientSettings;
+        public static HemisphereGradientSkyboxSetting dynHemisphereGradientSettings;
+        public static AIOSkySettings dynAIOSkySetting;
+        public static TwoPointColorSkyboxSettings dynTwoPointGradientSettings;
+        public static ProceduralSkyboxSettings dynProceduralSkySettings;
+
+
         public SkyboxParams skyboxParams = new SkyboxParams(1f, 0f, new Color32(128, 128, 128, 128), "", false, 0f, 50f);
         public Material Skyboxbg { get; set; }
         public Material Skybox { get; set; }
@@ -158,8 +165,10 @@ namespace Graphics.Textures
             //MapSkybox = RenderSettings.skybox;
             MapSkybox = Parent.LightingSettings.SkyboxSetting;
         }
+        bool Loading = false;
         public void LoadSkyboxParams()
         {
+            Loading = true;
             Exposure = skyboxParams.exposure;
             Tint = skyboxParams.tint;
             Rotation = skyboxParams.rotation;
@@ -268,7 +277,6 @@ namespace Graphics.Textures
 
             }
         }
-
         internal override IEnumerator LoadTexture(string filePath, Action<Texture> _)
         {
             SkyboxManager skyboxManager = this;
@@ -322,12 +330,42 @@ namespace Graphics.Textures
             yield return null;
             ApplySkyboxParams();
 
-            // dynSkyboxSetting is only being used for setting up parameters from preset after assetbundle loading.
-            dynSkyboxSetting?.Load();
-            //dynSkyboxSetting = null;
-
             Update = true;
             Resources.UnloadUnusedAssets();
+        }
+
+        internal IEnumerator LoadTextureHook(string filePath, Action<Texture> _, bool Loading)
+        {
+            yield return LoadTexture(filePath, _);
+
+            if (!Loading)
+            {
+                // dynSkyboxSetting is only being used for setting up parameters from preset after assetbundle loading.
+                if (dynAIOSkySetting == null)
+                    dynAIOSkySetting = new AIOSkySettings();
+                dynAIOSkySetting.Save();
+
+                if (dynHemisphereGradientSettings == null)
+                    dynHemisphereGradientSettings = new HemisphereGradientSkyboxSetting();
+                dynHemisphereGradientSettings.Save();
+
+                if (dynFourPointGradientSettings == null)
+                    dynFourPointGradientSettings = new FourPointGradientSkyboxSetting();
+                dynFourPointGradientSettings.Save();
+
+                if (dynTwoPointGradientSettings == null)
+                    dynTwoPointGradientSettings = new TwoPointColorSkyboxSettings();
+                dynTwoPointGradientSettings.Save();
+
+                if (dynProceduralSkySettings == null)
+                    dynProceduralSkySettings = new ProceduralSkyboxSettings();
+                dynProceduralSkySettings.Save();
+            }
+            UpdateAIOSkySettings();
+            UpdateHemisphereGradientSettings();
+            UpdateFourPointGradientSettings();
+            UpdateTwoPointGradientSettings();
+            UpdateProceduralSkySettings();
         }
 
         //internal string CurrentCubeMap
@@ -338,6 +376,7 @@ namespace Graphics.Textures
             {
                 if (null == value)
                 {
+                    Loading = false;
                     return;
                 }
 
@@ -376,18 +415,18 @@ namespace Graphics.Textures
                         {
                             ToggleCharaMakerBG(false);
                         }
-                        StartCoroutine(LoadTexture(value, null));
+                        StartCoroutine(LoadTextureHook(value, null, Loading));
                     }
                     selectedCubeMap = value;
                     skyboxParams.selectedCubeMap = value;
                     PresetUpdate = false;
                 }
+                Loading = false;
             }
         }
 
         internal override string SearchPattern { get => "*.cube"; set => throw new System.NotImplementedException(); }
         internal override Texture CurrentTexture { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-
         internal override IEnumerator LoadPreview(string filePath)
         {
             string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
@@ -412,7 +451,7 @@ namespace Graphics.Textures
                 texture.SetPixels(CubeMapColors);
                 Util.ResizeTexture(texture, 128, 128, true);
 
-                // Сохраняем текстуру как PNG
+                //Save to PNG
                 byte[] TextureBytes = texture.EncodeToPNG();
                 File.WriteAllBytes(pngFilePath, TextureBytes);
 
@@ -440,7 +479,6 @@ namespace Graphics.Textures
                 _assetsToLoad--;
 
             }
-
         }
 
         internal ReflectionProbe DefaultReflectionProbe()
@@ -539,6 +577,76 @@ namespace Graphics.Textures
         {
             SetupDefaultReflectionProbe(Graphics.Instance.LightingSettings);
             StartCoroutine(UpdateEnvironment());
+        }
+
+        internal void Initialize()
+        {
+            Material mat = Graphics.Instance?.SkyboxManager?.Skybox;
+            if (dynAIOSkySetting == null)
+            {
+                dynAIOSkySetting = new AIOSkySettings();
+            }
+            dynAIOSkySetting.Load();
+
+            if (dynHemisphereGradientSettings == null)
+            {
+                dynHemisphereGradientSettings = new HemisphereGradientSkyboxSetting();
+            }
+            dynHemisphereGradientSettings.Load();
+
+            if (dynFourPointGradientSettings == null)
+            {
+                dynFourPointGradientSettings = new FourPointGradientSkyboxSetting();
+            }
+            dynFourPointGradientSettings.Load();
+
+            if (dynTwoPointGradientSettings == null)
+            {
+                dynTwoPointGradientSettings = new TwoPointColorSkyboxSettings();
+            }
+            dynTwoPointGradientSettings.Load();
+
+            if (dynProceduralSkySettings == null)
+            {
+                dynProceduralSkySettings = new ProceduralSkyboxSettings();
+            }
+            dynProceduralSkySettings.Load();
+        }
+
+        public static void UpdateAIOSkySettings()
+        {
+            if (dynAIOSkySetting == null)
+                dynAIOSkySetting = new AIOSkySettings();
+
+            dynAIOSkySetting.Load();
+        }
+        public static void UpdateHemisphereGradientSettings()
+        {
+            if (dynHemisphereGradientSettings == null)
+                dynHemisphereGradientSettings = new HemisphereGradientSkyboxSetting();
+
+            dynHemisphereGradientSettings.Load();
+        }
+        public static void UpdateFourPointGradientSettings()
+        {
+            if (dynFourPointGradientSettings == null)
+                dynFourPointGradientSettings = new FourPointGradientSkyboxSetting();
+
+            dynFourPointGradientSettings.Load();
+        }
+        public static void UpdateTwoPointGradientSettings()
+        {
+            if (dynTwoPointGradientSettings == null)
+                dynTwoPointGradientSettings = new TwoPointColorSkyboxSettings();
+
+            dynTwoPointGradientSettings.Load();
+        }
+        public static void UpdateProceduralSkySettings()
+        {
+            if (dynProceduralSkySettings == null)
+                dynProceduralSkySettings = new ProceduralSkyboxSettings();
+
+            dynProceduralSkySettings.Load();
         }
     }
 }

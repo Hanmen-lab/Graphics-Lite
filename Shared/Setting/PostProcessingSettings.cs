@@ -22,29 +22,12 @@ namespace Graphics.Settings
         internal VignetteParams paramVignette = new VignetteParams();
         internal MotionBlurParams paramMotionBlur = new MotionBlurParams();
         internal AmplifyOcclusionParams paramAmplifyOcclusion = new AmplifyOcclusionParams();
-        //internal TiltShiftBokehParams paramTiltShiftBokeh = new TiltShiftBokehParams();
-        //internal SunShaftsHDRParams paramSunShaftsHDR = new SunShaftsHDRParams();
-        //internal CRTTubeParams paramCRTTube = new CRTTubeParams();
-        //internal PixelizeQuadParams paramPixelizeQuad = new PixelizeQuadParams();
-        //internal PixelizeLedParams paramPixelizeLed = new PixelizeLedParams();
-        //internal PixelizeHexagonParams paramPixelizeHexagon = new PixelizeHexagonParams();
-        //internal GlitchRGBSplitV5Params paramGlitchRGBSplitV5 = new GlitchRGBSplitV5Params();
-        //internal GlitchRGBSplitV4Params paramGlitchRGBSplitV4 = new GlitchRGBSplitV4Params();
-        //internal GlitchRGBSplitV3Params paramGlitchRGBSplitV3 = new GlitchRGBSplitV3Params();
-        //internal GlitchRGBSplitV2Params paramGlitchRGBSplitV2 = new GlitchRGBSplitV2Params();
-        //internal GlitchRGBSplitParams paramGlitchRGBSplit = new GlitchRGBSplitParams();
-        //internal GlitchImageBlockParams paramGlitchImageBlock = new GlitchImageBlockParams();
-        //internal GlitchImageBlockV2Params paramGlitchImageBlockV2 = new GlitchImageBlockV2Params();
-        //internal GlitchImageBlockV3Params paramGlitchImageBlockV3 = new GlitchImageBlockV3Params();
-        //internal GlitchImageBlockV4Params paramGlitchImageBlockV4 = new GlitchImageBlockV4Params();
-        //internal BeautifyBloomParams paramBeautifyBloom = new BeautifyBloomParams();
-        //internal LightLeaksPPSParams paramLightLeaksPPS = new LightLeaksPPSParams();
-        //internal BeautifyDoFParams paramBeautifyDoF = new BeautifyDoFParams();
         internal AgxColorParams paramAgxColor = new AgxColorParams();
 
         public bool PostVolumeMap = false;
 
         public bool filterDithering = true;
+        private const string temporalKeyword = "_TEMPORALFILTER_ON";
 
         public AmbientOcclusionList AOList;
         //public PixelizeList PixList;
@@ -67,36 +50,6 @@ namespace Graphics.Settings
             GTAO,
             Amplify
         };
-
-        //public enum PixelizeList
-        //{
-        //    None,
-        //    LED,
-        //    Quad,
-        //    Hex
-        //};
-
-        //public enum GlitchList
-        //{
-        //    None,
-        //    RGBSplit,
-        //    RGBSplitV2,
-        //    RGBSplitV3,
-        //    RGBSplitV4,
-        //    RGBSplitV5,
-        //    ImageBlock,
-        //    ImageBlockV2,
-        //    ImageBlockV3,
-        //    ImageBlockV4
-        //};
-
-        //public enum BloomList
-        //{
-        //    None,
-        //    Legacy,
-        //    Beautify
-        //};
-
 
         public enum GradingMode
         {
@@ -380,6 +333,8 @@ namespace Graphics.Settings
             {
                 paramAgxColor.Load(agxColorLayer);
             }
+
+            UpdateFilterDithering();
         }
 
         internal Transform VolumeTriggerSetting => _postProcessLayer.volumeTrigger;
@@ -530,6 +485,30 @@ namespace Graphics.Settings
         {
             get => paramAgxColor;
             set => paramAgxColor = value;
+        }
+        public void UpdateFilterDithering()
+        {
+            if (PostProcessLayer.antialiasingMode == PostProcessLayer.Antialiasing.TemporalAntialiasing || AntialiasingMode == Antialiasing.CTAA)
+            {
+                if (filterDithering && !Shader.IsKeywordEnabled(temporalKeyword))
+                {
+                    Graphics.Instance.Log.LogInfo("Global temporal filtering has been enabled. Switching to the animated version of IGN dithering.");
+                    Shader.EnableKeyword(temporalKeyword);
+                }
+                else if (!filterDithering && Shader.IsKeywordEnabled(temporalKeyword))
+                {
+                    Graphics.Instance.Log.LogInfo("Global temporal filtering has been disabled. Switching to the static version of IGN dithering.");
+                    Shader.DisableKeyword(temporalKeyword);
+                }
+            }
+            else
+            {
+                if (Shader.IsKeywordEnabled(temporalKeyword))
+                {
+                    Graphics.Instance.Log.LogInfo("Global temporal filtering has been disabled. Switching to the static version of IGN dithering.");
+                    Shader.DisableKeyword(temporalKeyword);
+                }
+            }
         }
     }
 }

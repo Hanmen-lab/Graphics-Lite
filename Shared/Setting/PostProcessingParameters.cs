@@ -443,19 +443,19 @@ namespace Graphics.Settings
     public struct DepthOfFieldParams
     {
         public BoolValue enabled;
-        public float focusSpeed;
+        //public float focusSpeed;
         public FloatValue focusDistance;
         public FloatValue aperture;
         public FloatValue focalLength;
         public KernelSizeValue kernelSize;
-        public bool focusPuller;
+        //public bool focusPuller;
 
         public void Save(UnityEngine.Rendering.PostProcessing.DepthOfField layer)
         {
             if (layer != null)
             {
-                focusPuller = PostProcessingInspector.AutoFocusEnabled;
-                focusSpeed = PostProcessingInspector.GetAutoFocusSpeedFromGameSession();
+                //focusPuller = PostProcessingInspector.AutoFocusEnabled;
+                //focusSpeed = PostProcessingInspector.GetAutoFocusSpeedFromGameSession();
                 enabled = new BoolValue(layer.enabled);
                 focusDistance = new FloatValue(layer.focusDistance);
                 aperture = new FloatValue(layer.aperture);
@@ -468,8 +468,8 @@ namespace Graphics.Settings
         {
             if (layer != null)
             {
-                PostProcessingInspector.AutoFocusEnabled = focusPuller;
-                PostProcessingInspector.SetAutoFocusSpeedToGameSession(focusSpeed);
+                //PostProcessingInspector.AutoFocusEnabled = focusPuller;
+                //PostProcessingInspector.SetAutoFocusSpeedToGameSession(focusSpeed);
                 enabled.Fill(layer.enabled);
                 layer.active = layer.enabled.value;
                 focusDistance.Fill(layer.focusDistance);

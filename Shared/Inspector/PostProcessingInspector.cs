@@ -16,50 +16,9 @@ namespace Graphics.Inspector
     internal static class PostProcessingInspector
     {
         private static Vector2 postScrollView;
-        private static FocusPuller focusPuller;
-        private static bool _autoFocusEnabled;
-        private static float _autoFocusSpeed;
-        //private static bool _flareCustomize;
-
-        internal static bool AutoFocusEnabled
-        {
-            get => null != focusPuller && focusPuller.enabled;
-            set
-            {
-                _autoFocusEnabled = value;
-                if (null != focusPuller)
-                    focusPuller.enabled = true;
-            }
-        }
-
-        internal static float GetAutoFocusSpeedFromGameSession()
-        {
-            return focusPuller != null ? focusPuller.Speed : _autoFocusSpeed;
-        }
-
-        internal static void SetAutoFocusSpeedToGameSession(float speedReadFromFile)
-        {
-            _autoFocusSpeed = speedReadFromFile;
-            if (focusPuller != null)
-            {
-                focusPuller.Speed = speedReadFromFile;
-            }
-        }
-
-        internal static void PlanarOn()
-        {
-
-            var reflection = UnityEngine.Object.FindObjectOfType<LuxWater.LuxWater_PlanarReflection>();
-            if (null == reflection)
-                return;
-
-            reflection.enabled = true;
-        }
 
         internal static void Draw(LightManager lightManager, PostProcessingSettings settings, GlobalSettings renderSettings, PostProcessingManager postprocessingManager, bool showAdvanced)
         {
-
-
             GUIStyle EmptyBox = new GUIStyle(GUI.skin.box);
             EmptyBox.padding = new RectOffset(20, 0, 3, 13);
             EmptyBox.normal.background = null;
@@ -77,7 +36,7 @@ namespace Graphics.Inspector
 
             GUILayout.BeginVertical(TabContent);
             {
-                GUILayout.Space(10);
+                //GUILayout.Space(10);
                 Label("POST PROCESSING", "", true);
                 GUILayout.Space(1);
                 if (showAdvanced)
@@ -846,6 +805,39 @@ namespace Graphics.Inspector
                     }
                 }
 
+                GUILayout.EndVertical();
+            }
+
+            if (AuraManager.settings != null)
+            {
+                AuraSettings auralayer = AuraManager.settings; //internal basic manager
+                //AuraConfigManager auraConfigManager = new AuraConfigManager(); //External Hooah Utility Manager
+                //AuraConfig aurasettings = new AuraConfig(); 
+
+                GUILayout.BeginVertical(SmallTab);
+                Switch(renderSettings.FontSize, "AURA", auralayer.Enabled, true, enabled => { auralayer.Enabled = enabled; AuraManager.UpdateSettings(); });
+
+                if (auralayer.Enabled)
+                {
+                    GUILayout.Space(30);
+                    Label("Work in Progress", "Settings not implemented yet. Use this only for disabling/Enabling.", true);
+
+                    //ToggleAlt("Use Density", aurasettings.UseDensity, false, useDensity => { aurasettings.UseDensity = useDensity; auraConfigManager.UpdateConfig(); });
+                    //if (aurasettings.UseDensity)
+                    //{
+                    //    Slider("Density", aurasettings.BaseDensity, 0.0f, 1.0f, "N2", density => { aurasettings.BaseDensity = density; auraConfigManager.UpdateConfig(); });
+                    //}
+                    //ToggleAlt("Use Scattering", aurasettings.UseScattering, false, useScattering => { aurasettings.UseScattering = useScattering; auraConfigManager.UpdateConfig(); });
+                    //if (aurasettings.UseScattering)
+                    //{
+                    //    Slider("Scattering", aurasettings.BaseScattering, 0.0f, 1.0f, "N2", scattering => { aurasettings.BaseScattering = scattering; auraConfigManager.UpdateConfig(); });
+                    //}
+                    //ToggleAlt("Use Ambient Lighting", aurasettings.UseAmbientLighting, false, useAmbientLight => { aurasettings.UseAmbientLighting = useAmbientLight; auraConfigManager.UpdateConfig(); });
+                    //if (aurasettings.UseAmbientLighting)
+                    //{
+                    //    Slider("Ambient Lighting Strength", aurasettings.BaseAmbientLighting, 0.0f, 1.0f, "N2", ambientLighting => { aurasettings.BaseAmbientLighting = ambientLighting; auraConfigManager.UpdateConfig(); });
+                    //}
+                }
                 GUILayout.EndVertical();
             }
 

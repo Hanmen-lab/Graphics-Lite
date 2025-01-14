@@ -220,10 +220,6 @@ namespace Graphics.CTAA
             MainCamera.depthTextureMode |= DepthTextureMode.Depth;
             MainCamera.depthTextureMode |= DepthTextureMode.MotionVectors;
 
-            if (postProcessingSettings.FilterDithering)
-            {
-                Shader.EnableKeyword("_TEMPORALFILTER_ON");
-            }
         }
         void LateUpdate()
         {

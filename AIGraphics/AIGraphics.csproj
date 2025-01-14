@@ -49,6 +49,15 @@
       <HintPath>..\packages\ExtensibleSaveFormat.AIGirl.19.2.1\lib\net46\AI_ExtensibleSaveFormat.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="AI_Hooah">
+      <HintPath>..\..\..\..\hooh\AI_Hooah.dll</HintPath>
+    </Reference>
+    <Reference Include="AI_HooahUtility">
+      <HintPath>..\..\..\..\hooh\AI_HooahUtility.dll</HintPath>
+    </Reference>
+    <Reference Include="Ansel">
+      <HintPath>..\..\..\..\..\Games\HS2 R14\BepInEx\Plugins\Ansel.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.AIGirl.Assembly-CSharp.2020.5.29.4\lib\net46\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>

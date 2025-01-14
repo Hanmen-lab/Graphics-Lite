@@ -1,10 +1,4 @@
-﻿using Graphics.Textures;
-using MessagePack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MessagePack;
 using UnityEngine;
 
 namespace Graphics.Settings
@@ -28,7 +22,6 @@ namespace Graphics.Settings
         public static readonly int _Scale = Shader.PropertyToID("_Scale");
         public static readonly int _Projection = Shader.PropertyToID("_Projectione");
 
-
         // Procedural Skybox
         public static readonly int _SunDisk = Shader.PropertyToID("_SunDisk");
         public static readonly int _SunSize = Shader.PropertyToID("_SunSize");
@@ -45,8 +38,8 @@ namespace Graphics.Settings
         public static readonly int _ColorB = Shader.PropertyToID("_ColorB");
         public static readonly int _DirA = Shader.PropertyToID("_DirA");
         public static readonly int _DirB = Shader.PropertyToID("_DirB");
-        //Four Point Gradient Skybox
 
+        //Four Point Gradient Skybox
         public static readonly int _Color1 = Shader.PropertyToID("_Color1");
         public static readonly int _Color2 = Shader.PropertyToID("_Color2");
         public static readonly int _Color3 = Shader.PropertyToID("_Color3");
@@ -60,10 +53,10 @@ namespace Graphics.Settings
         public static readonly int _Exponent3 = Shader.PropertyToID("_Exponent3");
         public static readonly int _Exponent4 = Shader.PropertyToID("_Exponent4");
 
-        //Hemisphere Gradient Skybox
-        public static readonly int _TopColor = Shader.PropertyToID("_TopColor");
-        public static readonly int _MiddleColor = Shader.PropertyToID("_MiddleColor");
-        public static readonly int _BottomColor = Shader.PropertyToID("_BottomColor");
+        //2 Point Hemisphere Gradient Skybox
+        public static readonly int _Top = Shader.PropertyToID("_TopColor");
+        public static readonly int _Middle = Shader.PropertyToID("_MiddleColor");
+        public static readonly int _Bottom = Shader.PropertyToID("_BottomColor");
 
         //AIO Skybox
         public static readonly int _sunColor = Shader.PropertyToID("_sunColor");
@@ -309,9 +302,9 @@ namespace Graphics.Settings
     [MessagePackObject(keyAsPropertyName: true)]
     public class HemisphereGradientSkyboxSetting : SkyboxSettings
     {
-        public Color colorA = new Color();
-        public Color colorB = new Color();
-        public Color colorC = new Color();
+        public Color Top = new Color();
+        public Color Middle = new Color();
+        public Color Bottom = new Color();
 
         [IgnoreMember]
         public static readonly string shaderName = "SkyboxPlus/Hemisphere";
@@ -321,9 +314,9 @@ namespace Graphics.Settings
             Material mat = Graphics.Instance?.SkyboxManager?.Skybox;
             if (mat != null && mat.shader.name == shaderName)
             {
-                colorA = mat.GetColor(SkyboxID._TopColor);
-                colorB = mat.GetColor(SkyboxID._MiddleColor);
-                colorC = mat.GetColor(SkyboxID._BottomColor);
+                Top = mat.GetColor(SkyboxID._Top);
+                Middle = mat.GetColor(SkyboxID._Middle);
+                Bottom = mat.GetColor(SkyboxID._Bottom);
             }
         }
         public override void Load()
@@ -331,9 +324,9 @@ namespace Graphics.Settings
             Material mat = Graphics.Instance?.SkyboxManager?.Skybox;
             if (mat != null && mat.shader.name == shaderName)
             {
-                mat.SetColor(SkyboxID._TopColor, colorA);
-                mat.SetColor(SkyboxID._MiddleColor, colorB);
-                mat.SetColor(SkyboxID._BottomColor, colorC);
+                mat.SetColor(SkyboxID._Top, Top);
+                mat.SetColor(SkyboxID._Middle, Middle);
+                mat.SetColor(SkyboxID._Bottom, Bottom);
             }
         }
     }

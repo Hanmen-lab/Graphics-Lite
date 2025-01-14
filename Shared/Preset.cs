@@ -35,6 +35,12 @@ namespace Graphics
         public WaterVolumeTriggerSettings trigger;
         public ConnectSunToUnderwaterSettings connectSun;
         public FocusSettings focus;
+        public TwoPointColorSkyboxSettings twopointsky;
+        public FourPointGradientSkyboxSetting fourpointsky;
+        public HemisphereGradientSkyboxSetting hemispheresky;
+        public AIOSkySettings aiosky;
+        public ProceduralSkyboxSettings proceduralsky;
+        public AuraSettings aura;
 
         public Preset(GlobalSettings global, CameraSettings camera, LightingSettings lights, PostProcessingSettings pp, SkyboxParams skybox)
         {
@@ -60,6 +66,13 @@ namespace Graphics
 
             // Skybox setting is generated when preset is being saved.
             skyboxSetting = null;
+            this.aiosky = SkyboxManager.dynAIOSkySetting;
+            this.hemispheresky = SkyboxManager.dynHemisphereGradientSettings;
+            this.fourpointsky = SkyboxManager.dynFourPointGradientSettings;
+            this.twopointsky = SkyboxManager.dynTwoPointGradientSettings;
+            this.proceduralsky = SkyboxManager.dynProceduralSkySettings;
+
+            this.aura = AuraManager.settings;
         }
 
         public void UpdateParameters()
@@ -78,6 +91,12 @@ namespace Graphics
             connectSun = ConnectSunToUnderwaterManager.settings;
             focus = FocusManager.settings;
             SkyboxManager manager = Graphics.Instance.SkyboxManager;
+            hemispheresky = SkyboxManager.dynHemisphereGradientSettings;
+            aiosky = SkyboxManager.dynAIOSkySetting;
+            fourpointsky = SkyboxManager.dynFourPointGradientSettings;
+            twopointsky = SkyboxManager.dynTwoPointGradientSettings;
+            proceduralsky = SkyboxManager.dynProceduralSkySettings;
+            aura = AuraManager.settings;
 
             Material mat = manager.Skybox;
             if (mat)
@@ -89,11 +108,11 @@ namespace Graphics
                 // TODO: Add EnviroSky Support (AI)
                 // TODO: Add AIOSky Support (HS2)
                 // TODO: Stronger exception handling for different games.
-                if (mat.shader.name == ProceduralSkyboxSettings.shaderName) setting = new ProceduralSkyboxSettings();
-                else if (mat.shader.name == TwoPointColorSkyboxSettings.shaderName) setting = new TwoPointColorSkyboxSettings();
-                else if (mat.shader.name == FourPointGradientSkyboxSetting.shaderName) setting = new FourPointGradientSkyboxSetting();
-                else if (mat.shader.name == HemisphereGradientSkyboxSetting.shaderName) setting = new HemisphereGradientSkyboxSetting();
-                else if (mat.shader.name == AIOSkySettings.shaderName) setting = new AIOSkySettings();
+                //if (mat.shader.name == ProceduralSkyboxSettings.shaderName) setting = new ProceduralSkyboxSettings();
+                //else if (mat.shader.name == TwoPointColorSkyboxSettings.shaderName) setting = new TwoPointColorSkyboxSettings();
+                //else if (mat.shader.name == FourPointGradientSkyboxSetting.shaderName) setting = new FourPointGradientSkyboxSetting();
+                //else if (mat.shader.name == HemisphereGradientSkyboxSetting.shaderName) setting = new HemisphereGradientSkyboxSetting();
+                //else if (mat.shader.name == AIOSkySettings.shaderName) setting = new AIOSkySettings();
 
                 if (setting != null)
                 {
@@ -240,12 +259,23 @@ namespace Graphics
 #if DEBUG
             Graphics.Instance.Log.LogInfo($"Done with FocusPuller");
 #endif
+            AuraManager.settings = aura;
+            AuraManager.UpdateSettings();
+#if DEBUG
+            Graphics.Instance.Log.LogInfo($"Done with Aura 2");
+#endif
+
 
             SkyboxManager manager = Graphics.Instance.SkyboxManager;
             if (manager)
             {
                 if (skyboxSetting != null)
                     SkyboxManager.dynSkyboxSetting = skyboxSetting;
+                SkyboxManager.dynAIOSkySetting = aiosky;
+                SkyboxManager.dynHemisphereGradientSettings = hemispheresky;
+                SkyboxManager.dynFourPointGradientSettings = fourpointsky;
+                SkyboxManager.dynTwoPointGradientSettings = twopointsky;
+                SkyboxManager.dynProceduralSkySettings = proceduralsky;
                 manager.skyboxParams = skybox;
                 manager.PresetUpdate = true;
                 manager.LoadSkyboxParams();

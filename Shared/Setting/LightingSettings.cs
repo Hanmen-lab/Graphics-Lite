@@ -38,11 +38,11 @@ namespace Graphics.Settings
             get => RenderSettings.ambientLight;
             set
             {
-                if (RenderSettings.ambientLight == null)
+                if (value == new Color32(0, 0, 0, 0))
                 {
-                    value = new Color32(170, 188, 243, 255);
+                    value = RenderSettings.ambientLight;
                 }
-                RenderSettings.ambientLight = AmbientLight;
+                RenderSettings.ambientLight = value;
             }
 
         }
@@ -51,11 +51,11 @@ namespace Graphics.Settings
             get => RenderSettings.ambientSkyColor;
             set
             {
-                if (RenderSettings.ambientSkyColor == null)
+                if (value == new Color32(0, 0, 0, 0))
                 {
-                    value = new Color32(170, 188, 243, 255);
+                    value = RenderSettings.ambientSkyColor;
                 }
-                RenderSettings.ambientSkyColor = SkyColor;
+                RenderSettings.ambientSkyColor = value;
             }
         }
 
@@ -64,11 +64,11 @@ namespace Graphics.Settings
             get => RenderSettings.ambientEquatorColor;
             set
             {
-                if (RenderSettings.ambientEquatorColor == null)
+                if (value == new Color32(0, 0, 0, 0))
                 {
-                    value = new Color32(185, 195, 205, 255);
+                    value = RenderSettings.ambientEquatorColor;
                 }
-                RenderSettings.ambientEquatorColor = EquatorColor;
+                RenderSettings.ambientEquatorColor = value;
             }
         }
 
@@ -77,11 +77,11 @@ namespace Graphics.Settings
             get => RenderSettings.ambientGroundColor;
             set
             {
-                if (RenderSettings.ambientGroundColor == null)
+                if (value == new Color32(0, 0, 0, 0))
                 {
-                    value = new Color(204, 109, 41, 255);
+                    value = RenderSettings.ambientGroundColor;
                 }
-                RenderSettings.ambientGroundColor = GroundColor;
+                RenderSettings.ambientGroundColor = value;
             }
         }
 

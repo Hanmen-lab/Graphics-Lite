@@ -18,11 +18,14 @@ namespace Graphics.Inspector
                 return;
             }
 
+            GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);
+            TabContent.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2.9f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f));
+
             if (SSSManager.settings != null)
             {
                 SSSSettings sss = SSSManager.settings;
                 SSS sssinstance = SSSManager.SSSInstance;
-                GUILayout.BeginVertical(GUIStyles.tabcontent);
+                GUILayout.BeginVertical(TabContent);
                 {
                     Switch(renderSettings.FontSize, "SCREEN SPACE SSS", sss.Enabled, true, enabled =>
                     {

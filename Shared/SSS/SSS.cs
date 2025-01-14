@@ -1,5 +1,7 @@
-﻿using Graphics.CTAA;
+﻿using ADV.Backup;
+using Graphics.CTAA;
 using KKAPI.Utilities;
+using NVIDIA;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +47,8 @@ namespace Graphics
         public bool ShowGUI;
         public SSS_convolution sss_convolution;
         private CTAA_PC ctaa;
+
+        //private NVIDIA.Ansel ansel;
         //private SEGI.SEGI segi;
 
         public bool MirrorSSS;
@@ -269,6 +273,12 @@ namespace Graphics
                         ctaa = lightingCameraGO.AddComponent<CTAA_PC>();
                         ctaa.enabled = CTAAManager.settings.Enabled;
                     }
+
+                    //if (!ansel)
+                    //{
+                    //    ansel = lightingCameraGO.AddComponent<Ansel>();
+                    //    ansel.Start();
+                    //}
 
                     if (!sss_convolution)
                         sss_convolution = lightingCameraGO.AddComponent<SSS_convolution>();

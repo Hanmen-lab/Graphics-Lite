@@ -111,6 +111,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)AmplifyOcclusion\AmplifyOcclusionCommon.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AmplifyOcclusion\AmplifyOcclusionEffect.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AmplifyOcclusion\AmplifyOcclusionManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Aura 2\AuraManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Aura 2\AuraSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FocusPuller\FocusManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FocusPuller\FocusSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Inspector\ReflectionProbeInspector.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)LuxWater\UnderWaterRenderingSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LuxWater\WaterVolumeTriggerManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LuxWater\WaterVolumeTriggerSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PathUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PostProcessingManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Texture\EmbeddedTextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Texture\InternalTextureManager.cs" />
