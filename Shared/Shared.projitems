@@ -279,7 +279,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\MAIN_GAME.factory" />
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\MAKER.factory" />
+    <None Include="$(MSBuildThisFileDirectory)Resources\defaults\MAKER.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\STUDIO.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\TITLE.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\VR_GAME.factory" />
