@@ -71,7 +71,6 @@ namespace Graphics
             this.fourpointsky = SkyboxManager.dynFourPointGradientSettings;
             this.twopointsky = SkyboxManager.dynTwoPointGradientSettings;
             this.proceduralsky = SkyboxManager.dynProceduralSkySettings;
-
             this.aura = AuraManager.settings;
         }
 
@@ -119,6 +118,7 @@ namespace Graphics
                     setting.Save();
                     skyboxSetting = setting;
                 }
+
             }
             ReflectionProbe defaultProbe = manager.DefaultReflectionProbe();
             if (defaultProbe != null && defaultProbe.intensity > 0)
@@ -264,24 +264,31 @@ namespace Graphics
 #if DEBUG
             Graphics.Instance.Log.LogInfo($"Done with Aura 2");
 #endif
-
-
             SkyboxManager manager = Graphics.Instance.SkyboxManager;
             if (manager)
             {
+                // Foward-port skybox settings
                 if (skyboxSetting != null)
-                    SkyboxManager.dynSkyboxSetting = skyboxSetting;
-                SkyboxManager.dynAIOSkySetting = aiosky;
-                SkyboxManager.dynHemisphereGradientSettings = hemispheresky;
-                SkyboxManager.dynFourPointGradientSettings = fourpointsky;
-                SkyboxManager.dynTwoPointGradientSettings = twopointsky;
-                SkyboxManager.dynProceduralSkySettings = proceduralsky;
+                {
+                    if (skyboxSetting is AIOSkySettings && aiosky == null) SkyboxManager.dynAIOSkySetting = skyboxSetting as AIOSkySettings;
+                    else if (skyboxSetting is HemisphereGradientSkyboxSetting && hemispheresky == null) SkyboxManager.dynHemisphereGradientSettings = skyboxSetting as HemisphereGradientSkyboxSetting;
+                    else if (skyboxSetting is FourPointGradientSkyboxSetting && fourpointsky == null) SkyboxManager.dynFourPointGradientSettings = skyboxSetting as FourPointGradientSkyboxSetting;
+                    else if (skyboxSetting is TwoPointColorSkyboxSettings && twopointsky == null) SkyboxManager.dynTwoPointGradientSettings = skyboxSetting as TwoPointColorSkyboxSettings;
+                    else if (skyboxSetting is ProceduralSkyboxSettings && proceduralsky == null) SkyboxManager.dynProceduralSkySettings = skyboxSetting as ProceduralSkyboxSettings;
+                }
+
+                SkyboxManager.dynAIOSkySetting = SkyboxManager.dynAIOSkySetting ?? aiosky;
+                SkyboxManager.dynHemisphereGradientSettings = SkyboxManager.dynHemisphereGradientSettings ?? hemispheresky;
+                SkyboxManager.dynFourPointGradientSettings = SkyboxManager.dynFourPointGradientSettings ?? fourpointsky;
+                SkyboxManager.dynTwoPointGradientSettings = SkyboxManager.dynTwoPointGradientSettings ?? twopointsky;
+                SkyboxManager.dynProceduralSkySettings = SkyboxManager.dynProceduralSkySettings ?? proceduralsky;
+
                 manager.skyboxParams = skybox;
                 manager.PresetUpdate = true;
                 manager.LoadSkyboxParams();
-
                 manager.SetupDefaultReflectionProbe(Graphics.Instance.LightingSettings);
             }
+
 #if DEBUG
             Graphics.Instance.Log.LogInfo($"Done with skybox");
 #endif

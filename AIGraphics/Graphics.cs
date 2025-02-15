@@ -44,9 +44,14 @@ namespace Graphics
             GameMode gameMode = KoikatuAPI.GetCurrentGameMode();
             Log.LogInfo(string.Format("AIS Scene Loaded: {0} Game: {1} CAM FOV: {2}", scene.name, gameMode, CameraSettings.MainCamera.fieldOfView));
 
+            _ctaaManager?.CheckInstance();
             _sssManager?.CheckInstance();
             _gtaoManager?.CheckInstance();
-            //_vaoManager?.CheckInstance();
+            _vaoManager?.CheckInstance();
+            _amplifyoccManager?.CheckInstance();
+            //_shinyssrrManager?.CheckInstance();
+            _ditheredshadowsManager?.CheckInstance();
+            _focusManager?.CheckInstance();
 
             if (CameraSettings.MainCamera.stereoEnabled) // VR...use VR
             {

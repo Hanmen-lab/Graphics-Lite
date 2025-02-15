@@ -40,6 +40,7 @@ namespace Graphics
             _amplifyoccManager?.CheckInstance();
             //_shinyssrrManager?.CheckInstance();
             _ditheredshadowsManager?.CheckInstance();
+            _focusManager?.CheckInstance();
 
             if (CameraSettings.MainCamera.stereoEnabled) // VR...use VR
             {

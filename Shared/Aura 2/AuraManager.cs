@@ -15,25 +15,37 @@ namespace Graphics
         public static AuraSettings settings;
 
         internal static AuraCamera AuraInstance;
+        internal static AuraBaseSettings BaseSettings;
+        internal static AuraQualitySettings QualitySettings;
 
         // Initialize Components
         internal void Initialize()
         {
-            AuraInstance = Graphics.Instance.CameraSettings.MainCamera.GetOrAddComponent<AuraCamera>();
+            AuraInstance = Graphics.Instance.CameraSettings.MainCamera.GetComponent<AuraCamera>();
             if (settings == null)
             {
                 settings = new AuraSettings();
             }
 
-            settings.Load(AuraInstance);
+            if (AuraInstance)
+            {
+                settings.Load(AuraInstance);
+                settings.LoadBaseSettings(AuraInstance.frustumSettings.BaseSettings);
+                settings.LoadQualitySettings(AuraInstance.frustumSettings.QualitySettings);
+            }
         }
 
         public static void UpdateSettings()
         {
             if (settings == null)
                 settings = new AuraSettings();
+
             if (AuraInstance != null)
+            {
                 settings.Load(AuraInstance);
+                settings.LoadBaseSettings(AuraInstance.frustumSettings.BaseSettings);
+                settings.LoadQualitySettings(AuraInstance.frustumSettings.QualitySettings);
+            }
         }
 
         IEnumerator WaitForCamera()

@@ -298,7 +298,7 @@ namespace Graphics.Settings
         {
             while (!Graphics.Instance.PostProcessingManager.LUTReady())
                 yield return null;
-            layer.spectralLut.value = Graphics.Instance.PostProcessingManager.Load3DLUT(spectralLutIndex.value);
+            layer.spectralLut.value = Graphics.Instance.PostProcessingManager.LoadSpecLUT(spectralLutIndex.value);
             layer.spectralLut.overrideState = spectralLutIndex.overrideState;
             yield break;
         }

@@ -810,33 +810,88 @@ namespace Graphics.Inspector
 
             if (AuraManager.settings != null)
             {
-                AuraSettings auralayer = AuraManager.settings; //internal basic manager
-                //AuraConfigManager auraConfigManager = new AuraConfigManager(); //External Hooah Utility Manager
-                //AuraConfig aurasettings = new AuraConfig(); 
+                AuraSettings auralayer = AuraManager.settings;
 
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "AURA", auralayer.Enabled, true, enabled => { auralayer.Enabled = enabled; AuraManager.UpdateSettings(); });
+                Switch(renderSettings.FontSize, "AURA 2 Volumetric Lighting & Fog", auralayer.Enabled, true, enabled => { auralayer.Enabled = enabled; AuraManager.UpdateSettings(); });
 
                 if (auralayer.Enabled)
                 {
                     GUILayout.Space(30);
-                    Label("Work in Progress", "Settings not implemented yet. Use this only for disabling/Enabling.", true);
+                    Label("BASE SETTINGS", "", true);
+                    GUILayout.Space(5);
+                    ToggleAlt("Use Density", auralayer.useDensity.value, false, useDensity => { auralayer.useDensity.value = useDensity; AuraManager.UpdateSettings(); });
+                    if (auralayer.useDensity.value)
+                    {
+                        Slider("Density", auralayer.density.value, 0.0f, 1.0f, "N2", density => { auralayer.density.value = density; AuraManager.UpdateSettings(); },
+                            auralayer.density.overrideState, overrideState => { auralayer.density.overrideState = overrideState; AuraManager.UpdateSettings(); });
+                    }
 
-                    //ToggleAlt("Use Density", aurasettings.UseDensity, false, useDensity => { aurasettings.UseDensity = useDensity; auraConfigManager.UpdateConfig(); });
-                    //if (aurasettings.UseDensity)
-                    //{
-                    //    Slider("Density", aurasettings.BaseDensity, 0.0f, 1.0f, "N2", density => { aurasettings.BaseDensity = density; auraConfigManager.UpdateConfig(); });
-                    //}
-                    //ToggleAlt("Use Scattering", aurasettings.UseScattering, false, useScattering => { aurasettings.UseScattering = useScattering; auraConfigManager.UpdateConfig(); });
-                    //if (aurasettings.UseScattering)
-                    //{
-                    //    Slider("Scattering", aurasettings.BaseScattering, 0.0f, 1.0f, "N2", scattering => { aurasettings.BaseScattering = scattering; auraConfigManager.UpdateConfig(); });
-                    //}
-                    //ToggleAlt("Use Ambient Lighting", aurasettings.UseAmbientLighting, false, useAmbientLight => { aurasettings.UseAmbientLighting = useAmbientLight; auraConfigManager.UpdateConfig(); });
-                    //if (aurasettings.UseAmbientLighting)
-                    //{
-                    //    Slider("Ambient Lighting Strength", aurasettings.BaseAmbientLighting, 0.0f, 1.0f, "N2", ambientLighting => { aurasettings.BaseAmbientLighting = ambientLighting; auraConfigManager.UpdateConfig(); });
-                    //}
+                    ToggleAlt("Use Scattering", auralayer.useScattering.value, false, useScattering => { auralayer.useScattering.value = useScattering; AuraManager.UpdateSettings(); });
+                    if (auralayer.useScattering.value)
+                    {
+                        Slider("Scattering", auralayer.scattering.value, 0.0f, 1.0f, "N2", scattering => { auralayer.scattering.value = scattering; AuraManager.UpdateSettings(); },
+                            auralayer.scattering.overrideState, overrideState => { auralayer.scattering.overrideState = overrideState; AuraManager.UpdateSettings(); });
+                    }
+
+                    ToggleAlt("Use Ambient Lighting", auralayer.useAmbientLighting.value, false, useAmbientLighting => { auralayer.useAmbientLighting.value = useAmbientLighting; AuraManager.UpdateSettings(); });
+                    if (auralayer.useAmbientLighting.value)
+                    {
+                        Slider("Ambient Lighting Strength", auralayer.ambientLightingStrength.value, 0.0f, 1.0f, "N2", ambientLightingStrength => { auralayer.ambientLightingStrength.value = ambientLightingStrength; AuraManager.UpdateSettings(); },
+                            auralayer.ambientLightingStrength.overrideState, overrideState => { auralayer.ambientLightingStrength.overrideState = overrideState; AuraManager.UpdateSettings(); });
+                    }
+
+                    ToggleAlt("Use Color", auralayer.useColor.value, false, useColor => { auralayer.useColor.value = useColor; AuraManager.UpdateSettings(); });
+                    if (auralayer.useColor.value)
+                    {
+                        SliderColor("Color Tint", auralayer.color, colortint => { auralayer.color = colortint; AuraManager.UpdateSettings(); });
+                        Slider("Color Strength", auralayer.colorStrength.value, 0.0f, 1.0f, "N2", colorStrength => { auralayer.colorStrength.value = colorStrength; AuraManager.UpdateSettings(); },
+                            auralayer.colorStrength.overrideState, overrideState => { auralayer.colorStrength.overrideState = overrideState; AuraManager.UpdateSettings(); });
+                    }
+
+                    ToggleAlt("Use Tint", auralayer.useTint.value, false, useTint => { auralayer.useTint.value = useTint; AuraManager.UpdateSettings(); });
+                    if (auralayer.useTint.value)
+                    {
+                        SliderColor("Tint", auralayer.tint, tint => { auralayer.tint = tint; AuraManager.UpdateSettings(); });
+                        Slider("Tint Strength", auralayer.tintStrength.value, 0.0f, 1.0f, "N2", tintStrength => { auralayer.tintStrength.value = tintStrength; AuraManager.UpdateSettings(); },
+                            auralayer.tintStrength.overrideState, overrideState => { auralayer.tintStrength.overrideState = overrideState; AuraManager.UpdateSettings(); });
+                    }
+
+                    ToggleAlt("Use Extinction", auralayer.useExtinction.value, false, useExtinction => { auralayer.useExtinction.value = useExtinction; AuraManager.UpdateSettings(); });
+                    if (auralayer.useExtinction.value)
+                    {
+                        Slider("Extinction", auralayer.extinction.value, 0.0f, 1.0f, "N2", extinction => { auralayer.extinction.value = extinction; AuraManager.UpdateSettings(); },
+                            auralayer.extinction.overrideState, overrideState => { auralayer.extinction.overrideState = overrideState; AuraManager.UpdateSettings(); });
+                    }
+
+                    GUILayout.Space(30);
+                    Label("QUALITY SETTINGS", "", true);
+                    GUILayout.Space(5);
+
+                    Slider("Far Clip Plane Distance", auralayer.farClipPlaneDistance.value, 0.0f, 256.0f, "N2", farClipPlaneDistance => { auralayer.farClipPlaneDistance.value = farClipPlaneDistance; AuraManager.UpdateSettings(); },
+                        auralayer.farClipPlaneDistance.overrideState, overrideState => { auralayer.farClipPlaneDistance.overrideState = overrideState; AuraManager.UpdateSettings(); });
+                    Slider("Depth Bias Coefficient", auralayer.depthBiasCoefficient.value, 0.0f, 1.0f, "N2", depthBiasCoefficient => { auralayer.depthBiasCoefficient.value = depthBiasCoefficient; AuraManager.UpdateSettings(); },
+                        auralayer.depthBiasCoefficient.overrideState, overrideState => { auralayer.depthBiasCoefficient.overrideState = overrideState; AuraManager.UpdateSettings(); });
+
+                    ToggleAlt("Enable Denoising Filter", auralayer.EXPERIMENTAL_enableDenoisingFilter.value, false, enableDenoisingFilter => { auralayer.EXPERIMENTAL_enableDenoisingFilter.value = enableDenoisingFilter; AuraManager.UpdateSettings(); });
+
+                    if (auralayer.EXPERIMENTAL_enableDenoisingFilter.value)
+                    {
+                        Selection("Denoising Filter Range", auralayer.EXPERIMENTAL_denoisingFilterRange, denoisingFilterRange => { auralayer.EXPERIMENTAL_denoisingFilterRange = denoisingFilterRange; AuraManager.UpdateSettings(); }, 3);
+                    }
+                    ToggleAlt("Enable Blur Filter", auralayer.EXPERIMENTAL_enableBlurFilter.value, false, enableBlurFilter => { auralayer.EXPERIMENTAL_enableBlurFilter.value = enableBlurFilter; AuraManager.UpdateSettings(); });
+                    if (auralayer.EXPERIMENTAL_enableBlurFilter.value)
+                    {
+                        Selection("Blur Filter Range", auralayer.EXPERIMENTAL_blurFilterRange, blurFilterRange => { auralayer.EXPERIMENTAL_blurFilterRange = blurFilterRange; AuraManager.UpdateSettings(); }, 3);
+                        Selection("Blur Filter Type", auralayer.EXPERIMENTAL_blurFilterType, blurFilterType => { auralayer.EXPERIMENTAL_blurFilterType = blurFilterType; AuraManager.UpdateSettings(); }, 3);
+                        Slider("Blur Filter Gaussian Deviation", auralayer.EXPERIMENTAL_blurFilterGaussianDeviation.value, 0.0f, 0.1f, "N4", blurFilterGaussianDeviation => { auralayer.EXPERIMENTAL_blurFilterGaussianDeviation.value = blurFilterGaussianDeviation; AuraManager.UpdateSettings(); },
+                            auralayer.EXPERIMENTAL_blurFilterGaussianDeviation.overrideState, overrideState => { auralayer.EXPERIMENTAL_blurFilterGaussianDeviation.overrideState = overrideState; AuraManager.UpdateSettings(); });
+                    }
+
+                    GUILayout.Space(30);
+                    Label("DEBUG", "", true);
+                    GUILayout.Space(5);
+                    ToggleAlt("Display Volumetric Lighting Buffer", auralayer.displayVolumetricLightingBuffer.value, false, displayVolumetricLightingBuffer => { auralayer.displayVolumetricLightingBuffer.value = displayVolumetricLightingBuffer; AuraManager.UpdateSettings(); });
                 }
                 GUILayout.EndVertical();
             }

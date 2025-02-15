@@ -36,7 +36,8 @@ namespace Graphics
 
         private void OnEnable()
         {
-            StartCoroutine(FindTarget());
+            if (KKAPI.KoikatuAPI.GetCurrentGameMode() == KKAPI.GameMode.Studio)
+                StartCoroutine(FindTarget());
         }
 
         private void OnPreRender()
