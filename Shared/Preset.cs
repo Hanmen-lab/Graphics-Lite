@@ -277,11 +277,11 @@ namespace Graphics
                     else if (skyboxSetting is ProceduralSkyboxSettings && proceduralsky == null) SkyboxManager.dynProceduralSkySettings = skyboxSetting as ProceduralSkyboxSettings;
                 }
 
-                SkyboxManager.dynAIOSkySetting = SkyboxManager.dynAIOSkySetting ?? aiosky;
-                SkyboxManager.dynHemisphereGradientSettings = SkyboxManager.dynHemisphereGradientSettings ?? hemispheresky;
-                SkyboxManager.dynFourPointGradientSettings = SkyboxManager.dynFourPointGradientSettings ?? fourpointsky;
-                SkyboxManager.dynTwoPointGradientSettings = SkyboxManager.dynTwoPointGradientSettings ?? twopointsky;
-                SkyboxManager.dynProceduralSkySettings = SkyboxManager.dynProceduralSkySettings ?? proceduralsky;
+                SkyboxManager.dynAIOSkySetting = aiosky;
+                SkyboxManager.dynHemisphereGradientSettings = hemispheresky;
+                SkyboxManager.dynFourPointGradientSettings = fourpointsky;
+                SkyboxManager.dynTwoPointGradientSettings = twopointsky;
+                SkyboxManager.dynProceduralSkySettings = proceduralsky;
 
                 manager.skyboxParams = skybox;
                 manager.PresetUpdate = true;
