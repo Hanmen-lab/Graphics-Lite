@@ -808,7 +808,7 @@ namespace Graphics.Inspector
                 GUILayout.EndVertical();
             }
 
-            if (AuraManager.settings != null)
+            if (AuraManager.Available && AuraManager.settings != null)
             {
                 AuraSettings auralayer = AuraManager.settings;
 

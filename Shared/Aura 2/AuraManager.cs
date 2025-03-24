@@ -10,16 +10,75 @@ using Aura2API;
 
 namespace Graphics
 {
+    // Create an interface that defines what AuraManagerImpl does
+    internal interface IAuraManagerImpl
+    {
+        void Initialize();
+        void UpdateSettings();
+    }
+
+    // Interface class that doesn't contain references to Aura2API
     public class AuraManager
     {
+        public static bool Available { get; private set; }
         public static AuraSettings settings;
 
-        internal static AuraCamera AuraInstance;
-        internal static AuraBaseSettings BaseSettings;
-        internal static AuraQualitySettings QualitySettings;
+        // Reference interface instead of concrete implementation
+        private static IAuraManagerImpl _impl;
+
+        internal void Initialize()
+        {
+            try
+            {
+                var auraType = Type.GetType("Aura2API.AuraCamera, Aura2_Core");
+                Available = auraType != null;
+            }
+            catch
+            {
+                Available = false;
+            }
+
+            if (settings == null)
+            {
+                settings = new AuraSettings();
+            }
+
+            if (Available)
+            {
+                // Use a factory method to create the implementation
+                _impl = CreateAuraManagerImpl();
+                _impl.Initialize();
+            }
+        }
+
+        // Factory method that keeps Aura2API references isolated, since it's not called unless Aura2API exists
+        private IAuraManagerImpl CreateAuraManagerImpl()
+        {
+            return new AuraManagerImpl();
+        }
+
+        internal static void UpdateSettings()
+        {
+            if (settings == null)
+                settings = new AuraSettings();
+
+            if (Available && _impl != null)
+            {
+                _impl.UpdateSettings();
+            }
+        }
+    }
+
+    // This class is only created if Aura2API exists to prevent plugin from failing to load
+    internal class AuraManagerImpl : IAuraManagerImpl
+    {
+        internal AuraSettings settings { get { return AuraManager.settings; } set { AuraManager.settings = value; } }
+        internal AuraCamera AuraInstance;
+        internal AuraBaseSettings BaseSettings;
+        internal AuraQualitySettings QualitySettings;
 
         // Initialize Components
-        internal void Initialize()
+        public void Initialize()
         {
             AuraInstance = Graphics.Instance.CameraSettings.MainCamera.GetComponent<AuraCamera>();
             if (settings == null)
@@ -29,38 +88,131 @@ namespace Graphics
 
             if (AuraInstance)
             {
-                settings.Load(AuraInstance);
-                settings.LoadBaseSettings(AuraInstance.frustumSettings.BaseSettings);
-                settings.LoadQualitySettings(AuraInstance.frustumSettings.QualitySettings);
+                LoadSettings();
+                LoadBaseSettings(AuraInstance.frustumSettings.BaseSettings);
+                LoadQualitySettings(AuraInstance.frustumSettings.QualitySettings);
             }
         }
 
-        public static void UpdateSettings()
+        public void UpdateSettings()
         {
             if (settings == null)
                 settings = new AuraSettings();
 
             if (AuraInstance != null)
             {
-                settings.Load(AuraInstance);
-                settings.LoadBaseSettings(AuraInstance.frustumSettings.BaseSettings);
-                settings.LoadQualitySettings(AuraInstance.frustumSettings.QualitySettings);
+                LoadSettings();
+                LoadBaseSettings(AuraInstance.frustumSettings.BaseSettings);
+                LoadQualitySettings(AuraInstance.frustumSettings.QualitySettings);
             }
         }
-
-        IEnumerator WaitForCamera()
-        {
-            Camera camera = Graphics.Instance.CameraSettings.MainCamera;
-            yield return new WaitUntil(() => camera != null);
-            CheckInstance();
-        }
-        public void CheckInstance()
+        void LoadSettings()
         {
             if (AuraInstance == null)
-            {
-                Camera camera = Graphics.Instance.CameraSettings.MainCamera;
-                AuraInstance = camera.GetOrAddComponent<AuraCamera>();
-            }
+                return;
+
+            AuraInstance.enabled = settings.Enabled;
+
+            if (!settings.Enabled)
+                return;
+        }
+
+
+        void LoadBaseSettings(AuraBaseSettings baseSettings)
+        {
+            if (baseSettings == null)
+                return;
+
+            baseSettings.useDensity = settings.useDensity.value;
+
+            if (settings.density.overrideState)
+                baseSettings.density = settings.density.value;
+            else
+                baseSettings.density = 0.25f;
+
+            baseSettings.useScattering = settings.useScattering.value;
+
+            if (settings.scattering.overrideState)
+                baseSettings.scattering = settings.scattering.value;
+            else
+                baseSettings.scattering = 0.5f;
+
+            baseSettings.useAmbientLighting = settings.useAmbientLighting.value;
+
+            if (settings.ambientLightingStrength.overrideState)
+                baseSettings.ambientLightingStrength = settings.ambientLightingStrength.value;
+            else
+                baseSettings.ambientLightingStrength = 1f;
+
+            baseSettings.useColor = settings.useColor.value;
+
+            baseSettings.color = settings.color;
+
+            if (settings.colorStrength.overrideState)
+                baseSettings.colorStrength = settings.colorStrength.value;
+            else
+                baseSettings.colorStrength = 1f;
+
+            baseSettings.useTint = settings.useTint.value;
+
+            baseSettings.tint = settings.tint;
+
+            if (settings.tintStrength.overrideState)
+                baseSettings.tintStrength = settings.tintStrength.value;
+            else
+                baseSettings.tintStrength = 1f;
+
+            baseSettings.useExtinction = settings.useExtinction.value;
+
+            if (settings.extinction.overrideState)
+                baseSettings.extinction = settings.extinction.value;
+            else
+                baseSettings.extinction = 0.75f;
+        }
+
+        void LoadQualitySettings(AuraQualitySettings qualitySettings)
+        {
+            if (qualitySettings == null)
+                return;
+
+            qualitySettings.displayVolumetricLightingBuffer = settings.displayVolumetricLightingBuffer.value;
+
+            //qualitySettings.enableAutomaticStereoResizing = settings.enableAutomaticStereoResizing.value;
+
+            if (settings.farClipPlaneDistance.overrideState)
+                qualitySettings.farClipPlaneDistance = settings.farClipPlaneDistance.value;
+            else
+                qualitySettings.farClipPlaneDistance = 128f;
+
+            if (settings.depthBiasCoefficient.overrideState)
+                qualitySettings.depthBiasCoefficient = settings.depthBiasCoefficient.value;
+            else
+                qualitySettings.depthBiasCoefficient = 0.35f;
+
+            //qualitySettings.enableDithering = settings.enableDithering.value;
+            //qualitySettings.texture3DFiltering = settings.texture3DFiltering;
+            qualitySettings.EXPERIMENTAL_enableDenoisingFilter = settings.EXPERIMENTAL_enableDenoisingFilter.value;
+            qualitySettings.EXPERIMENTAL_denoisingFilterRange = (Aura2API.DenoisingFilterRange)settings.EXPERIMENTAL_denoisingFilterRange;
+            qualitySettings.EXPERIMENTAL_enableBlurFilter = settings.EXPERIMENTAL_enableBlurFilter.value;
+            qualitySettings.EXPERIMENTAL_blurFilterRange = (Aura2API.BlurFilterRange)settings.EXPERIMENTAL_blurFilterRange;
+            qualitySettings.EXPERIMENTAL_blurFilterType = (Aura2API.BlurFilterType)settings.EXPERIMENTAL_blurFilterType;
+
+            if (settings.EXPERIMENTAL_blurFilterGaussianDeviation.overrideState)
+                qualitySettings.EXPERIMENTAL_blurFilterGaussianDeviation = settings.EXPERIMENTAL_blurFilterGaussianDeviation.value;
+            else
+                qualitySettings.EXPERIMENTAL_blurFilterGaussianDeviation = 0.0025f;
+
+            //qualitySettings.enableTemporalReprojection = settings.enableTemporalReprojection.value;
+
+            //if (temporalReprojectionFactor.overrideState)
+            //    qualitySettings.temporalReprojectionFactor = settings.temporalReprojectionFactor.value;
+            //else
+            //    qualitySettings.temporalReprojectionFactor = 0.95f;
+
+            //qualitySettings.enableOcclusionCulling = settings.enableOcclusionCulling.value;
+            //qualitySettings.debugOcclusionCulling = settings.debugOcclusionCulling.value;
+            //qualitySettings.occlusionCullingAccuracy = settings.occlusionCullingAccuracy;
+            //qualitySettings.enableLightProbes = settings.enableLightProbes.value;
         }
     }
 }
