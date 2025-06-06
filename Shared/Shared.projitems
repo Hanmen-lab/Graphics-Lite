@@ -127,6 +127,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)LuxWater\WaterVolumeTriggerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PathUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PostProcessingManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PostProcessingStack\SunShaftsHDR.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Texture\EmbeddedTextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Texture\InternalTextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DitheredShadows\DitheredShadows.cs" />
@@ -204,7 +205,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)VAO\VAOEffect.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VAO\VAOEffectCommandBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VAO\VAOManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)X-PostProcessing\AgxColor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PostProcessingStack\AgxColor.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\box.png" />
@@ -248,7 +249,7 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\pcss" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\segi" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\segi-old" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\sss" />
@@ -283,6 +284,8 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\STUDIO.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\TITLE.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\VR_GAME.factory" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\sunshaftshdr.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\segi.unity3d" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\spectral_luts.unity3d" />

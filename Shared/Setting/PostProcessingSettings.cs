@@ -23,6 +23,7 @@ namespace Graphics.Settings
         internal MotionBlurParams paramMotionBlur = new MotionBlurParams();
         internal AmplifyOcclusionParams paramAmplifyOcclusion = new AmplifyOcclusionParams();
         internal AgxColorParams paramAgxColor = new AgxColorParams();
+        internal SunShaftsHDRParams paramSunShaftsHDR = new SunShaftsHDRParams();
 
         public bool PostVolumeMap = false;
 
@@ -71,6 +72,7 @@ namespace Graphics.Settings
         internal Camera initialCamera;
         internal MotionBlur motionBlurLayer;
         internal AgXColor agxColorLayer;
+        internal SunShaftsHDR sunShaftsHDRLayer;
 
         #if AI
 
@@ -208,6 +210,13 @@ namespace Graphics.Settings
             }
 
             depthOfFieldLayer.enabled.value = false; // Make people use Depth of Field Manually
+
+            if (!SettingValues.profile.TryGetSettings(out sunShaftsHDRLayer))
+            {
+                sunShaftsHDRLayer = SettingValues.profile.AddSettings<SunShaftsHDR>();
+                sunShaftsHDRLayer.enabled.value = false;
+                sunShaftsHDRLayer.priority.value = 4;
+            }
         }
 
         internal void ResetVolume()
@@ -275,6 +284,11 @@ namespace Graphics.Settings
             {
                 paramAgxColor.Save(agxColorLayer);
             }
+
+            if (Volume.profile.TryGetSettings(out SunShaftsHDR sunShaftsHDRLayer))
+            {
+                paramSunShaftsHDR.Save(sunShaftsHDRLayer);
+            }
         }
 
         public void LoadParameters()
@@ -335,6 +349,11 @@ namespace Graphics.Settings
             }
 
             UpdateFilterDithering();
+
+            if (Volume.profile.TryGetSettings(out SunShaftsHDR sunShaftsHDRLayer))
+            {
+                paramSunShaftsHDR.Load(sunShaftsHDRLayer);
+            }
         }
 
         internal Transform VolumeTriggerSetting => _postProcessLayer.volumeTrigger;
@@ -486,6 +505,13 @@ namespace Graphics.Settings
             get => paramAgxColor;
             set => paramAgxColor = value;
         }
+
+        public SunShaftsHDRParams SunShaftsHDR
+        {
+            get => paramSunShaftsHDR;
+            set => paramSunShaftsHDR = value;
+        }
+
         public void UpdateFilterDithering()
         {
             if (PostProcessLayer.antialiasingMode == PostProcessLayer.Antialiasing.TemporalAntialiasing || AntialiasingMode == Antialiasing.CTAA)

@@ -896,6 +896,49 @@ namespace Graphics.Inspector
                 GUILayout.EndVertical();
             }
 
+            if (settings.sunShaftsHDRLayer != null)
+            {
+                GUILayout.BeginVertical(SmallTab);
+                Switch(renderSettings.FontSize, "SUN SHAFTS HDR", settings.sunShaftsHDRLayer.enabled, true, enabled => { settings.sunShaftsHDRLayer.active = enabled; settings.sunShaftsHDRLayer.enabled.Override(enabled); });
+                if (settings.sunShaftsHDRLayer.enabled.value)
+                {
+                    GUILayout.Space(30);
+                    ToggleAlt("Use Global Sun", settings.sunShaftsHDRLayer.connectSun, false, connectsun => settings.sunShaftsHDRLayer.connectSun.Override(connectsun));
+                    GUILayout.Space(5);
+                    if (settings.sunShaftsHDRLayer.connectSun)
+                    {
+                        LightSelector(lightManager, "Sun Source", RenderSettings.sun, light =>
+                        {
+                            RenderSettings.sun = light;
+                            ConnectSunToUnderwater.ConnectSun();
+                        });
+                    }
+                    else
+                    {
+                        Dimension("Source Position", settings.sunShaftsHDRLayer.sunTransform.value, pos => { settings.sunShaftsHDRLayer.sunTransform.value = pos; settings.sunShaftsHDRLayer.sunTransform.Override(pos); });
+                        GUILayout.Space(5);
+                    }
+                    GUILayout.Space(5);
+                    SliderColor("Color", settings.sunShaftsHDRLayer.sunColor.value, colour => { settings.sunShaftsHDRLayer.sunColor.value = colour; }, settings.sunShaftsHDRLayer.sunColor.overrideState,
+                        settings.sunShaftsHDRLayer.sunColor.overrideState, overrideState => settings.sunShaftsHDRLayer.sunColor.overrideState = overrideState);
+                    GUILayout.Space(5);
+                    SliderColor("Threshold", settings.sunShaftsHDRLayer.sunThreshold.value, threshold => { settings.sunShaftsHDRLayer.sunThreshold.value = threshold; }, settings.sunShaftsHDRLayer.sunThreshold.overrideState,
+                        settings.sunShaftsHDRLayer.sunThreshold.overrideState, overrideState => settings.sunShaftsHDRLayer.sunThreshold.overrideState = overrideState);
+                    GUILayout.Space(5);
+                    Slider("Intensity", settings.sunShaftsHDRLayer.sunShaftIntensity.value, 0f, 10f, "N2", intensity => settings.sunShaftsHDRLayer.sunShaftIntensity.value = intensity,
+                        settings.sunShaftsHDRLayer.sunShaftIntensity.overrideState, overrideState => settings.sunShaftsHDRLayer.sunShaftIntensity.overrideState = overrideState);
+                    Slider("Range", settings.sunShaftsHDRLayer.sunShaftBlurRadius.value, 0f, 10f, "N2", blurradius => settings.sunShaftsHDRLayer.sunShaftBlurRadius.value = blurradius,
+                        settings.sunShaftsHDRLayer.sunShaftBlurRadius.overrideState, overrideState => settings.sunShaftsHDRLayer.sunShaftBlurRadius.overrideState = overrideState);
+                    Slider("Range Iterations", settings.sunShaftsHDRLayer.radialBlurIterations.value, 1, 3, iterations => settings.sunShaftsHDRLayer.radialBlurIterations.value = iterations,
+                        settings.sunShaftsHDRLayer.radialBlurIterations.overrideState, overrideState => settings.sunShaftsHDRLayer.radialBlurIterations.overrideState = overrideState);
+                    Slider("Max Radius", settings.sunShaftsHDRLayer.maxRadius.value, 0.1f, 1f, "N2", maxradius => settings.sunShaftsHDRLayer.maxRadius.value = maxradius,
+                        settings.sunShaftsHDRLayer.maxRadius.overrideState, overrideState => settings.sunShaftsHDRLayer.maxRadius.overrideState = overrideState);
+                    ToggleAlt("Use Depth Texture", settings.sunShaftsHDRLayer.useDepthTexture, false, useDepthTexture => settings.sunShaftsHDRLayer.useDepthTexture.Override(useDepthTexture));
+                }
+
+                GUILayout.EndVertical();
+            }
+
             GUILayout.EndScrollView();
 
         }

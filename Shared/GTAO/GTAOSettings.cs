@@ -61,10 +61,7 @@ namespace Graphics.Settings
             else
                 gtao.Power = 1.0f;
 
-            if (MultiBounce.overrideState)
                 gtao.MultiBounce = MultiBounce.value;
-            else
-                gtao.MultiBounce = true;
 
             if (Sharpeness.overrideState)
                 gtao.Sharpeness = Sharpeness.value;

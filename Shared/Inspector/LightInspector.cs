@@ -424,7 +424,7 @@ namespace Graphics.Inspector
             //Position
             DrawPointControls(lightManager);
             //Additional Cam
-            DrawAdditionalCamLight(lightManager);
+            //DrawAdditionalCamLight(lightManager);
             //Shadows
             DrawLocalShadowsSettings(lightManager);
             //Layers

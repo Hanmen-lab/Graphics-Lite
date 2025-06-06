@@ -788,4 +788,64 @@ namespace Graphics.Settings
         //    yield break;
         //}
     }
+
+    [MessagePackObject(keyAsPropertyName: true)]
+    public struct SunShaftsHDRParams
+    {
+        public BoolValue enabled;
+        public FloatValue blend;
+        //public SunShaftsResolution resolution;
+        //public ShaftsScreenBlendMode screenBlendMode;
+        public Vector3Value sunTransform;
+        public IntValue radialBlurIterations;
+        public ColorValue sunColor;
+        public ColorValue sunThreshold;
+        public FloatValue sunShaftBlurRadius;
+        public FloatValue sunShaftIntensity;
+        public FloatValue maxRadius;
+        public BoolValue useDepthTexture;
+        public BoolValue connectSun;
+
+        public void Save(SunShaftsHDR layer)
+        {
+            if (layer != null)
+            {
+                enabled = new BoolValue(layer.enabled);
+                blend = new FloatValue(layer.blend);
+                sunTransform = new Vector3Value(layer.sunTransform);
+                radialBlurIterations = new IntValue(layer.radialBlurIterations);
+                sunColor = new ColorValue(layer.sunColor);
+                sunThreshold = new ColorValue(layer.sunThreshold);
+                sunShaftBlurRadius = new FloatValue(layer.sunShaftBlurRadius);
+                sunShaftIntensity = new FloatValue(layer.sunShaftIntensity);
+                maxRadius = new FloatValue(layer.maxRadius);
+                useDepthTexture = new BoolValue(layer.useDepthTexture);
+                connectSun = new BoolValue(layer.connectSun);
+            }
+        }
+        public void Load(SunShaftsHDR layer)
+        {
+            if (layer != null)
+            {
+                enabled.Fill(layer.enabled);
+                layer.active = layer.enabled.value;
+                blend.Fill(layer.blend);
+                if (sunTransform.value == null)
+                    sunTransform.value = new float[] { 0f, 0f, 0f };
+                sunTransform.Fill(layer.sunTransform);
+                radialBlurIterations.Fill(layer.radialBlurIterations);
+                if (sunColor.value == null)
+                    sunColor.value = new float[] { 1f, 0.9f, 0.75f };
+                sunColor.Fill(layer.sunColor);
+                if (sunThreshold.value == null)
+                    sunThreshold.value = new float[] { 0.9f, 0.9f, 0.9f };
+                sunThreshold.Fill(layer.sunThreshold);
+                sunShaftBlurRadius.Fill(layer.sunShaftBlurRadius);
+                sunShaftIntensity.Fill(layer.sunShaftIntensity);
+                maxRadius.Fill(layer.maxRadius);
+                useDepthTexture.Fill(layer.useDepthTexture);
+                connectSun.Fill(layer.connectSun);
+            }
+        }
+    }
 }

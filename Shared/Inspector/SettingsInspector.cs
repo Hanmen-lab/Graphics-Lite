@@ -65,7 +65,7 @@ namespace Graphics.Inspector
                     GUI.enabled = true;
                 }
                 Slider("Near Clipping Plane", cameraSettings.NearClipPlane, 0.01f, 15000f, "N2", ncp => { cameraSettings.NearClipPlane = ncp; });
-                Slider("Far Clipping Plane", cameraSettings.FarClipPlane, 0.01f, 15000f, "N2", ncp => { cameraSettings.FarClipPlane = ncp; });
+                Slider("Far Clipping Plane", cameraSettings.FarClipPlane, 0.01f, 150000f, "N0", ncp => { cameraSettings.FarClipPlane = ncp; });
                 Selection("Rendering Path", cameraSettings.RenderingPath, path =>
                 {
                     cameraSettings.RenderingPath = path;
