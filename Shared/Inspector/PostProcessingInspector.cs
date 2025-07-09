@@ -615,7 +615,8 @@ namespace Graphics.Inspector
                                             TreeNodeCtrl.DeleteNode(i);
                                     // Add DOF Target
                                     Singleton<Studio.Studio>.Instance.AddFolder();
-                                    var n = TreeNodeCtrl.selectNodes[0];
+                                    var newFolderIndex = TreeNodeCtrl.m_TreeNodeObject.Count - 1; // index of the newly created folder
+                                    var n = TreeNodeCtrl.GetNode(newFolderIndex); // select the new folder created
                                     if (Studio.Studio.Instance.dicInfo.TryGetValue(n, out objectCtrlInfo))
                                         if (objectCtrlInfo is Studio.OCIFolder ociFolder)
                                         {
