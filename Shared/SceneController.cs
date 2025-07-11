@@ -202,7 +202,7 @@ namespace Graphics
             int counter = 0;
 
             List<PerLightSettings> newDirectionalLights = new List<PerLightSettings>(settings.Where(pls => pls.Type == (int)LightType.Directional));
-
+            
             if (settings.Length > 0 && settings[0].HierarchyPath != null)
             {
                 foreach (LightObject light in lightManager.DirectionalLights)
@@ -252,16 +252,21 @@ namespace Graphics
 
             if (!KKAPI.Studio.StudioAPI.InsideStudio && newDirectionalLights.Count > 0)
             {
-                // Add extra lights if requested
+                // Add Directional lights created by Graphics
+                // TODO: Not sure, but getting a string from setting.LightName is not safe. Is it intented?
                 foreach (PerLightSettings setting in newDirectionalLights)
                 {
+                    if (setting.HierarchyPath.ToString().StartsWith("/(Graphics)"))
+                    {
 #if DEBUG
-                    Graphics.Instance.Log.LogInfo($"Adding Additional Light {setting.LightName} {setting.HierarchyPath} {setting.LightId}");
+                        Graphics.Instance.Log.LogInfo($"Adding Graphics Directional Light: {setting.LightName}, {setting.HierarchyPath}, {setting.LightId}.");
 #endif
-
-                    GameObject lightGameObject = new GameObject(setting.LightName);
-                    Light lightComp = lightGameObject.AddComponent<Light>();
-                    lightGameObject.GetComponent<Light>().type = LightType.Directional;
+                        string lightName = setting.HierarchyPath.ToString();
+                        lightName = lightName.Substring(lightName.IndexOf("/") + 1, lightName.LastIndexOf("(") - 1);
+                        GameObject lightGameObject = new GameObject(lightName);
+                        Light lightComp = lightGameObject.AddComponent<Light>();
+                        lightGameObject.GetComponent<Light>().type = LightType.Directional;
+                    }
                 }
                 lightManager.Light();
                 foreach (LightObject light in lightManager.DirectionalLights)
