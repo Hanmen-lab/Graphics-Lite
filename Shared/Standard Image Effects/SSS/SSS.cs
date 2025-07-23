@@ -23,8 +23,8 @@ namespace Graphics
         }
 
         private Camera cam;
-        public Camera lightingCamera;
-        private Camera profileCamera;
+        //public Camera lightingCamera;
+        //private Camera profileCamera;
         private Camera shadowCamera;
 
         private bool _debugDistance;
@@ -46,7 +46,6 @@ namespace Graphics
         public bool ShowGUI;
         public SSS_convolution sss_convolution;
         private CTAA_PC ctaa;
-
         //private NVIDIA.Ansel ansel;
         //private SEGI.SEGI segi;
 
@@ -71,8 +70,8 @@ namespace Graphics
         static readonly int _SSS_ProfileTexRId = Shader.PropertyToID("SSS_ProfileTexR");
         static readonly int _LightingTexId = Shader.PropertyToID("LightingTex");
         static readonly int _LightingTexBlurredId = Shader.PropertyToID("LightingTexBlurred");
-        static readonly int _LightingTexRId = Shader.PropertyToID("LightingTex");
-        static readonly int _LightingTexBlurredRId = Shader.PropertyToID("LightingTexBlurred");
+        static readonly int _LightingTexRId = Shader.PropertyToID("LightingTexR");
+        static readonly int _LightingTexBlurredRId = Shader.PropertyToID("LightingTexBlurredR");
         static readonly int _DepthTestId = Shader.PropertyToID("DepthTest");
         static readonly int _maxDistanceId = Shader.PropertyToID("maxDistance");
         static readonly int _NormalTestId = Shader.PropertyToID("NormalTest");
@@ -91,6 +90,30 @@ namespace Graphics
         static readonly string _RANDOMIZED_ROTATION = "RANDOMIZED_ROTATION";
         static readonly string _DITHER_EDGE_TEST = "DITHER_EDGE_TEST";
         static readonly string _OFFSET_EDGE_TEST = "OFFSET_EDGE_TEST";
+
+        #region layer
+
+        private SSS_buffers_viewer sss_buffers_viewer;
+
+        //[SerializeField]
+        //[HideInInspector]
+        //string _SSS_LayerName = "SSS pass";
+        //public string SSS_LayerName
+        //{
+        //    get { return _SSS_LayerName; }
+        //    set
+        //    {
+        //        if (_SSS_LayerName != value)
+        //            SetSSS_Layer(value);
+        //    }
+        //}
+
+        //void SetSSS_Layer(string NewSSS_LayerName)
+        //{
+        //    _SSS_LayerName = NewSSS_LayerName;
+        //    SSS_Layer = 1 << LayerMask.NameToLayer(_SSS_LayerName);
+        //}
+        #endregion
 
         internal float Downsampling { get; set; }
         internal float ScatteringRadius { get; set; }
@@ -215,112 +238,6 @@ namespace Graphics
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _ditherEdgeTest;
             set { _ditherEdgeTest = value; sss_convolution?.BlurMaterial.EnableKeyword(_DITHER_EDGE_TEST, value); }
-        }
-
-        private void CreateCameras(Camera currentCamera, out Camera profileCamera, out Camera lightingCamera)
-        {
-            profileCamera = null;
-            if (ProfilePerObject)
-            {
-                string profileGOName = $"SSS Profile Camera for {currentCamera.gameObject.name}-{currentCamera.gameObject.GetInstanceID()}";
-                if (!ProfileCameraGOs.TryGetValue(profileGOName, out GameObject profileCameraGO) || !profileCameraGO)
-                {
-                    profileCameraGO = GameObject.Find(profileGOName);
-                    if (!profileCameraGO)
-                    {
-                        profileCameraGO = new GameObject(profileGOName, new Type[] { typeof(Camera) });
-                        profileCameraGO.transform.parent = transform;
-                        profileCameraGO.transform.localPosition = Vector3.zero;
-                        profileCameraGO.transform.localEulerAngles = Vector3.zero;
-                        profileCamera = profileCameraGO.GetComponent<Camera>();
-                        profileCamera.backgroundColor = Color.black;
-                        profileCamera.enabled = false;
-                        profileCamera.depth = -254;
-                        profileCamera.allowMSAA = false;
-                    }
-
-                    ProfileCameraGOs[profileGOName] = profileCameraGO;
-                }
-
-                if (!profileCamera)
-                {
-                    profileCamera = profileCameraGO.GetComponent<Camera>();
-                }
-                profileCamera.backgroundColor = Color.black;
-                profileCamera.depth = -254;
-            }
-
-            // Camera for lighting
-            lightingCamera = null;
-
-            string lightingGOName = $"SSS Lighting Camera for {currentCamera.gameObject.name}-{currentCamera.gameObject.GetInstanceID()}";
-            if (!LightingCameraGOs.TryGetValue(lightingGOName, out GameObject lightingCameraGO) || !lightingCameraGO)
-            {
-                lightingCameraGO = GameObject.Find(lightingGOName);
-                if (!lightingCameraGO)
-                {
-                    lightingCameraGO = new GameObject(lightingGOName, new Type[] { typeof(Camera) });
-                    lightingCameraGO.transform.parent = transform;
-                    lightingCameraGO.transform.localPosition = Vector3.zero;
-                    lightingCameraGO.transform.localEulerAngles = Vector3.zero;
-                    lightingCamera = lightingCameraGO.GetComponent<Camera>();
-                    lightingCamera.enabled = false;
-                    lightingCamera.depth = -846;
-
-                    if (!ctaa)
-                    {
-                        ctaa = lightingCameraGO.AddComponent<CTAA_PC>();
-                        ctaa.enabled = CTAAManager.settings.Enabled;
-                    }
-
-                    //if (!ansel)
-                    //{
-                    //    ansel = lightingCameraGO.AddComponent<Ansel>();
-                    //    ansel.Start();
-                    //}
-
-                    if (!sss_convolution)
-                        sss_convolution = lightingCameraGO.AddComponent<SSS_convolution>();
-
-                    if (!sss_convolution.BlurShader)
-                        sss_convolution.BlurShader = SeparableSSSShader;
-
-                    if (sss_convolution.BlurShader)
-                    {
-                        BlurMaterials blurMaterial = new BlurMaterials(sss_convolution.BlurShader);
-
-                        blurMaterial.hideFlags = HideFlags.HideAndDontSave;
-                        blurMaterial.SetFloat(_DepthTestId, _depthTest * 0.05f);
-                        blurMaterial.SetFloat(_maxDistanceId, _maxDistance);
-                        blurMaterial.SetFloat(_NormalTestId, _normalTest);
-                        blurMaterial.SetFloat(_ProfileColorTestId, _profileColorTest);
-                        blurMaterial.SetFloat(_EdgeOffsetId, _edgeOffset);
-                        blurMaterial.SetInt(_SSS_NUM_SAMPLESID, _shaderIterations + 1);
-                        blurMaterial.SetColor(_sssColorId, _sssColor);
-                        blurMaterial.EnableKeyword(_RANDOMIZED_ROTATION, _dither);
-                        blurMaterial.SetFloat(_DitherScaleId, _ditherScale);
-                        blurMaterial.SetFloat(_DitherIntensityId, _ditherIntensity);
-                        blurMaterial.SetTexture(_NoiseTextureId, _noiseTexture);
-                        blurMaterial.EnableKeyword(_PROFILE_TEST, _useProfileTest);
-                        blurMaterial.EnableKeyword(_DEBUG_DISTANCE, _debugDistance);
-                        blurMaterial.EnableKeyword(_OFFSET_EDGE_TEST, _fixPixelLeaks);
-                        blurMaterial.EnableKeyword(_DITHER_EDGE_TEST, _ditherEdgeTest);
-                        sss_convolution.BlurMaterial = blurMaterial;
-                    }
-                }
-                LightingCameraGOs[lightingGOName] = lightingCameraGO;
-            }
-
-            if (!lightingCamera)
-            {
-                lightingCamera = lightingCameraGO.GetComponent<Camera>();
-            }
-            lightingCamera.allowMSAA = currentCamera.allowMSAA;
-            lightingCamera.backgroundColor = currentCamera.backgroundColor;
-            lightingCamera.clearFlags = currentCamera.clearFlags;
-            lightingCamera.cullingMask = currentCamera.cullingMask;
-
- 
         }
 
         private void Awake()
@@ -537,15 +454,48 @@ namespace Graphics
                 switch (toggleTexture)
                 {
                     case ToggleTexture.LightingTex:
-                        sss_buffers_viewer.InputBuffer = LightingTex;
+                        if (!cam.stereoEnabled)
+                        {
+                            sss_buffers_viewer.InputBuffer = LightingTex;
+                        }
+                        else if (cam.stereoEnabled && cam.stereoActiveEye == Camera.MonoOrStereoscopicEye.Left)
+                        {
+                            sss_buffers_viewer.InputBuffer = LightingTex;
+                        }
+                        else
+                        {
+                            sss_buffers_viewer.InputBuffer = LightingTexR;
+                        }
                         sss_buffers_viewer.enabled = true;
                         return;
                     case ToggleTexture.LightingTexBlurred:
-                        sss_buffers_viewer.InputBuffer = LightingTexBlurred;
+                        if (!cam.stereoEnabled)
+                        {
+                            sss_buffers_viewer.InputBuffer = LightingTexBlurred;
+                        }
+                        else if (cam.stereoEnabled && cam.stereoActiveEye == Camera.MonoOrStereoscopicEye.Left)
+                        {
+                            sss_buffers_viewer.InputBuffer = LightingTexBlurred;
+                        }
+                        else
+                        {
+                            sss_buffers_viewer.InputBuffer = LightingTexBlurredR;
+                        }
                         sss_buffers_viewer.enabled = true;
                         return;
                     case ToggleTexture.ProfileTex:
-                        sss_buffers_viewer.InputBuffer = SSS_ProfileTex;
+                        if (!cam.stereoEnabled)
+                        {
+                            sss_buffers_viewer.InputBuffer = SSS_ProfileTex;
+                        }
+                        else if (cam.stereoEnabled && cam.stereoActiveEye == Camera.MonoOrStereoscopicEye.Left)
+                        {
+                            sss_buffers_viewer.InputBuffer = SSS_ProfileTex;
+                        }
+                        else
+                        {
+                            sss_buffers_viewer.InputBuffer = SSS_ProfileTexR;
+                        }
                         sss_buffers_viewer.enabled = true;
                         return;
                     case ToggleTexture.None:
@@ -572,6 +522,119 @@ namespace Graphics
                 ShadowCameraGOs.Remove(kvp.Key);
         }
 
+        private void OnDisable()
+        {
+            //Shader.EnableKeyword("UNITY_STEREO_EYE");
+            Shader.EnableKeyword(_SCENE_VIEW);
+            Cleanup();
+        }
+
+        private void CreateCameras(Camera currentCamera, out Camera profileCamera, out Camera lightingCamera)
+        {
+            profileCamera = null;
+            if (ProfilePerObject)
+            {
+                string profileGOName = $"SSS Profile Camera for {currentCamera.gameObject.name}-{currentCamera.gameObject.GetInstanceID()}";
+                if (!ProfileCameraGOs.TryGetValue(profileGOName, out GameObject profileCameraGO) || !profileCameraGO)
+                {
+                    profileCameraGO = GameObject.Find(profileGOName);
+                    if (!profileCameraGO)
+                    {
+                        profileCameraGO = new GameObject(profileGOName, new Type[] { typeof(Camera) });
+                        profileCameraGO.transform.parent = transform;
+                        profileCameraGO.transform.localPosition = Vector3.zero;
+                        profileCameraGO.transform.localEulerAngles = Vector3.zero;
+                        profileCamera = profileCameraGO.GetComponent<Camera>();
+                        profileCamera.backgroundColor = Color.black;
+                        profileCamera.enabled = false;
+                        profileCamera.depth = -254;
+                        profileCamera.allowMSAA = false;
+                    }
+
+                    ProfileCameraGOs[profileGOName] = profileCameraGO;
+                }
+
+                if (!profileCamera)
+                {
+                    profileCamera = profileCameraGO.GetComponent<Camera>();
+                }
+                profileCamera.backgroundColor = Color.black;
+                profileCamera.depth = -254;
+            }
+
+            // Camera for lighting
+            lightingCamera = null;
+
+            string lightingGOName = $"SSS Lighting Camera for {currentCamera.gameObject.name}-{currentCamera.gameObject.GetInstanceID()}";
+            if (!LightingCameraGOs.TryGetValue(lightingGOName, out GameObject lightingCameraGO) || !lightingCameraGO)
+            {
+                lightingCameraGO = GameObject.Find(lightingGOName);
+                if (!lightingCameraGO)
+                {
+                    lightingCameraGO = new GameObject(lightingGOName, new Type[] { typeof(Camera) });
+                    lightingCameraGO.transform.parent = transform;
+                    lightingCameraGO.transform.localPosition = Vector3.zero;
+                    lightingCameraGO.transform.localEulerAngles = Vector3.zero;
+                    lightingCamera = lightingCameraGO.GetComponent<Camera>();
+                    lightingCamera.enabled = false;
+                    lightingCamera.depth = -846;
+
+                    if (!ctaa)
+                    {
+                        ctaa = lightingCameraGO.AddComponent<CTAA_PC>();
+                        ctaa.enabled = CTAAManager.settings.Enabled;
+                    }
+
+                    //if (!ansel)
+                    //{
+                    //    ansel = lightingCameraGO.AddComponent<Ansel>();
+                    //    ansel.Start();
+                    //}
+
+                    if (!sss_convolution)
+                        sss_convolution = lightingCameraGO.AddComponent<SSS_convolution>();
+
+                    if (!sss_convolution.BlurShader)
+                        sss_convolution.BlurShader = SeparableSSSShader;
+
+                    if (sss_convolution.BlurShader)
+                    {
+                        BlurMaterials blurMaterial = new BlurMaterials(sss_convolution.BlurShader);
+
+                        blurMaterial.hideFlags = HideFlags.HideAndDontSave;
+                        blurMaterial.SetFloat(_DepthTestId, _depthTest * 0.05f);
+                        blurMaterial.SetFloat(_maxDistanceId, _maxDistance);
+                        blurMaterial.SetFloat(_NormalTestId, _normalTest);
+                        blurMaterial.SetFloat(_ProfileColorTestId, _profileColorTest);
+                        blurMaterial.SetFloat(_EdgeOffsetId, _edgeOffset);
+                        blurMaterial.SetInt(_SSS_NUM_SAMPLESID, _shaderIterations + 1);
+                        blurMaterial.SetColor(_sssColorId, _sssColor);
+                        blurMaterial.EnableKeyword(_RANDOMIZED_ROTATION, _dither);
+                        blurMaterial.SetFloat(_DitherScaleId, _ditherScale);
+                        blurMaterial.SetFloat(_DitherIntensityId, _ditherIntensity);
+                        blurMaterial.SetTexture(_NoiseTextureId, _noiseTexture);
+                        blurMaterial.EnableKeyword(_PROFILE_TEST, _useProfileTest);
+                        blurMaterial.EnableKeyword(_DEBUG_DISTANCE, _debugDistance);
+                        blurMaterial.EnableKeyword(_OFFSET_EDGE_TEST, _fixPixelLeaks);
+                        blurMaterial.EnableKeyword(_DITHER_EDGE_TEST, _ditherEdgeTest);
+                        sss_convolution.BlurMaterial = blurMaterial;
+                    }
+                }
+                LightingCameraGOs[lightingGOName] = lightingCameraGO;
+            }
+
+            if (!lightingCamera)
+            {
+                lightingCamera = lightingCameraGO.GetComponent<Camera>();
+            }
+            lightingCamera.allowMSAA = currentCamera.allowMSAA;
+            lightingCamera.backgroundColor = currentCamera.backgroundColor;
+            lightingCamera.clearFlags = currentCamera.clearFlags;
+            lightingCamera.cullingMask = currentCamera.cullingMask;
+
+ 
+        }
+
         private void SafeDestroy(UnityEngine.Object obj)
         {
             if (obj)
@@ -589,6 +652,7 @@ namespace Graphics
             obj = null;
         }
 
+        // Cleanup all the objects we possibly have created
         private void Cleanup()
         {
             if (LightingCameraGOs != null)
@@ -617,38 +681,6 @@ namespace Graphics
             SafeDestroy(ref SSS_ProfileTex);
             SafeDestroy(ref SSS_ProfileTexR);
         }
-
-        // Cleanup all the objects we possibly have created
-        private void OnDisable()
-        {
-            //Shader.EnableKeyword("UNITY_STEREO_EYE");
-            Shader.EnableKeyword(_SCENE_VIEW);
-            Cleanup();
-        }
-
-        #region layer
-
-        private SSS_buffers_viewer sss_buffers_viewer;
-
-        //[SerializeField]
-        //[HideInInspector]
-        //string _SSS_LayerName = "SSS pass";
-        //public string SSS_LayerName
-        //{
-        //    get { return _SSS_LayerName; }
-        //    set
-        //    {
-        //        if (_SSS_LayerName != value)
-        //            SetSSS_Layer(value);
-        //    }
-        //}
-
-        //void SetSSS_Layer(string NewSSS_LayerName)
-        //{
-        //    _SSS_LayerName = NewSSS_LayerName;
-        //    SSS_Layer = 1 << LayerMask.NameToLayer(_SSS_LayerName);
-        //}
-        #endregion
 
         #region RT formats and camera settings
         private void UpdateCameraModes(Camera src, Camera dest)
