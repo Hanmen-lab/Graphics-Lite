@@ -68,10 +68,9 @@ namespace Graphics.Inspector
                         {
                             Graphics.Instance.PresetManager.LoadMapLights(false);
                         }
-                        if (GUILayout.Button("Load Default Map Lights"))
+                        if (GUILayout.Button("Reset Map Lights"))
                         {
-                            Graphics.Instance.PresetManager.LoadMapLights(true);
-                            Graphics.Instance.PresetManager.SaveMapLights(false);
+                            Graphics.Instance.PresetManager.LoadMapLightsDefault(false);
                         }
                     }
                 }
@@ -573,7 +572,7 @@ namespace Graphics.Inspector
             if (lightManager.SelectedLight.Shadows == LightShadows.Soft)
             {
                 Slider("Strength", lightManager.SelectedLight.Light.shadowStrength, 0f, 1f, "N2", strength => lightManager.SelectedLight.Light.shadowStrength = strength);
-                Slider("Bias", lightManager.SelectedLight.Light.shadowBias, 0f, 2f, "N3", bias => lightManager.SelectedLight.Light.shadowBias = bias);
+                Slider("Bias", lightManager.SelectedLight.Light.shadowBias, 0f, 2f, "N2", bias => lightManager.SelectedLight.Light.shadowBias = bias);
                 Slider("Normal Bias", lightManager.SelectedLight.Light.shadowNormalBias, 0f, 3f, "N2", nbias => lightManager.SelectedLight.Light.shadowNormalBias = nbias);
                 Slider("Near Plane", lightManager.SelectedLight.Light.shadowNearPlane, 0f, 10f, "N2", np => lightManager.SelectedLight.Light.shadowNearPlane = np);
                 Selection("Resolution", lightManager.SelectedLight.Light.shadowResolution, resolution => lightManager.SelectedLight.Light.shadowResolution = resolution, 2);
@@ -589,7 +588,7 @@ namespace Graphics.Inspector
             if (lightManager.SelectedLight.Shadows == LightShadows.Soft)
             {
                 Slider("Strength", lightManager.SelectedLight.Light.shadowStrength, 0f, 1f, "N2", strength => lightManager.SelectedLight.Light.shadowStrength = strength);
-                Slider("Bias", lightManager.SelectedLight.Light.shadowBias, 0f, 2f, "N3", bias => lightManager.SelectedLight.Light.shadowBias = bias);
+                Slider("Bias", lightManager.SelectedLight.Light.shadowBias, 0f, 2f, "N2", bias => lightManager.SelectedLight.Light.shadowBias = bias);
                 Slider("Normal Bias", lightManager.SelectedLight.Light.shadowNormalBias, 0f, 3f, "N2", nbias => lightManager.SelectedLight.Light.shadowNormalBias = nbias);
                 Slider("Near Plane", lightManager.SelectedLight.Light.shadowNearPlane, 0f, 10f, "N2", np => lightManager.SelectedLight.Light.shadowNearPlane = np);
                 Selection("Resolution", lightManager.SelectedLight.Light.shadowResolution, resolution => lightManager.SelectedLight.Light.shadowResolution = resolution, 2);

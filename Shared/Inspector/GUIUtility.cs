@@ -10,8 +10,78 @@ namespace Graphics.Inspector
 {
     internal class Util
     {
+        //private static readonly float textFieldSize = GUIStyles.fontSize * 3f;
         private static readonly Texture2D colourIndicator = new Texture2D(32, 16, TextureFormat.RGB24, false, true);
         private static readonly int enableSpacing = 18;
+
+        static public float HorizontalTempSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle tempslider = GUIStyles.tempslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, tempslider, thumb, options);
+        }
+
+        static public float HorizontalTintSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle tintslider = GUIStyles.tintslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, tintslider, thumb, options);
+        }
+
+        static public float HorizontalVibSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle vibslider = GUIStyles.vibslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, vibslider, thumb, options);
+        }
+
+        static public float HorizontalHueSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle hueslider = GUIStyles.hueslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, hueslider, thumb, options);
+        }
+
+        static public float HorizontalRedSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle rslider = GUIStyles.rslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, rslider, thumb, options);
+        }
+
+        static public float HorizontalGreenSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle gslider = GUIStyles.gslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, gslider, thumb, options);
+        }
+
+        static public float HorizontalBlueSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle bslider = GUIStyles.bslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, bslider, thumb, options);
+        }
+
+        static public float HorizontalAlphaSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle aslider = GUIStyles.aslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, aslider, thumb, options);
+        }
+
+        static public float HorizontalReverseAlphaSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            GUIStyle arslider = GUIStyles.arslider;
+            GUIStyle thumb = GUI.skin.horizontalSliderThumb;
+            return DoHorizontalSlider(value, leftValue, rightValue, arslider, thumb, options);
+        }
+
+        static float DoHorizontalSlider(float value, float leftValue, float rightValue, GUIStyle slider, GUIStyle thumb, GUILayoutOption[] options)
+        {
+            return GUI.HorizontalSlider(GUILayoutUtility.GetRect(GUIContent.Temp("mmmm"), slider, options), value, leftValue, rightValue, slider, thumb);
+        }
+
 
         internal static void Slider(string label, float value, float min, float max, string format, Action<float> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
         {
@@ -26,7 +96,7 @@ namespace Graphics.Inspector
 
             float newValue = GUILayout.HorizontalSlider(value, min, max);
             string valueString = newValue.ToString(format);
-            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(40), GUILayout.ExpandWidth(false));
+            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize*3f), GUILayout.ExpandWidth(false));
 
             if (newValueString != valueString)
             {
@@ -43,8 +113,175 @@ namespace Graphics.Inspector
             {
                 onChanged(newValue);
             }
+        }
 
+        internal static void SliderAlpha(string label, float value, float min, float max, string format, bool reverse = false, Action<float> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
+        {
+            GUILayout.BeginHorizontal();
+            int spacing = 0;
+            EnableToggle(label, ref spacing, ref enable, onChangedEnable);
+            bool previousEnabledState = GUI.enabled;
+            float newValue = 0;
 
+            if (!enable)
+            {
+                GUI.enabled = false;
+            }
+            if (reverse)
+            {
+                newValue = HorizontalReverseAlphaSlider(value, min, max);
+            }
+            else
+            {
+                newValue = HorizontalAlphaSlider(value, min, max);
+            }
+            //float newValue = HorizontalAlphaSlider(value, min, max);
+            string valueString = newValue.ToString(format);
+            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+
+            if (newValueString != valueString)
+            {
+                if (float.TryParse(newValueString, out float parseResult))
+                {
+                    newValue = Mathf.Clamp(parseResult, min, max);
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            GUI.enabled = previousEnabledState;
+
+            if (onChanged != null && !Mathf.Approximately(value, newValue))
+            {
+                onChanged(newValue);
+            }
+        }
+
+        internal static void SliderColorTemp(string label, float value, float min, float max, string format, Action<float> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
+        {
+            GUILayout.BeginHorizontal();
+            int spacing = 0;
+            EnableToggle(label, ref spacing, ref enable, onChangedEnable);
+            bool previousEnabledState = GUI.enabled;
+            if (!enable)
+            {
+                GUI.enabled = false;
+            }
+
+            float newValue = HorizontalTempSlider(value, min, max);
+            string valueString = newValue.ToString(format);
+            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+
+            if (newValueString != valueString)
+            {
+                if (float.TryParse(newValueString, out float parseResult))
+                {
+                    newValue = Mathf.Clamp(parseResult, min, max);
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            GUI.enabled = previousEnabledState;
+
+            if (onChanged != null && !Mathf.Approximately(value, newValue))
+            {
+                onChanged(newValue);
+            }
+        }
+
+        internal static void SliderColorTint(string label, float value, float min, float max, string format, Action<float> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
+        {
+            GUILayout.BeginHorizontal();
+            int spacing = 0;
+            EnableToggle(label, ref spacing, ref enable, onChangedEnable);
+            bool previousEnabledState = GUI.enabled;
+            if (!enable)
+            {
+                GUI.enabled = false;
+            }
+
+            float newValue = HorizontalTintSlider(value, min, max);
+            string valueString = newValue.ToString(format);
+            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+
+            if (newValueString != valueString)
+            {
+                if (float.TryParse(newValueString, out float parseResult))
+                {
+                    newValue = Mathf.Clamp(parseResult, min, max);
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            GUI.enabled = previousEnabledState;
+
+            if (onChanged != null && !Mathf.Approximately(value, newValue))
+            {
+                onChanged(newValue);
+            }
+        }
+
+        internal static void SliderColorVib(string label, float value, float min, float max, string format, Action<float> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
+        {
+            GUILayout.BeginHorizontal();
+            int spacing = 0;
+            EnableToggle(label, ref spacing, ref enable, onChangedEnable);
+            bool previousEnabledState = GUI.enabled;
+            if (!enable)
+            {
+                GUI.enabled = false;
+            }
+
+            float newValue = HorizontalVibSlider(value, min, max);
+            string valueString = newValue.ToString(format);
+            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+
+            if (newValueString != valueString)
+            {
+                if (float.TryParse(newValueString, out float parseResult))
+                {
+                    newValue = Mathf.Clamp(parseResult, min, max);
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            GUI.enabled = previousEnabledState;
+
+            if (onChanged != null && !Mathf.Approximately(value, newValue))
+            {
+                onChanged(newValue);
+            }
+        }
+
+        internal static void SliderColorHue(string label, float value, float min, float max, string format, Action<float> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
+        {
+            GUILayout.BeginHorizontal();
+            int spacing = 0;
+            EnableToggle(label, ref spacing, ref enable, onChangedEnable);
+            bool previousEnabledState = GUI.enabled;
+            if (!enable)
+            {
+                GUI.enabled = false;
+            }
+
+            float newValue = HorizontalHueSlider(value, min, max);
+            string valueString = newValue.ToString(format);
+            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+
+            if (newValueString != valueString)
+            {
+                if (float.TryParse(newValueString, out float parseResult))
+                {
+                    newValue = Mathf.Clamp(parseResult, min, max);
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            GUI.enabled = previousEnabledState;
+
+            if (onChanged != null && !Mathf.Approximately(value, newValue))
+            {
+                onChanged(newValue);
+            }
         }
 
         internal static void SliderTemp(string label, float value, float min, float max, string format, Action<float> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
@@ -59,7 +296,7 @@ namespace Graphics.Inspector
 
             float newValue = GUILayout.HorizontalSlider(value, min, max);
             string valueString = newValue.ToString(format);
-            string newValueString = GUILayout.TextField(valueString + "K", GUILayout.Width(80), GUILayout.ExpandWidth(false));
+            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
 
             if (newValueString != valueString)
             {
@@ -95,7 +332,7 @@ namespace Graphics.Inspector
             }
 
             int newValue = (int)GUILayout.HorizontalSlider(value, min, max);
-            string newValueString = GUILayout.TextField(newValue.ToString(), GUILayout.Width(40), GUILayout.ExpandWidth(false));
+            string newValueString = GUILayout.TextField(newValue.ToString(), GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
 
             if (newValueString != newValue.ToString())
             {
@@ -142,13 +379,13 @@ namespace Graphics.Inspector
             if (useColorDisplayColor32)
             {
                 Color color = value;
-                color.r = SliderColor("Red", color.r, spacing);
-                color.g = SliderColor("Green", color.g, spacing);
-                color.b = SliderColor("Blue", color.b, spacing);
+                color.r = SliderColorR("Red", color.r, spacing);
+                color.g = SliderColorG("Green", color.g, spacing);
+                color.b = SliderColorB("Blue", color.b, spacing);
                 Color newValue = color;
                 if (!colourGradingName.IsNullOrEmpty())
                 {
-                    float colourGradingValue = SliderColor(colourGradingName, color.a, spacing, mincolourGrading, maxcolourGrading, false);
+                    float colourGradingValue = SliderColorA(colourGradingName, color.a, spacing, mincolourGrading, maxcolourGrading, false);
                     newValue.a = colourGradingValue;
                 }
                 if (onChanged != null && value != newValue)
@@ -159,13 +396,13 @@ namespace Graphics.Inspector
             else
             {
                 Color32 color = value;
-                color.r = SliderColor("Red", color.r, spacing);
-                color.g = SliderColor("Green", color.g, spacing);
-                color.b = SliderColor("Blue", color.b, spacing);
+                color.r = SliderColorR("Red", color.r, spacing);
+                color.g = SliderColorG("Green", color.g, spacing);
+                color.b = SliderColorB("Blue", color.b, spacing);
                 Color newValue = color;
                 if (!colourGradingName.IsNullOrEmpty())
                 {
-                    float colourGradingValue = SliderColor(colourGradingName, value.a, spacing, mincolourGrading, maxcolourGrading, false);
+                    float colourGradingValue = SliderColorA(colourGradingName, value.a, spacing, mincolourGrading, maxcolourGrading, false);
                     newValue.a = colourGradingValue;
                 }
                 if (onChanged != null && value != newValue)
@@ -180,7 +417,7 @@ namespace Graphics.Inspector
             }
         }
 
-        internal static float SliderColor(string label, float value, int spacing, float min = 0.0f, float max = 1.0f, bool RGB = true)
+        internal static float SliderColorR(string label, float value, int spacing, float min = 0.0f, float max = 1.0f, bool RGB = true)
         {
             float labelmar = (GUIStyles.labelWidth) - 60;
             GUIStyle Colorlabel = new GUIStyle(GUI.skin.label);
@@ -200,10 +437,10 @@ namespace Graphics.Inspector
             GUILayout.Label("", GUILayout.Width(labelmar));
             GUILayout.Label(label, Colorlabel, GUILayout.ExpandWidth(false));
 
-            float newValue = GUILayout.HorizontalSlider(value, min, max);
+            float newValue = HorizontalRedSlider(value, min, max);
             string valueString = value.ToString();
             string newValueString = RGB ? newValue.ToString("N2") : newValue.ToString();
-            newValueString = GUILayout.TextField(newValueString, GUILayout.Width(40), GUILayout.ExpandWidth(false));
+            newValueString = GUILayout.TextField(newValueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
             if (newValueString != valueString)
             {
                 if (float.TryParse(newValueString, out float parseResult))
@@ -215,7 +452,112 @@ namespace Graphics.Inspector
             return newValue;
         }
 
-        internal static byte SliderColor(string label, byte value, int spacing)
+        internal static float SliderColorG(string label, float value, int spacing, float min = 0.0f, float max = 1.0f, bool RGB = true)
+        {
+            float labelmar = (GUIStyles.labelWidth) - 60;
+            GUIStyle Colorlabel = new GUIStyle(GUI.skin.label);
+            Colorlabel.padding = new RectOffset(0, 0, 0, 0);
+            Colorlabel.margin = new RectOffset(0, 0, 0, 0);
+            Colorlabel.normal.background = null;
+            Colorlabel.alignment = TextAnchor.MiddleLeft;
+            Colorlabel.fixedWidth = 60;
+
+
+            GUILayout.BeginHorizontal();
+            if (0 != spacing)
+            {
+                GUILayout.Label("", GUILayout.Width(spacing));
+            }
+            label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
+            GUILayout.Label("", GUILayout.Width(labelmar));
+            GUILayout.Label(label, Colorlabel, GUILayout.ExpandWidth(false));
+
+            float newValue = HorizontalGreenSlider(value, min, max);
+            string valueString = value.ToString();
+            string newValueString = RGB ? newValue.ToString("N2") : newValue.ToString();
+            newValueString = GUILayout.TextField(newValueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+            if (newValueString != valueString)
+            {
+                if (float.TryParse(newValueString, out float parseResult))
+                {
+                    newValue = RGB ? parseResult : parseResult;
+                }
+            }
+            GUILayout.EndHorizontal();
+            return newValue;
+        }
+
+        internal static float SliderColorB(string label, float value, int spacing, float min = 0.0f, float max = 1.0f, bool RGB = true)
+        {
+            float labelmar = (GUIStyles.labelWidth) - 60;
+            GUIStyle Colorlabel = new GUIStyle(GUI.skin.label);
+            Colorlabel.padding = new RectOffset(0, 0, 0, 0);
+            Colorlabel.margin = new RectOffset(0, 0, 0, 0);
+            Colorlabel.normal.background = null;
+            Colorlabel.alignment = TextAnchor.MiddleLeft;
+            Colorlabel.fixedWidth = 60;
+
+
+            GUILayout.BeginHorizontal();
+            if (0 != spacing)
+            {
+                GUILayout.Label("", GUILayout.Width(spacing));
+            }
+            label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
+            GUILayout.Label("", GUILayout.Width(labelmar));
+            GUILayout.Label(label, Colorlabel, GUILayout.ExpandWidth(false));
+
+            float newValue = HorizontalBlueSlider(value, min, max);
+            string valueString = value.ToString();
+            string newValueString = RGB ? newValue.ToString("N2") : newValue.ToString();
+            newValueString = GUILayout.TextField(newValueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+            if (newValueString != valueString)
+            {
+                if (float.TryParse(newValueString, out float parseResult))
+                {
+                    newValue = RGB ? parseResult : parseResult;
+                }
+            }
+            GUILayout.EndHorizontal();
+            return newValue;
+        }
+
+        internal static float SliderColorA(string label, float value, int spacing, float min = 0.0f, float max = 1.0f, bool RGB = true)
+        {
+            float labelmar = (GUIStyles.labelWidth) - 60;
+            GUIStyle Colorlabel = new GUIStyle(GUI.skin.label);
+            Colorlabel.padding = new RectOffset(0, 0, 0, 0);
+            Colorlabel.margin = new RectOffset(0, 0, 0, 0);
+            Colorlabel.normal.background = null;
+            Colorlabel.alignment = TextAnchor.MiddleLeft;
+            Colorlabel.fixedWidth = 60;
+
+
+            GUILayout.BeginHorizontal();
+            if (0 != spacing)
+            {
+                GUILayout.Label("", GUILayout.Width(spacing));
+            }
+            label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
+            GUILayout.Label("", GUILayout.Width(labelmar));
+            GUILayout.Label(label, Colorlabel, GUILayout.ExpandWidth(false));
+
+            float newValue = HorizontalAlphaSlider(value, min, max);
+            string valueString = value.ToString("N2");
+            string newValueString = RGB ? newValue.ToString("N2") : newValue.ToString("N2");
+            newValueString = GUILayout.TextField(newValueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+            if (newValueString != valueString)
+            {
+                if (float.TryParse(newValueString, out float parseResult))
+                {
+                    newValue = RGB ? parseResult : parseResult;
+                }
+            }
+            GUILayout.EndHorizontal();
+            return newValue;
+        }
+
+        internal static byte SliderColorR(string label, byte value, int spacing)
         {
             float labelmar = (GUIStyles.labelWidth) - 60;
             GUIStyle Colorlabel = new GUIStyle(GUI.skin.label);
@@ -234,9 +576,75 @@ namespace Graphics.Inspector
             GUILayout.Label("", GUILayout.Width(labelmar));
             GUILayout.Label(label, Colorlabel, GUILayout.ExpandWidth(false));
 
-            byte newValue = (byte)GUILayout.HorizontalSlider(value, 0, 255);
+            byte newValue = (byte)HorizontalRedSlider(value, 0, 255);
             string valueString = value.ToString();
-            string newValueString = GUILayout.TextField(newValue.ToString(), GUILayout.Width(40), GUILayout.ExpandWidth(false));
+            string newValueString = GUILayout.TextField(newValue.ToString(), GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+            GUILayout.EndHorizontal();
+            if (newValueString != valueString)
+            {
+                if (byte.TryParse(newValueString, out byte parseResult))
+                {
+                    newValue = parseResult;
+                }
+            }
+            return newValue;
+        }
+
+        internal static byte SliderColorG(string label, byte value, int spacing)
+        {
+            float labelmar = (GUIStyles.labelWidth) - 60;
+            GUIStyle Colorlabel = new GUIStyle(GUI.skin.label);
+            Colorlabel.padding = new RectOffset(0, 0, 0, 0);
+            Colorlabel.margin = new RectOffset(0, 0, 0, 0);
+            Colorlabel.normal.background = null;
+            Colorlabel.alignment = TextAnchor.MiddleLeft;
+            Colorlabel.fixedWidth = 60;
+
+            GUILayout.BeginHorizontal();
+            if (0 != spacing)
+            {
+                GUILayout.Label("", GUILayout.Width(spacing));
+            }
+            label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
+            GUILayout.Label("", GUILayout.Width(labelmar));
+            GUILayout.Label(label, Colorlabel, GUILayout.ExpandWidth(false));
+
+            byte newValue = (byte)HorizontalGreenSlider(value, 0, 255);
+            string valueString = value.ToString();
+            string newValueString = GUILayout.TextField(newValue.ToString(), GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
+            GUILayout.EndHorizontal();
+            if (newValueString != valueString)
+            {
+                if (byte.TryParse(newValueString, out byte parseResult))
+                {
+                    newValue = parseResult;
+                }
+            }
+            return newValue;
+        }
+
+        internal static byte SliderColorB(string label, byte value, int spacing)
+        {
+            float labelmar = (GUIStyles.labelWidth) - 60;
+            GUIStyle Colorlabel = new GUIStyle(GUI.skin.label);
+            Colorlabel.padding = new RectOffset(0, 0, 0, 0);
+            Colorlabel.margin = new RectOffset(0, 0, 0, 0);
+            Colorlabel.normal.background = null;
+            Colorlabel.alignment = TextAnchor.MiddleLeft;
+            Colorlabel.fixedWidth = 60;
+
+            GUILayout.BeginHorizontal();
+            if (0 != spacing)
+            {
+                GUILayout.Label("", GUILayout.Width(spacing));
+            }
+            label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
+            GUILayout.Label("", GUILayout.Width(labelmar));
+            GUILayout.Label(label, Colorlabel, GUILayout.ExpandWidth(false));
+
+            byte newValue = (byte)HorizontalBlueSlider(value, 0, 255);
+            string valueString = value.ToString();
+            string newValueString = GUILayout.TextField(newValue.ToString(), GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
             GUILayout.EndHorizontal();
             if (newValueString != valueString)
             {
@@ -647,9 +1055,10 @@ namespace Graphics.Inspector
             label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
             GUILayout.BeginHorizontal();
 
-            // Draw checkbox
-            bool newToggle = GUILayout.Toggle(toggle, "", GUILayout.Width(20));
+            //Draw checkbox
+            bool newToggle = GUILayout.Toggle(toggle, "", GUILayout.Width(20)); // Checkbox width
 
+            //Draw label
             if (bold)
             {
                 GUIStyle boldStyle = new GUIStyle(GUI.skin.label)
@@ -848,6 +1257,83 @@ namespace Graphics.Inspector
                 onChanged(newText);
             }
         }
+
+        internal static void TextSearch(string label, string text, Action<string> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
+        {
+            GUILayout.BeginHorizontal();
+            string placeholder = LocalizationManager.HasLocalization() ? LocalizationManager.Localized("Search Presets...") : "Search Presets...";
+            GUILayout.Label(label, GUIStyles.boldlabel, GUILayout.ExpandWidth(false));
+            GUILayout.Label("", GUILayout.Width(GUIStyles.labelWidth - GUI.skin.label.CalcSize(new GUIContent(label)).x));
+
+            if (!enable)
+            {
+                GUI.enabled = false;
+            }
+
+            Rect textFieldRect = GUILayoutUtility.GetRect(new GUIContent(placeholder), GUIStyles.Skin.textField, GUILayout.ExpandWidth(true));
+            bool isMouseOver = textFieldRect.Contains(Event.current.mousePosition);
+            bool hasFocus = GUI.GetNameOfFocusedControl() == "TextField";
+
+            string displayText = !string.IsNullOrEmpty(text) || isMouseOver || hasFocus ? text : placeholder;
+
+            string newText = GUI.TextField(textFieldRect, displayText, 32, GUIStyles.Skin.textField);
+
+            if (!enable)
+            {
+                GUI.enabled = true;
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (onChanged != null && text != newText)
+            {
+                onChanged(newText == placeholder ? "" : newText);
+            }
+
+            if (hasFocus)
+            {
+                GUI.FocusControl("TextField");
+            }
+        }
+
+        internal static void TextSave(string label, string text, Action<string> onChanged = null, bool enable = true, Action<bool> onChangedEnable = null)
+        {
+            GUILayout.BeginHorizontal();
+            string placeholder = LocalizationManager.HasLocalization() ? LocalizationManager.Localized("Preset Name...") : "Preset Name...";
+            GUILayout.Label(label, GUIStyles.boldlabel, GUILayout.ExpandWidth(false));
+            GUILayout.Label("", GUILayout.Width(GUIStyles.labelWidth - GUI.skin.label.CalcSize(new GUIContent(label)).x));
+
+            if (!enable)
+            {
+                GUI.enabled = false;
+            }
+
+            Rect textFieldRect = GUILayoutUtility.GetRect(new GUIContent(placeholder), GUIStyles.Skin.textField, GUILayout.ExpandWidth(true));
+            bool isMouseOver = textFieldRect.Contains(Event.current.mousePosition);
+            bool hasFocus = GUI.GetNameOfFocusedControl() == "TextField";
+
+            string displayText = !string.IsNullOrEmpty(text) || isMouseOver || hasFocus ? text : placeholder;
+
+            string newText = GUI.TextField(textFieldRect, displayText, 32, GUIStyles.Skin.textField);
+
+            if (!enable)
+            {
+                GUI.enabled = true;
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (onChanged != null && text != newText)
+            {
+                onChanged(newText == placeholder ? "" : newText);
+            }
+
+            if (hasFocus)
+            {
+                GUI.FocusControl("TextField");
+            }
+        }
+
         internal static Vector2 Dimension(string label, Vector2 size, Action<Vector2> onChanged = null)
         {
             GUILayout.BeginHorizontal();

@@ -59,7 +59,6 @@ namespace Graphics.Inspector
             cubemapname = skyboxManager.CurrentTexturePath != SkyboxManager.noCubemap ?
                 GetRelativePathWithoutExtension(assetPath, skyboxManager.CurrentTexturePath) : "(None)";
 
-
             GUILayout.BeginVertical(EmptyBox);
             {
                 GUILayout.BeginVertical(BoxPadding);
@@ -120,14 +119,14 @@ namespace Graphics.Inspector
                         if (skybox.HasProperty("_Tint"))
                             SliderColor("Skybox Tint", skyboxManager.Tint, c => { skyboxManager.Tint = c; skyboxManager.Update = true; }, true);
                         GUILayout.Space(10);
-                        if (skybox.shader.name == "Skybox/Cubemap Ground Projection")
-                            Toggle("Ground Projection", skyboxManager.Projection, false, proj => { skyboxManager.Projection = proj; skyboxManager.Update = true; });
+                        //if (skybox.shader.name == "Skybox/Cubemap Ground Projection")
+                        //    Toggle("Ground Projection", skyboxManager.Projection, false, proj => { skyboxManager.Projection = proj; skyboxManager.Update = true; });
 
-                        if (skyboxManager.Projection)
-                        {
-                            Slider("Horizon", skyboxManager.Horizon, -1f, 1f, "N2", horizon => { skyboxManager.Horizon = horizon; skyboxManager.Update = true; });
-                            Slider("Scale", skyboxManager.Scale, -50f, 50f, "N2", scale => { skyboxManager.Scale = scale; skyboxManager.Update = true; });
-                        }
+                        //if (skyboxManager.Projection)
+                        //{
+                        //    Slider("Horizon", skyboxManager.Horizon, -1f, 1f, "N2", horizon => { skyboxManager.Horizon = horizon; skyboxManager.Update = true; });
+                        //    Slider("Scale", skyboxManager.Scale, -50f, 50f, "N2", scale => { skyboxManager.Scale = scale; skyboxManager.Update = true; });
+                        //}
 
                         DrawDynSkyboxOptions(lightingSettings, skyboxManager, lightmanager, showAdvanced);
                     }
@@ -190,10 +189,10 @@ namespace Graphics.Inspector
                 {
                     DrawAIOSkyboxSettings(lightManager, mat, skyboxManager);
                 }
-                //else if (isSkyboxGroundProjection)
-                //{
-                //    DrawGroundProjectionSkyboxSettings(mat, skyboxManager);
-                //}
+                else if (isSkyboxGroundProjection)
+                {
+                    DrawGroundProjectionSkyboxSettings(mat, skyboxManager);
+                }
             }
         }
         private static void DrawProceduralSkyboxSettings(LightManager lightManager, Material mat, SkyboxManager skyboxManager)
@@ -280,8 +279,8 @@ namespace Graphics.Inspector
                 LightSelector(lightManager, "Sun Source", RenderSettings.sun, source => RenderSettings.sun = source);
                 GUILayout.Space(15);
                 SliderColor("Sun Color", aioskysettings.sunColor, sun => { aioskysettings.sunColor = sun; SkyboxManager.UpdateAIOSkySettings(); }, true);
-                Slider("Sun Min", aioskysettings.sunMin, 0f, 0.02f, "N5", sunmin => { aioskysettings.sunMin = sunmin; SkyboxManager.UpdateAIOSkySettings(); });
-                Slider("Sun Max", aioskysettings.sunMax, 0.9f, 1.0f, "N5", sunmax => { aioskysettings.sunMax = sunmax; SkyboxManager.UpdateAIOSkySettings(); });
+                Slider("Sun Min", aioskysettings.sunMin, 0f, 0.02f, "N2", sunmin => { aioskysettings.sunMin = sunmin; SkyboxManager.UpdateAIOSkySettings(); });
+                Slider("Sun Max", aioskysettings.sunMax, 0.9f, 1.0f, "N2", sunmax => { aioskysettings.sunMax = sunmax; SkyboxManager.UpdateAIOSkySettings(); });
                 Slider("Sun Glow", aioskysettings.SunGlow, 0f, 0.2f, "N2", sunglow => { aioskysettings.SunGlow = sunglow; SkyboxManager.UpdateAIOSkySettings(); });
                 GUILayout.Space(10);
                 Label("SKY", "", true);
@@ -368,23 +367,52 @@ namespace Graphics.Inspector
         }
         private static void DrawGroundProjectionSkyboxSettings(Material mat, SkyboxManager skyboxManager)
         {
+            GroundProjectionSkyboxSettings groundProjectionSkyboxSettings = SkyboxManager.groundProjectionSkyboxSettings;
 
-            Toggle("Ground Projection", mat.IsKeywordEnabled("_GROUNDPROJECTION"), false, isOn =>
+            if (groundProjectionSkyboxSettings != null)
             {
-                if (isOn)
+
+                Slider("Rotation Z", groundProjectionSkyboxSettings.rotationZ, -180f, 180f, "N0", rotationZ => { groundProjectionSkyboxSettings.rotationZ = rotationZ; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                GUILayout.Space(10);
+                Label("WHITE BALANCE", "", true);
+                SliderColorTemp("Temperature", groundProjectionSkyboxSettings.temperature, -100f, 100f, "N0", temperature => { groundProjectionSkyboxSettings.temperature = temperature; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                SliderColorTint("Tint", groundProjectionSkyboxSettings.tint, -100f, 100f, "N0", tint => { groundProjectionSkyboxSettings.tint = tint; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                GUILayout.Space(10);
+                Label("COLOR", "", true);
+                SliderColorVib("Vibrance", groundProjectionSkyboxSettings.vibrance, -1f, 1f, "N2", vibrance => { groundProjectionSkyboxSettings.vibrance = vibrance; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                Slider("Perceptual", groundProjectionSkyboxSettings.perceptual, 0f, 1f, "N2", perceptual => { groundProjectionSkyboxSettings.perceptual = perceptual; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                Slider("Hue", groundProjectionSkyboxSettings.hue, -180f, 180f, "N0", hue => { groundProjectionSkyboxSettings.hue = hue; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                GUILayout.Space(10);
+                Label("COLOR BALANCE", "", true);
+                Slider("Offset", groundProjectionSkyboxSettings.offset, 0f, 1f, "N2", offset => { groundProjectionSkyboxSettings.offset = offset; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                Slider("Power", groundProjectionSkyboxSettings.power, 0f, 2f, "N2", power => { groundProjectionSkyboxSettings.power = power; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                Slider("Slope", groundProjectionSkyboxSettings.slope, 0f, 2f, "N2", slope => { groundProjectionSkyboxSettings.slope = slope; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                GUILayout.Space(10);
+                Toggle("GROUND PROJECTION", groundProjectionSkyboxSettings.projection, true, proj => { groundProjectionSkyboxSettings.projection = proj; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                GUI.enabled = false;
+                if (groundProjectionSkyboxSettings.projection)
                 {
-                    mat.EnableKeyword("_GROUNDPROJECTION");
+                    GUI.enabled = true;
                 }
-                else
-                {
-                    mat.DisableKeyword("_GROUNDPROJECTION");
-                }
-                skyboxManager.Update = true;
-            });
-            Slider("Horizon", mat.GetFloat(SkyboxID._Horizon), -1, 1, "N2", horizon => { mat.SetFloat(SkyboxID._Horizon, horizon); skyboxManager.Update = true; });
-            Slider("Scale", mat.GetFloat(SkyboxID._Scale), -50f, 50f, "N2", scale => { mat.SetFloat(SkyboxID._Scale, scale); skyboxManager.Update = true; });
+                Slider("Horizon", groundProjectionSkyboxSettings.horizon, -1, 1, "N2", horizon => { groundProjectionSkyboxSettings.horizon = horizon; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                Slider("Scale", groundProjectionSkyboxSettings.scale, -50f, 50f, "N0", scale => { groundProjectionSkyboxSettings.scale = scale; SkyboxManager.UpdateGroundProjectionSkySettings(); });
+                GUI.enabled = true;
+                //Add Sliders for rotationZ, etc..
+                //SliderColor("Tint Color", groundProjectionSkyboxSettings.colorFilter, color => { groundProjectionSkyboxSettings.colorFilter = color; SkyboxManager.UpdateGroundProjectionSkySettings(); }, true);
+            }
         }
-
-
+        //Toggle("Ground Projection", mat.IsKeywordEnabled("_GROUNDPROJECTION_ON"), false, isOn =>
+        //{
+        //    if (isOn)
+        //    {
+        //        mat.EnableKeyword("_GROUNDPROJECTION_ON");
+        //    }
+        //    else
+        //    {
+        //        mat.DisableKeyword("_GROUNDPROJECTION_ON");
+        //    }
+        //    skyboxManager.Update = true;
+        //});
     }
+
 }

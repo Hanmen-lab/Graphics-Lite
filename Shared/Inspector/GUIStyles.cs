@@ -3,6 +3,8 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Graphics.Settings;
+using static Graphics.Settings.GlobalSettings;
+using UnityEngine.UI;
 
 namespace Graphics.Inspector
 {
@@ -49,7 +51,7 @@ namespace Graphics.Inspector
         private static readonly Texture2D _toolbarbtnActiveBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _toolbarbtnOnActiveBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _toolbarbtnHoverBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-        private static readonly Texture2D _tabcontentNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);      
+        private static readonly Texture2D _tabcontentNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _switchNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _switchNormalHoverBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _switchNormalActBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
@@ -59,9 +61,18 @@ namespace Graphics.Inspector
         private static readonly Texture2D _tabHeaderBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _tabSmallBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _lightbutNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _tempSliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _tintSliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _vibSliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _huesliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _rsliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _gsliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _bsliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _asliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        private static readonly Texture2D _arsliderNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 
         private static GUISkin _skin;
-        private static int fontSize = 12;
+        public static int fontSize = 12;
         private static readonly string[] fonts = new string[] { "Lucida Grande", "Segoe UI", "Terminal" };
         //private static readonly string[] fonts = new string[] { "Times New Roman" };
         public static GUIStyle toolbarbutton;
@@ -74,8 +85,17 @@ namespace Graphics.Inspector
         public static GUIStyle tabsmall;
         public static GUIStyle sliderfill;
         public static GUIStyle lightbutton;
+        public static GUIStyle tempslider;
+        public static GUIStyle tintslider;
+        public static GUIStyle vibslider;
+        public static GUIStyle hueslider;
+        public static GUIStyle rslider;
+        public static GUIStyle gslider;
+        public static GUIStyle bslider;
+        public static GUIStyle aslider;
+        public static GUIStyle arslider;
         public static float labelWidth = 150f;
-
+        public static GlobalSettings renderSettings;
 
 
         public static GUISkin Skin
@@ -153,6 +173,7 @@ namespace Graphics.Inspector
             newSkin.box.fixedHeight = 0;
             newSkin.box.stretchWidth = false;
             newSkin.box.stretchHeight = false;
+
 
 
             texData = ResourceUtils.GetEmbeddedResource("PopupWindowOff.png");
@@ -317,7 +338,7 @@ namespace Graphics.Inspector
             newSkin.textField.onActive.textColor = new Color32(180, 180, 180, 255);
             newSkin.textField.border = new RectOffset(7, 7, 7, 7);
             newSkin.textField.margin = new RectOffset(4, 4, 6, 6);
-            newSkin.textField.padding = new RectOffset(3, 3, 5, 7);
+            newSkin.textField.padding = new RectOffset(fontSize/3, 3, 5, 7);
             newSkin.textField.overflow = new RectOffset(0, 0, 0, 0);
             newSkin.textField.font = null;
             newSkin.textField.fontSize = 0;
@@ -900,7 +921,259 @@ namespace Graphics.Inspector
             lightbutton.stretchHeight = false;
             lightbutton.fontStyle = FontStyle.Bold;
 
-            newSkin.customStyles = new GUIStyle[] { toolbarbutton, boldlabel, tabcontent, tabheader, tabsmall, fswitch, switchlabel, sliderfill, lightbutton };
+            tempslider = new GUIStyle
+            {
+                name = "tempslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_ct.png");
+            LoadImage(_tempSliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_tempSliderNormalBackground);
+            tempslider.normal.background = _tempSliderNormalBackground;
+            tempslider.normal.textColor = Color.black;
+            tempslider.border = new RectOffset(3, 3, 0, 0);
+            tempslider.margin = new RectOffset(4, 20, 8, 0);
+            tempslider.padding = new RectOffset(-1, -1, 0, 0);
+            tempslider.overflow = new RectOffset(0, 0, -7, -6);
+            tempslider.font = null;
+            tempslider.fontSize = 0;
+            tempslider.fontStyle = FontStyle.Normal;
+            tempslider.alignment = TextAnchor.MiddleLeft;
+            tempslider.wordWrap = false;
+            tempslider.richText = false;
+            tempslider.imagePosition = ImagePosition.ImageOnly;
+            tempslider.clipping = TextClipping.Clip;
+            tempslider.contentOffset = new Vector2(0, 0);
+            tempslider.fixedWidth = 0f;
+            tempslider.fixedHeight = 18f;
+            tempslider.stretchWidth = true;
+            tempslider.stretchHeight = false;
+
+            tintslider = new GUIStyle
+            {
+                name = "tintslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_ti.png");
+            LoadImage(_tintSliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_tintSliderNormalBackground);
+            tintslider.normal.background = _tintSliderNormalBackground;
+            tintslider.normal.textColor = Color.black;
+            tintslider.border = new RectOffset(3, 3, 0, 0);
+            tintslider.margin = new RectOffset(4, 20, 8, 0);
+            tintslider.padding = new RectOffset(-1, -1, 0, 0);
+            tintslider.overflow = new RectOffset(0, 0, -7, -6);
+            tintslider.font = null;
+            tintslider.fontSize = 0;
+            tintslider.fontStyle = FontStyle.Normal;
+            tintslider.alignment = TextAnchor.MiddleLeft;
+            tintslider.wordWrap = false;
+            tintslider.richText = false;
+            tintslider.imagePosition = ImagePosition.ImageOnly;
+            tintslider.clipping = TextClipping.Clip;
+            tintslider.contentOffset = new Vector2(0, 0);
+            tintslider.fixedWidth = 0f;
+            tintslider.fixedHeight = 18f;
+            tintslider.stretchWidth = true;
+            tintslider.stretchHeight = false;
+
+            vibslider = new GUIStyle
+            {
+                name = "vibslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_vib.png");
+            LoadImage(_vibSliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_vibSliderNormalBackground);
+            vibslider.normal.background = _vibSliderNormalBackground;
+            vibslider.normal.textColor = Color.black;
+            vibslider.border = new RectOffset(3, 3, 0, 0);
+            vibslider.margin = new RectOffset(4, 20, 8, 0);
+            vibslider.padding = new RectOffset(-1, -1, 0, 0);
+            vibslider.overflow = new RectOffset(0, 0, -7, -6);
+            vibslider.font = null;
+            vibslider.fontSize = 0;
+            vibslider.fontStyle = FontStyle.Normal;
+            vibslider.alignment = TextAnchor.MiddleLeft;
+            vibslider.wordWrap = false;
+            vibslider.richText = false;
+            vibslider.imagePosition = ImagePosition.ImageOnly;
+            vibslider.clipping = TextClipping.Clip;
+            vibslider.contentOffset = new Vector2(0, 0);
+            vibslider.fixedWidth = 0f;
+            vibslider.fixedHeight = 18f;
+            vibslider.stretchWidth = true;
+            vibslider.stretchHeight = false;
+
+            rslider = new GUIStyle
+            {
+                name = "rslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_r.png");
+            LoadImage(_rsliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_rsliderNormalBackground);
+            rslider.normal.background = _rsliderNormalBackground;
+            rslider.normal.textColor = Color.black;
+            rslider.border = new RectOffset(3, 3, 0, 0);
+            rslider.margin = new RectOffset(4, 20, 8, 0);
+            rslider.padding = new RectOffset(-1, -1, 0, 0);
+            rslider.overflow = new RectOffset(0, 0, -7, -6);
+            rslider.font = null;
+            rslider.fontSize = 0;
+            rslider.fontStyle = FontStyle.Normal;
+            rslider.alignment = TextAnchor.MiddleLeft;
+            rslider.wordWrap = false;
+            rslider.richText = false;
+            rslider.imagePosition = ImagePosition.ImageOnly;
+            rslider.clipping = TextClipping.Clip;
+            rslider.contentOffset = new Vector2(0, 0);
+            rslider.fixedWidth = 0f;
+            rslider.fixedHeight = 18f;
+            rslider.stretchWidth = true;
+            rslider.stretchHeight = false;
+
+            gslider = new GUIStyle
+            {
+                name = "gslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_g.png");
+            LoadImage(_gsliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_gsliderNormalBackground);
+            gslider.normal.background = _gsliderNormalBackground;
+            gslider.normal.textColor = Color.black;
+            gslider.border = new RectOffset(3, 3, 0, 0);
+            gslider.margin = new RectOffset(4, 20, 8, 0);
+            gslider.padding = new RectOffset(-1, -1, 0, 0);
+            gslider.overflow = new RectOffset(0, 0, -7, -6);
+            gslider.font = null;
+            gslider.fontSize = 0;
+            gslider.fontStyle = FontStyle.Normal;
+            gslider.alignment = TextAnchor.MiddleLeft;
+            gslider.wordWrap = false;
+            gslider.richText = false;
+            gslider.imagePosition = ImagePosition.ImageOnly;
+            gslider.clipping = TextClipping.Clip;
+            gslider.contentOffset = new Vector2(0, 0);
+            gslider.fixedWidth = 0f;
+            gslider.fixedHeight = 18f;
+            gslider.stretchWidth = true;
+            gslider.stretchHeight = false;
+
+            bslider = new GUIStyle
+            {
+                name = "bslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_b.png");
+            LoadImage(_bsliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_bsliderNormalBackground);
+            bslider.normal.background = _bsliderNormalBackground;
+            bslider.normal.textColor = Color.black;
+            bslider.border = new RectOffset(3, 3, 0, 0);
+            bslider.margin = new RectOffset(4, 20, 8, 0);
+            bslider.padding = new RectOffset(-1, -1, 0, 0);
+            bslider.overflow = new RectOffset(0, 0, -7, -6);
+            bslider.font = null;
+            bslider.fontSize = 0;
+            bslider.fontStyle = FontStyle.Normal;
+            bslider.alignment = TextAnchor.MiddleLeft;
+            bslider.wordWrap = false;
+            bslider.richText = false;
+            bslider.imagePosition = ImagePosition.ImageOnly;
+            bslider.clipping = TextClipping.Clip;
+            bslider.contentOffset = new Vector2(0, 0);
+            bslider.fixedWidth = 0f;
+            bslider.fixedHeight = 18f;
+            bslider.stretchWidth = true;
+            bslider.stretchHeight = false;
+
+            aslider = new GUIStyle
+            {
+                name = "aslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_a.png");
+            LoadImage(_asliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_asliderNormalBackground);
+            aslider.normal.background = _asliderNormalBackground;
+            aslider.normal.textColor = Color.black;
+            aslider.border = new RectOffset(3, 3, 0, 0);
+            aslider.margin = new RectOffset(4, 20, 8, 0);
+            aslider.padding = new RectOffset(-1, -1, 0, 0);
+            aslider.overflow = new RectOffset(0, 0, -7, -6);
+            aslider.font = null;
+            aslider.fontSize = 0;
+            aslider.fontStyle = FontStyle.Normal;
+            aslider.alignment = TextAnchor.MiddleLeft;
+            aslider.wordWrap = false;
+            aslider.richText = false;
+            aslider.imagePosition = ImagePosition.ImageOnly;
+            aslider.clipping = TextClipping.Clip;
+            aslider.contentOffset = new Vector2(0, 0);
+            aslider.fixedWidth = 0f;
+            aslider.fixedHeight = 18f;
+            aslider.stretchWidth = true;
+            aslider.stretchHeight = false;
+
+            arslider = new GUIStyle
+            {
+                name = "arslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_a2.png");
+            LoadImage(_arsliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_arsliderNormalBackground);
+            arslider.normal.background = _arsliderNormalBackground;
+            arslider.normal.textColor = Color.black;
+            arslider.border = new RectOffset(3, 3, 0, 0);
+            arslider.margin = new RectOffset(4, 20, 8, 0);
+            arslider.padding = new RectOffset(-1, -1, 0, 0);
+            arslider.overflow = new RectOffset(0, 0, -7, -6);
+            arslider.font = null;
+            arslider.fontSize = 0;
+            arslider.fontStyle = FontStyle.Normal;
+            arslider.alignment = TextAnchor.MiddleLeft;
+            arslider.wordWrap = false;
+            arslider.richText = false;
+            arslider.imagePosition = ImagePosition.ImageOnly;
+            arslider.clipping = TextClipping.Clip;
+            arslider.contentOffset = new Vector2(0, 0);
+            arslider.fixedWidth = 0f;
+            arslider.fixedHeight = 18f;
+            arslider.stretchWidth = true;
+            arslider.stretchHeight = false;
+
+            hueslider = new GUIStyle
+            {
+                name = "hueslider"
+            };
+
+            texData = ResourceUtils.GetEmbeddedResource("slider_hue.png");
+            LoadImage(_huesliderNormalBackground, texData);
+            Object.DontDestroyOnLoad(_huesliderNormalBackground);
+            hueslider.normal.background = _huesliderNormalBackground;
+            hueslider.normal.textColor = Color.black;
+            hueslider.border = new RectOffset(3, 3, 0, 0);
+            hueslider.margin = new RectOffset(4, 20, 8, 0);
+            hueslider.padding = new RectOffset(-1, -1, 0, 0);
+            hueslider.overflow = new RectOffset(0, 0, -7, -6);
+            hueslider.font = null;
+            hueslider.fontSize = 0;
+            hueslider.fontStyle = FontStyle.Normal;
+            hueslider.alignment = TextAnchor.MiddleLeft;
+            hueslider.wordWrap = false;
+            hueslider.richText = false;
+            hueslider.imagePosition = ImagePosition.ImageOnly;
+            hueslider.clipping = TextClipping.Clip;
+            hueslider.contentOffset = new Vector2(0, 0);
+            hueslider.fixedWidth = 0f;
+            hueslider.fixedHeight = 18f;
+            hueslider.stretchWidth = true;
+            hueslider.stretchHeight = false;
+
+            newSkin.customStyles = new GUIStyle[] { toolbarbutton, boldlabel, tabcontent, tabheader, tabsmall, fswitch, switchlabel, sliderfill, lightbutton, rslider, gslider, bslider, aslider, arslider, tempslider, tintslider, vibslider, hueslider };
 
             newSkin.settings.doubleClickSelectsWord = true;
             newSkin.settings.tripleClickSelectsLine = true;

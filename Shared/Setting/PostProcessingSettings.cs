@@ -2,6 +2,7 @@
 using MessagePack;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
+using static Graphics.DebugUtils;
 
 // TODO: Turn on Post Processing in main menu.
 // TODO: Messagepack clears out layer lists for a frame. Need to figure out to remove temporary solutions
@@ -17,7 +18,7 @@ namespace Graphics.Settings
         internal ChromaticAberrationParams paramChromaticAberration = new ChromaticAberrationParams();
         internal ColorGradingParams paramColorGrading = new ColorGradingParams();
         internal DepthOfFieldParams paramDepthOfField = new DepthOfFieldParams();
-        internal GrainLayerParams paramGrainLayer = new GrainLayerParams();
+        //internal GrainLayerParams paramGrainLayer = new GrainLayerParams();
         internal ScreenSpaceReflectionParams paramScreenSpaceReflection = new ScreenSpaceReflectionParams();
         internal VignetteParams paramVignette = new VignetteParams();
         internal MotionBlurParams paramMotionBlur = new MotionBlurParams();
@@ -66,13 +67,15 @@ namespace Graphics.Settings
         internal ChromaticAberration chromaticAberrationLayer;
         internal ColorGrading colorGradingLayer;
         internal DepthOfField depthOfFieldLayer;
-        internal Grain grainLayer;
+        //internal Grain grainLayer;
         internal ScreenSpaceReflections screenSpaceReflectionsLayer;
         internal Vignette vignetteLayer;
         internal Camera initialCamera;
         internal MotionBlur motionBlurLayer;
         internal AgXColor agxColorLayer;
+        internal AgXColorPost agxColorPostLayer;
         internal SunShaftsHDR sunShaftsHDRLayer;
+
 
         #if AI
 
@@ -157,10 +160,10 @@ namespace Graphics.Settings
                 chromaticAberrationLayer = SettingValues.profile.AddSettings<ChromaticAberration>();
             }
 
-            if (!SettingValues.profile.TryGetSettings(out grainLayer))
-            {
-                grainLayer = SettingValues.profile.AddSettings<Grain>();
-            }
+            //if (!SettingValues.profile.TryGetSettings(out grainLayer))
+            //{
+            //    grainLayer = SettingValues.profile.AddSettings<Grain>();
+            //}
 
             if (!SettingValues.profile.TryGetSettings(out ambientOcclusionLayer))
             {
@@ -207,6 +210,13 @@ namespace Graphics.Settings
             {
                 agxColorLayer = SettingValues.profile.AddSettings<AgXColor>();
                 agxColorLayer.enabled.value = false;
+            }
+
+            if (!SettingValues.profile.TryGetSettings(out agxColorPostLayer))
+            {
+                agxColorPostLayer = SettingValues.profile.AddSettings<AgXColorPost>();
+                agxColorPostLayer.enabled.value = false;
+                //agxColorPostLayer.priority.value = 8;
             }
 
             depthOfFieldLayer.enabled.value = false; // Make people use Depth of Field Manually
@@ -260,10 +270,10 @@ namespace Graphics.Settings
                 paramColorGrading.Save(colorGradingLayer);
             }
 
-            if (Volume.profile.TryGetSettings(out Grain grainLayer))
-            {
-                paramGrainLayer.Save(grainLayer);
-            }
+            //if (Volume.profile.TryGetSettings(out Grain grainLayer))
+            //{
+            //    paramGrainLayer.Save(grainLayer);
+            //}
 
             if (Volume.profile.TryGetSettings(out ScreenSpaceReflections screenSpaceReflectionsLayer))
             {
@@ -285,75 +295,214 @@ namespace Graphics.Settings
                 paramAgxColor.Save(agxColorLayer);
             }
 
+            if (Volume.profile.TryGetSettings(out AgXColorPost agxColorPostLayer))
+            {
+                paramAgxColor.Save(agxColorPostLayer);
+            }
+
             if (Volume.profile.TryGetSettings(out SunShaftsHDR sunShaftsHDRLayer))
             {
                 paramSunShaftsHDR.Save(sunShaftsHDRLayer);
             }
         }
 
-        public void LoadParameters()
+        public void LoadParameters(bool loaddof)
         {
+            //if (Volume.profile.TryGetSettings(out AdvancedDepthOfField advancedDepthOfFieldLayer))
+            //{
+            //    if (loaddof)
+            //    {
+            //        paramAdvancedDepthOfField.Load(advancedDepthOfFieldLayer);
+            //        LogWithDots("[PPS] Advanced Depth of Field", "OK");
+            //    }
+            //    else
+            //    {
+            //        LogWithDots("[PPS] Advanced Depth of Field", "SKIP");
+            //    }
+
+            //}
+
             if (Volume.profile.TryGetSettings(out AutoExposure autoExposureLayer))
             {
                 paramAutoExposure.Load(autoExposureLayer);
+                LogWithDots("[PPS] Auto Exposure", "OK");
             }
 
             if (Volume.profile.TryGetSettings(out AmbientOcclusion ambientOcclusionLayer))
             {
                 paramAmbientOcclusion.Load(ambientOcclusionLayer);
+                LogWithDots("[PPS] Ambient Occlusion", "OK");
             }
 
             if (Volume.profile.TryGetSettings(out Bloom bloomLayer))
             {
                 paramBloom.Load(bloomLayer);
+                LogWithDots("[PPS] Bloom", "OK");
             }
 
             if (Volume.profile.TryGetSettings(out DepthOfField depthOfFieldLayer))
             {
-                paramDepthOfField.Load(depthOfFieldLayer);
+                if (loaddof)
+                {
+                    paramDepthOfField.Load(depthOfFieldLayer);
+                    LogWithDots("[PPS] Depth of Field", "OK");
+                }
+                else
+                {
+                    LogWithDots("[PPS] Depth of Field", "SKIP");
+                }
+
             }
 
             if (Volume.profile.TryGetSettings(out ChromaticAberration chromaticAberrationLayer))
             {
                 paramChromaticAberration.Load(chromaticAberrationLayer);
+                LogWithDots("[PPS] Chromatic Aberration", "OK");
             }
 
             if (Volume.profile.TryGetSettings(out ColorGrading colorGradingLayer))
             {
                 paramColorGrading.Load(colorGradingLayer);
+                LogWithDots("[PPS] Color Grading", "OK");
             }
 
-            if (Volume.profile.TryGetSettings(out Grain grainLayer))
-            {
-                paramGrainLayer.Load(grainLayer);
-            }
+            //if (Volume.profile.TryGetSettings(out Grain grainLayer))
+            //{
+            //    paramGrainLayer.Load(grainLayer);
+            //}
 
             if (Volume.profile.TryGetSettings(out ScreenSpaceReflections screenSpaceReflectionsLayer))
             {
                 paramScreenSpaceReflection.Load(screenSpaceReflectionsLayer);
+                LogWithDots("[PPS] Screen Space Reflections", "OK");
             }
 
             if (Volume.profile.TryGetSettings(out Vignette vignetteLayer))
             {
                 paramVignette.Load(vignetteLayer);
+                LogWithDots("[PPS] Vignette", "OK");
             }
 
             if (Volume.profile.TryGetSettings(out MotionBlur motionBlurLayer))
             {
                 paramMotionBlur.Load(motionBlurLayer);
+                LogWithDots("[PPS] Motion Blur", "OK");
             }
 
-            if (Volume.profile.TryGetSettings(out AgXColor agxColorLayer))
-            {
-                paramAgxColor.Load(agxColorLayer);
-            }
-
-            UpdateFilterDithering();
+            //if (Volume.profile.TryGetSettings(out TiltShiftBokeh tiltShiftBokehLayer))
+            //{
+            //    paramTiltShiftBokeh.Load(tiltShiftBokehLayer);
+            //    LogWithDots("[PPS] Tilt Shift Bokeh", "OK");
+            //}
 
             if (Volume.profile.TryGetSettings(out SunShaftsHDR sunShaftsHDRLayer))
             {
                 paramSunShaftsHDR.Load(sunShaftsHDRLayer);
+                LogWithDots("[PPS] Sun Shafts HDR", "OK");
             }
+
+            //if (Volume.profile.TryGetSettings(out CRTTube crtTubeLayer))
+            //{
+            //    paramCRTTube.Load(crtTubeLayer);
+            //    LogWithDots("[PPS] CRT Tube", "OK");
+            //}
+
+            //if (Volume.profile.TryGetSettings(out Pixelize pixelizeLayer))
+            //{
+            //    paramPixelize.Load(pixelizeLayer);
+            //    LogWithDots("[PPS] Pixelize", "OK");
+            //}
+
+            //if (Volume.profile.TryGetSettings(out GlitchRGBSplit glitchRGBSplitLayer))
+            //{
+            //    paramGlitchRGBSplit.Load(glitchRGBSplitLayer);
+            //    LogWithDots("[PPS] Glitch RGB Split", "OK");
+            //}
+
+            //if (Volume.profile.TryGetSettings(out GlitchImageBlock glitchImageBlockLayer))
+            //{
+            //    paramGlitchImageBlock.Load(glitchImageBlockLayer);
+            //    LogWithDots("[PPS] Glitch Image Block", "OK");
+            //}
+
+            //if (Volume.profile.TryGetSettings(out AsciiFxB asciiFxBLayer))
+            //{
+            //    paramAsciiFxB.Load(asciiFxBLayer);
+            //    LogWithDots("[PPS] Ascii B", "OK");
+            //}
+
+            //if (Volume.profile.TryGetSettings(out Sharpen3in1 sharpen3in1Layer))
+            //{
+            //    paramSharpen3in1.Load(sharpen3in1Layer);
+            //    LogWithDots("[PPS] Sharpen 3 in 1", "OK");
+            //}
+
+            //if (Volume.profile.TryGetSettings(out BeautifyBloom beautifyBloomLayer))
+            //{
+            //    paramBeautifyBloom.Load(beautifyBloomLayer);
+            //    LogWithDots("[PPS] Beautify Bloom", "OK");
+            //}
+
+            if (Volume.profile.TryGetSettings(out AgXColor agxColorLayer))
+            {
+                paramAgxColor.Load(agxColorLayer);
+                LogWithDots("[PPS] Pre Color Grading", "OK");
+            }
+
+            if (Volume.profile.TryGetSettings(out AgXColorPost agxColorPostLayer))
+            {
+                paramAgxColor.Load(agxColorPostLayer);
+
+                LogWithDots("[PPS] Post Color Grading", "OK");
+            }
+
+            //if (Volume.profile.TryGetSettings(out LightLeaksPPS lightLeaksPPSLayer))
+            //{
+            //    paramLightLeaksPPS.Load(lightLeaksPPSLayer);
+            //    LogWithDots("[PPS] Light Leaks", "OK");
+            //}
+
+            //if (Volume.profile.TryGetSettings(out EdgeDetection edgeDetectionLayer))
+            //{
+            //    paramEdgeDetection.Load(edgeDetectionLayer);
+            //    LogWithDots("[PPS] Edge Detection", "OK");
+            //}
+
+            //if (Volume.profile.TryGetSettings(out AsciiFxA asciiFxALayer))
+            //{
+            //    paramAsciiFxA.Load(asciiFxALayer);
+            //}
+
+            //if (Volume.profile.TryGetSettings(out RaindropEffectSettings raindropEffectSettingsLayer))
+            //{
+            //    if (loadrain)
+            //    {
+            //        paramRaindropEffect.Load(raindropEffectSettingsLayer);
+            //        LogWithDots("[PPS] Raindrop Effect", "OK");
+            //    }
+            //    else
+            //    {
+            //        LogWithDots("[PPS] Raindrop Effect", "SKIP");
+            //    }
+
+            //}
+
+            //BeforeTransparent            
+            //if (Volume.profile.TryGetSettings(out HeightFog heightFogLayer))
+            //{
+            //    if (loadfog)
+            //    {
+            //        paramHeightFog.Load(heightFogLayer);
+            //        LogWithDots("[PPS] Height Fog", "OK");
+            //    }
+            //    else
+            //    {
+            //        LogWithDots("[PPS] Height Fog", "SKIP");
+            //    }
+
+            //}
+
+            UpdateFilterDithering();
         }
 
         internal Transform VolumeTriggerSetting => _postProcessLayer.volumeTrigger;
@@ -480,11 +629,11 @@ namespace Graphics.Settings
             get => paramDepthOfField;
             set => paramDepthOfField = value;
         }
-        public GrainLayerParams GrainLayer
-        {
-            get => paramGrainLayer;
-            set => paramGrainLayer = value;
-        }
+        //public GrainLayerParams GrainLayer
+        //{
+        //    get => paramGrainLayer;
+        //    set => paramGrainLayer = value;
+        //}
         public ScreenSpaceReflectionParams ScreenSpaceReflection
         {
             get => paramScreenSpaceReflection;
@@ -518,12 +667,12 @@ namespace Graphics.Settings
             {
                 if (filterDithering && !Shader.IsKeywordEnabled(temporalKeyword))
                 {
-                    Graphics.Instance.Log.LogInfo("Global temporal filtering has been enabled. Switching to the animated version of IGN dithering.");
+                    LogWithDots("Dithering", "IGN ANIMATED");
                     Shader.EnableKeyword(temporalKeyword);
                 }
                 else if (!filterDithering && Shader.IsKeywordEnabled(temporalKeyword))
                 {
-                    Graphics.Instance.Log.LogInfo("Global temporal filtering has been disabled. Switching to the static version of IGN dithering.");
+                    LogWithDots("Dithering", "IGN STATIC");
                     Shader.DisableKeyword(temporalKeyword);
                 }
             }
@@ -531,7 +680,7 @@ namespace Graphics.Settings
             {
                 if (Shader.IsKeywordEnabled(temporalKeyword))
                 {
-                    Graphics.Instance.Log.LogInfo("Global temporal filtering has been disabled. Switching to the static version of IGN dithering.");
+                    LogWithDots("Dithering", "IGN STATIC");
                     Shader.DisableKeyword(temporalKeyword);
                 }
             }

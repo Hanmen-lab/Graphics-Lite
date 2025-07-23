@@ -39,23 +39,23 @@ namespace Graphics.Inspector
                         Label("Type", rp.mode.ToString());
                         Label("Runtime settings", "");
                         Slider("Importance", rp.importance, 0, 1000, importance => rp.importance = importance);
-                        Slider("Intensity", rp.intensity, 0, 10, "N2", intensity => rp.intensity = intensity);
+                        Slider("Intensity", rp.intensity, 0, 10, "N1", intensity => rp.intensity = intensity);
                         Toggle("Box Projection", rp.boxProjection, false, box => rp.boxProjection = box);
-                        Text("Blend Distance", rp.blendDistance, "N2", distance => rp.blendDistance = distance);
+                        Text("Blend Distance", rp.blendDistance, "N0", distance => rp.blendDistance = distance);
                         Dimension("Box Size", rp.size, size => rp.size = size);
                         Dimension("Box Offset", rp.center, size => rp.center = size);
                         GUILayout.Space(10);
                         Label("Cubemap capture settings", "");
                         Selection("Resolution", rp.resolution, LightingSettings.ReflectionResolutions, resolution => rp.resolution = resolution);
                         Toggle("HDR", rp.hdr, false, hdr => rp.hdr = hdr);
-                        Text("Shadow Distance", rp.shadowDistance, "N2", distance => rp.shadowDistance = distance);
+                        Text("Shadow Distance", rp.shadowDistance, "N0", distance => rp.shadowDistance = distance);
                         Selection("Clear Flags", rp.clearFlags, flag => rp.clearFlags = flag);
                         if (showAdvanced)
                         {
                             SelectionMask("Culling Mask", rp.cullingMask, mask => rp.cullingMask = mask);
                         }
-                        Text("Clipping Planes - Near", rp.nearClipPlane, "N2", plane => rp.nearClipPlane = plane);
-                        Text("Clipping Planes - Far", rp.farClipPlane, "N2", plane => rp.farClipPlane = plane);
+                        Text("Clipping Planes - Near", rp.nearClipPlane, "N0", plane => rp.nearClipPlane = plane);
+                        Text("Clipping Planes - Far", rp.farClipPlane, "N0", plane => rp.farClipPlane = plane);
                         SliderColor("Background", rp.backgroundColor, colour => { rp.backgroundColor = colour; });
                         Selection("Time Slicing Mode", rp.timeSlicingMode, mode => rp.timeSlicingMode = mode);
                         GUILayout.Space(25);

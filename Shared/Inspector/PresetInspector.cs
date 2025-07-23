@@ -1,5 +1,7 @@
-﻿using KKAPI.Utilities;
+﻿using JetBrains.Annotations;
+using KKAPI.Utilities;
 using System;
+using System.Linq;
 using UnityEngine;
 using static Graphics.Inspector.Util;
 
@@ -7,14 +9,18 @@ namespace Graphics.Inspector
 {
     internal static class PresetInspector
     {
-        private const string _nameCue = "(preset name)";
-        private static string _nameToSave = _nameCue;
+        private const string _nameCue = "";
+        private static string _nameToSave = string.Empty;
         private static int _presetIndexOld = -1;
         private static int _presetIndexCurrent = -1;
+        private static string searchQuery = string.Empty;
 
-        private static bool ShouldUpdate => _presetIndexCurrent != -1 && _presetIndexCurrent != _presetIndexOld;
+        //public static PresetSettings presetSettings;
+
+        //private static bool ShouldUpdate => _presetIndexCurrent != -1 && _presetIndexCurrent != _presetIndexOld;
 
         private static Vector2 presetScrollView;
+
 
         internal static void Draw(PresetManager presetManager, bool showAdvanced)
         {
@@ -34,11 +40,44 @@ namespace Graphics.Inspector
             SmallBox.normal.background = null;
             SmallBox.fixedWidth = 60;
 
+
             GUILayout.BeginVertical(GUIStyles.tabcontent);
             {
-                GUILayout.Space(10);
-                Label("LOAD PRESET", "", true);
                 GUILayout.Space(20);
+                GUILayout.BeginHorizontal();
+                TextSearch("LOAD PRESET", searchQuery, search => searchQuery = search);
+                if (Button("Refresh Preset List", true))
+                {
+                    presetManager.RefreshPresetListManually();
+                }
+                GUILayout.EndHorizontal();
+                GUILayout.Space(10);
+
+                GUILayout.BeginHorizontal();
+                GUILayout.BeginVertical();
+                Label("Filter settings:", "", false);
+                GUILayout.EndVertical();
+                GUILayout.BeginVertical();
+                ToggleAlt("Skybox", presetManager.loadSkybox, false, loadskybox => presetManager.loadSkybox = loadskybox);
+                //ToggleAlt("RainDrop", presetManager.loadRain, false, loadrain => presetManager.loadRain = loadrain);
+                GUILayout.EndVertical();
+                GUILayout.BeginVertical();
+                ToggleAlt("Aura 2", presetManager.loadLoadAura, false, loadAura => presetManager.loadLoadAura = loadAura);
+                //ToggleAlt("Volumetrics", presetManager.loadVolumetrics, false, loadVolumetrics => presetManager.loadVolumetrics = loadVolumetrics);
+                GUILayout.EndVertical();
+                GUILayout.BeginVertical();
+                //ToggleAlt("NGS-Shadows", presetManager.loadShadows, false, loadShadows => presetManager.loadShadows = loadShadows);
+                ToggleAlt("LuxWater", presetManager.loadLuxwater, false, loadLuxwater => presetManager.loadLuxwater = loadLuxwater);
+                GUILayout.EndVertical();
+                GUILayout.BeginVertical();
+                ToggleAlt("Fog", presetManager.loadHeightFog, false, fog => presetManager.loadHeightFog = fog);
+                ToggleAlt("DoF", presetManager.loadDoF, false, dof => presetManager.loadDoF = dof);
+                GUILayout.EndVertical();
+                GUILayout.BeginVertical();
+                ToggleAlt("SSS", presetManager.loadSSS, false, sss => presetManager.loadSSS = sss);
+                ToggleAlt("SEGI", presetManager.loadSEGI, false, loadSEGI => presetManager.loadSEGI = loadSEGI);
+                GUILayout.EndVertical();
+                GUILayout.EndHorizontal();
 
                 if (presetManager.PresetNames.IsNullOrEmpty())
                 {
@@ -49,13 +88,38 @@ namespace Graphics.Inspector
                     GUILayout.BeginVertical(PresetBox);
                     {
                         presetScrollView = GUILayout.BeginScrollView(presetScrollView);
+
+                        var presetStructure = presetManager.GetPresetStructure();
                         _presetIndexCurrent = Array.IndexOf(presetManager.PresetNames, presetManager.CurrentPreset);
-                        _presetIndexCurrent = GUILayout.SelectionGrid(_presetIndexCurrent, presetManager.PresetNames, Inspector.Width / 300);
-                        if (ShouldUpdate)
+
+                        foreach (var folder in presetStructure)
                         {
-                            presetManager.CurrentPreset = presetManager.PresetNames[_presetIndexCurrent];
-                            _presetIndexOld = _presetIndexCurrent; // to prevent continuous updates;
+                            Label(folder.Name, "", true);
+
+                            //Filter preset
+                            var filteredPresets = folder.Presets
+                                .Where(p => p.ToLower().Contains(searchQuery.ToLower()))
+                                .ToArray();
+
+                            int presetCount = filteredPresets.Length;
+
+                            if (presetCount > 0)
+                            {
+                                int selectedIndex = GUILayout.SelectionGrid(-1, filteredPresets, Inspector.Width / 300);
+
+                                if (selectedIndex >= 0)
+                                {
+                                    presetManager.CurrentPreset = filteredPresets[selectedIndex];
+                                    _presetIndexCurrent = Array.IndexOf(filteredPresets, presetManager.CurrentPreset);
+                                    _presetIndexOld = _presetIndexCurrent;
+                                }
+                            }
+                            else
+                            {
+                                Label("No matching presets found.", "", false);
+                            }
                         }
+
                         GUILayout.EndScrollView();
                     }
                     GUILayout.EndVertical();
@@ -66,22 +130,17 @@ namespace Graphics.Inspector
 
                 GUILayout.Space(10);
                 GUILayout.ExpandHeight(true);
-                GUILayout.BeginHorizontal();
-                if (Button("Refresh Preset List", true))
-                {
-                    presetManager.RefreshPresetListManually();
-                }
-                GUILayout.EndHorizontal();
 
                 GUILayout.Space(20);
-
-                Label("SAVE PRESET", "", true);
-                GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
-                _nameToSave = GUILayout.TextField(_nameToSave);
+
+                TextSave("SAVE PRESET", _nameToSave, save =>
+                {
+                    _nameToSave = save;
+                });
                 bool isValidFileName = (0 != _nameToSave.Length && 256 >= _nameToSave.Length);
                 bool isCue = (_nameCue == _nameToSave);
-                if (Button("Save") && isValidFileName && !isCue)
+                if (Button("Save", true) && isValidFileName && !isCue)
                 {
                     presetManager.Save(_nameToSave);
                     presetManager.CurrentPreset = _nameToSave;
@@ -92,7 +151,9 @@ namespace Graphics.Inspector
                 if (!isCue && !isValidFileName)
                 {
                     GUILayout.Label("Please specify a valid file name.");
+                    Graphics.Instance.Log.LogMessage("Please specify a valid file name.");
                 }
+
                 GUILayout.Space(20);
                 Label("DEFAULT PRESETS", "", true);
                 GUILayout.Space(10);

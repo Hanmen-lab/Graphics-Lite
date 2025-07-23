@@ -18,9 +18,20 @@ namespace Graphics.Settings
     [MessagePackObject(keyAsPropertyName: true)]
     public static class SkyboxID
     {
+        // Ground Projection Skybox
         public static readonly int _Horizon = Shader.PropertyToID("_Horizon");
         public static readonly int _Scale = Shader.PropertyToID("_Scale");
-        public static readonly int _Projection = Shader.PropertyToID("_Projectione");
+        public static readonly int _RotationZ = Shader.PropertyToID("_RotationZ");
+        //public static readonly int _ColorFilter = Shader.PropertyToID("_ColorFilter");
+        public static readonly int _Vibrance = Shader.PropertyToID("_Vibrance");
+        public static readonly int _Perceptual = Shader.PropertyToID("_Perceptual");
+        public static readonly int _Hue = Shader.PropertyToID("_Hue");
+        public static readonly int _Offset = Shader.PropertyToID("_Offset");
+        public static readonly int _Power = Shader.PropertyToID("_Power");
+        public static readonly int _Slope = Shader.PropertyToID("_Slope");
+        public static readonly int _Temperature = Shader.PropertyToID("_Temperature");
+        public static readonly int _TintWB = Shader.PropertyToID("_TintWB");
+
 
         // Procedural Skybox
         public static readonly int _SunDisk = Shader.PropertyToID("_SunDisk");
@@ -116,37 +127,94 @@ namespace Graphics.Settings
         [IgnoreMember]
         public static readonly string shaderName = "Skybox/Cubemap Ground Projection";
 
-        //public bool projection;
+        public bool projection;
         public float horizon;
-        public float scale;
+        public float scale = -30f;
+        public float rotationZ = 0.0f; // Default value to match original behavior
+        public Color colorFilter = new Color(0.5f, 0.5f, 0.5f, 1.0f); // Default value to match original behavior
+        public float vibrance = 0.0f; // Default value to match original behavior
+        public float perceptual = 0.5f; // Default value to match original behavior
+        public float hue;
+        public float offset = 0.0f; // Default value to match original behavior
+        public float power = 1.0f; // Default value to match original behavior
+        public float slope = 1.0f; // Default value to match original behavior
+        public float temperature = 0.0f; // Default value to match original behavior
+        public float tint = 0.0f; // Default value to match original behavior
 
         public override void Save()
         {
-            Material mat = Graphics.Instance?.SkyboxManager?.Skybox;
+            Material mat = Graphics.Instance?.SkyboxManager?.Skyboxbg;
+
             if (mat != null && mat.shader.name == shaderName)
             {
-                //projection = mat.IsKeywordEnabled("_GROUNDPROJECTION_ON");
+                projection = mat.IsKeywordEnabled("_GROUNDPROJECTION");
                 horizon = mat.GetFloat(SkyboxID._Horizon);
                 scale = mat.GetFloat(SkyboxID._Scale);
-
+                //add those parameters same as here
+                rotationZ = mat.GetFloat(SkyboxID._RotationZ);
+                //colorFilter = mat.GetColor(SkyboxID._ColorFilter);
+                vibrance = mat.GetFloat(SkyboxID._Vibrance);
+                perceptual = mat.GetFloat(SkyboxID._Perceptual);
+                hue = mat.GetFloat(SkyboxID._Hue);
+                offset = mat.GetFloat(SkyboxID._Offset);
+                power = mat.GetFloat(SkyboxID._Power);
+                slope = mat.GetFloat(SkyboxID._Slope);
+                temperature = mat.GetFloat(SkyboxID._Temperature);
+                tint = mat.GetFloat(SkyboxID._TintWB);
             }
         }
         public override void Load()
         {
-            Material mat = Graphics.Instance?.SkyboxManager?.Skybox;
-            if (mat != null && mat.shader.name == shaderName)
+            Material skyboxbg = Graphics.Instance?.SkyboxManager?.Skyboxbg;
+            Material skybox = Graphics.Instance?.SkyboxManager?.Skybox;
+
+            if (skyboxbg != null && skyboxbg.shader.name == shaderName)
             {
-                //if (projection)
-                //{
-                //    mat.EnableKeyword("_GROUNDPROJECTION_ON");
-                //}
-                //else
-                //{
-                //    mat.DisableKeyword("_GROUNDPROJECTION_ON");
-                //}
-                mat.SetFloat(SkyboxID._Horizon, horizon);
-                mat.SetFloat(SkyboxID._Scale, scale);
+                if (projection)
+                {
+                    skyboxbg.EnableKeyword("_GROUNDPROJECTION");
+                }
+                else
+                {
+                    skyboxbg.DisableKeyword("_GROUNDPROJECTION");
+                }
+
+                skyboxbg.SetFloat(SkyboxID._Horizon, horizon);
+                skyboxbg.SetFloat(SkyboxID._Scale, scale);
+                skyboxbg.SetFloat(SkyboxID._RotationZ, rotationZ);
+                //skyboxbg.SetColor(SkyboxID._ColorFilter, colorFilter);
+                skyboxbg.SetFloat(SkyboxID._Vibrance, vibrance);
+                skyboxbg.SetFloat(SkyboxID._Perceptual, perceptual);
+                skyboxbg.SetFloat(SkyboxID._Hue, hue);
+                skyboxbg.SetFloat(SkyboxID._Offset, offset);
+                skyboxbg.SetFloat(SkyboxID._Power, power);
+                skyboxbg.SetFloat(SkyboxID._Slope, slope);
+                skyboxbg.SetFloat(SkyboxID._Temperature, temperature);
+                skyboxbg.SetFloat(SkyboxID._TintWB, tint);
+
+                if (projection)
+                {
+                    skybox.EnableKeyword("_GROUNDPROJECTION");
+                }
+                else
+                {
+                    skybox.DisableKeyword("_GROUNDPROJECTION");
+                }
+
+                skybox.SetFloat(SkyboxID._Horizon, horizon);
+                skybox.SetFloat(SkyboxID._Scale, scale);
+                skybox.SetFloat(SkyboxID._RotationZ, rotationZ);
+                //skybox.SetColor(SkyboxID._ColorFilter, colorFilter);
+                skybox.SetFloat(SkyboxID._Vibrance, vibrance);
+                skybox.SetFloat(SkyboxID._Perceptual, perceptual);
+                skybox.SetFloat(SkyboxID._Hue, hue);
+                skybox.SetFloat(SkyboxID._Offset, offset);
+                skybox.SetFloat(SkyboxID._Power, power);
+                skybox.SetFloat(SkyboxID._Slope, slope);
+                skybox.SetFloat(SkyboxID._Temperature, temperature);
+                skybox.SetFloat(SkyboxID._TintWB, tint);
             }
+
         }
     }
 

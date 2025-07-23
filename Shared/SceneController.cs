@@ -16,7 +16,7 @@ namespace Graphics
     {
         public byte[] ExportSettingBytes()
         {
-            return MessagePackSerializer.Serialize(DoSave());            
+            return MessagePackSerializer.Serialize(DoSave());
         }
 
         public void ImportSettingBytes(byte[] bytes)
@@ -29,8 +29,8 @@ namespace Graphics
             PluginData pluginData = GetExtendedData();
 
             StartCoroutine(LoadCoroutine(operation, pluginData, loadedItems));
-        } 
-        
+        }
+
         private IEnumerator LoadCoroutine(SceneOperationKind operation, PluginData pluginData, ReadOnlyDictionary<int, ObjectCtrlInfo> loadedItems)
         {
             yield return null;
@@ -76,13 +76,13 @@ namespace Graphics
             if (pluginData != null && pluginData.data != null && pluginData.data.ContainsKey("lightDataBytes"))
             {
                 PerLightSettings[] settings = MessagePackSerializer.Deserialize<PerLightSettings[]>((byte[])pluginData.data["lightDataBytes"]);
-               if (settings != null && settings.Length > 0)
+                if (settings != null && settings.Length > 0)
                     ApplyLightSettings(settings);
-            }            
+            }
         }
 
         protected override void OnSceneSave()
-        {           
+        {
             SetExtendedData(DoSave());
         }
 
@@ -191,7 +191,7 @@ namespace Graphics
                             FindMappedLightSettings(light, importedObjects, settings)?.ApplySettings(light);
                         }
                     }
-                }             
+                }
             }
         }
 
@@ -202,7 +202,7 @@ namespace Graphics
             int counter = 0;
 
             List<PerLightSettings> newDirectionalLights = new List<PerLightSettings>(settings.Where(pls => pls.Type == (int)LightType.Directional));
-            
+
             if (settings.Length > 0 && settings[0].HierarchyPath != null)
             {
                 foreach (LightObject light in lightManager.DirectionalLights)
@@ -316,7 +316,7 @@ namespace Graphics
             ReflectionProbe[] probes = Graphics.Instance.SkyboxManager.GetReflectinProbes();
             if (probes != null && settings != null && settings.Length > 0)
             {
-                if (settings.Length > 0 && settings[0].HierarchyPath == null) 
+                if (settings.Length > 0 && settings[0].HierarchyPath == null)
                 {
                     string[] probeNames = settings.Select(s => s.Name).ToArray();
                     foreach (string probeName in probeNames)

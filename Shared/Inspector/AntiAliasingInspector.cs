@@ -65,7 +65,7 @@ namespace Graphics.Inspector
                                 stability => { ctaaSettings.TemporalStability.value = stability; CTAAManager.UpdateSettings(); },
                                 ctaaSettings.TemporalStability.overrideState,
                                 overrideState => { ctaaSettings.TemporalStability.overrideState = overrideState; CTAAManager.UpdateSettings(); });
-                            Slider("HDR Response", ctaaSettings.HdrResponse.value, 0.001f, 4f, "N3",
+                            Slider("HDR Response", ctaaSettings.HdrResponse.value, 0.001f, 4f, "N2",
                                 hdrResponse => { ctaaSettings.HdrResponse.value = hdrResponse; CTAAManager.UpdateSettings(); },
                                 ctaaSettings.HdrResponse.overrideState,
                                 overrideState => { ctaaSettings.HdrResponse.overrideState = overrideState; CTAAManager.UpdateSettings(); });
@@ -77,7 +77,7 @@ namespace Graphics.Inspector
                                 adaptiveSharpness => { ctaaSettings.AdaptiveSharpness.value = adaptiveSharpness; CTAAManager.UpdateSettings(); },
                                 ctaaSettings.AdaptiveSharpness.overrideState,
                                 overrideState => { ctaaSettings.AdaptiveSharpness.overrideState = overrideState; CTAAManager.UpdateSettings(); });
-                            Slider("Temporal Jitter Scale", ctaaSettings.TemporalJitterScale.value, 0f, 0.5f, "N3",
+                            Slider("Temporal Jitter Scale", ctaaSettings.TemporalJitterScale.value, 0f, 0.5f, "N2",
                                 temporalJitterScale => { ctaaSettings.TemporalJitterScale.value = temporalJitterScale; CTAAManager.UpdateSettings(); },
                                 ctaaSettings.TemporalJitterScale.overrideState,
                                 overrideState => { ctaaSettings.TemporalJitterScale.overrideState = overrideState; CTAAManager.UpdateSettings(); });

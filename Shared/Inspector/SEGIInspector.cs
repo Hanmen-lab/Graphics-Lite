@@ -67,8 +67,8 @@ namespace Graphics.Inspector
                         Toggle("Volex AA", segiSettings.voxelAA, false, aa => { segiSettings.voxelAA = aa; SEGIManager.UpdateSettings(); });
                         Toggle("Infinite Bounces (Slow)", segiSettings.infiniteBounces, false, bounce => { segiSettings.infiniteBounces = bounce; SEGIManager.UpdateSettings(); });
                         Toggle("Gaussian Mip Filter", segiSettings.gaussianMipFilter, false, filter => { segiSettings.gaussianMipFilter = filter; SEGIManager.UpdateSettings(); });
-                        Text("Voxel Space Size", segiSettings.voxelSpaceSize, "N2", size => { segiSettings.voxelSpaceSize = size; SEGIManager.UpdateSettings(); });
-                        Text("Shadow Space Size", segiSettings.shadowSpaceSize, "N2", size => { segiSettings.shadowSpaceSize = size; SEGIManager.UpdateSettings(); });
+                        Text("Voxel Space Size", segiSettings.voxelSpaceSize, "N0", size => { segiSettings.voxelSpaceSize = size; SEGIManager.UpdateSettings(); });
+                        Text("Shadow Space Size", segiSettings.shadowSpaceSize, "N0", size => { segiSettings.shadowSpaceSize = size; SEGIManager.UpdateSettings(); });
                         SelectionMask("GI Culling Mask", segiSettings.giCullingMask, mask => { segiSettings.giCullingMask = mask; SEGIManager.UpdateSettings(); });
 
                         GUILayout.Space(30);
@@ -89,7 +89,7 @@ namespace Graphics.Inspector
 
                         Label("SUN PROPERTIES", "", true);
                         GUILayout.Space(2);
-                        Slider("Soft Sunlight", segiSettings.softSunlight, 0f, 16f, "N2", soft => { segiSettings.softSunlight = soft; SEGIManager.UpdateSettings(); });
+                        Slider("Soft Sunlight", segiSettings.softSunlight, 0f, 16f, "N1", soft => { segiSettings.softSunlight = soft; SEGIManager.UpdateSettings(); });
                         GUILayout.Space(5);
                         LightSelector(lightManager, "Sun Source", RenderSettings.sun, light => { RenderSettings.sun = light; SEGIManager.UpdateSettings(); ConnectSunToUnderwater.ConnectSun(); });
 

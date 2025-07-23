@@ -340,11 +340,11 @@ namespace Graphics.Inspector
                         if (amplifyOccSettings.FadeEnabled.value)
                         {
                             GUILayout.Space(5);
-                            Slider("Fade Length", amplifyOccSettings.FadeLength.value, 0f, 100f, "N2", fadeLength => { amplifyOccSettings.FadeLength.value = fadeLength; AmplifyOccManager.UpdateSettings(); });
-                            Slider("Fade Start", amplifyOccSettings.FadeStart.value, 0f, 100f, "N2", fadeStart => { amplifyOccSettings.FadeStart.value = fadeStart; AmplifyOccManager.UpdateSettings(); });
+                            Slider("Fade Length", amplifyOccSettings.FadeLength.value, 0f, 100f, "N1", fadeLength => { amplifyOccSettings.FadeLength.value = fadeLength; AmplifyOccManager.UpdateSettings(); });
+                            Slider("Fade Start", amplifyOccSettings.FadeStart.value, 0f, 100f, "N1", fadeStart => { amplifyOccSettings.FadeStart.value = fadeStart; AmplifyOccManager.UpdateSettings(); });
                             Slider("Fade To Intensity", amplifyOccSettings.FadeToIntensity.value, 0f, 1f, "N2", fadeToIntensity => { amplifyOccSettings.FadeToIntensity.value = fadeToIntensity; AmplifyOccManager.UpdateSettings(); });
                             Slider("Fade To Power Exponent", amplifyOccSettings.FadeToPowerExponent.value, 0f, 16f, "N2", fadeToPowerExponent => { amplifyOccSettings.FadeToPowerExponent.value = fadeToPowerExponent; AmplifyOccManager.UpdateSettings(); });
-                            Slider("Fade To Radius", amplifyOccSettings.FadeToRadius.value, 0f, 32f, "N2", fadeToRadius => { amplifyOccSettings.FadeToRadius.value = fadeToRadius; AmplifyOccManager.UpdateSettings(); });
+                            Slider("Fade To Radius", amplifyOccSettings.FadeToRadius.value, 0f, 32f, "N0", fadeToRadius => { amplifyOccSettings.FadeToRadius.value = fadeToRadius; AmplifyOccManager.UpdateSettings(); });
                             Slider("Fade To Thickness", amplifyOccSettings.FadeToThickness.value, 0f, 1f, "N2", fadeToThickness => { amplifyOccSettings.FadeToThickness.value = fadeToThickness; AmplifyOccManager.UpdateSettings(); });
                             SliderColor("Fade To Tint", amplifyOccSettings.FadeToTint, colour => { amplifyOccSettings.FadeToTint = colour; AmplifyOccManager.UpdateSettings(); });
                         }
@@ -397,131 +397,278 @@ namespace Graphics.Inspector
                 Switch(renderSettings.FontSize, "COLOR GRADING", settings.colorGradingLayer.enabled.value, true, enabled =>
                 {
                     settings.colorGradingLayer.active = settings.colorGradingLayer.enabled.value = enabled;
+                    settings.agxColorLayer.active = settings.colorGradingLayer.enabled.value = enabled;
+                    settings.agxColorPostLayer.active = settings.colorGradingLayer.enabled.value = enabled;
                 });
                 if (settings.colorGradingLayer.enabled.value)
                 {
                     GUILayout.Space(30);
-                    Selection("Mode", (PostProcessingSettings.GradingMode)settings.colorGradingLayer.gradingMode.value, mode => settings.colorGradingLayer.gradingMode.value = (UnityEngine.Rendering.PostProcessing.GradingMode)mode);
+                    Selection("Mode", (PostProcessingSettings.GradingMode)settings.colorGradingLayer.gradingMode.value, mode =>
+                    {
+                        settings.colorGradingLayer.gradingMode.value = (GradingMode)mode;
+                        if (GradingMode.External != settings.colorGradingLayer.gradingMode.value)
+                        {
+                            settings.agxColorLayer.active = false;
+                            settings.agxColorLayer.enabled.value = false;
+                            settings.agxColorPostLayer.external.value = false;
+                        }
+                        else
+                        {
+                            settings.agxColorLayer.active = true;
+                            settings.agxColorLayer.enabled.value = true;
+                            settings.agxColorPostLayer.active = true;
+                            settings.agxColorPostLayer.enabled.value = true;
+                            settings.agxColorPostLayer.external.value = true;
+                        }
+
+                    });
                     if (GradingMode.External != settings.colorGradingLayer.gradingMode.value)
                     {
-                        settings.agxColorLayer.active = true;
-                        settings.agxColorLayer.enabled.Override(true);
-                        settings.agxColorLayer.external.Override(false);
+                        //settings.agxColorLayer.active = false;
+                        //settings.agxColorLayer.enabled.Override(false);
+                        //settings.agxColorPostLayer.active = true;
+                        //settings.agxColorPostLayer.enabled.Override(true);
+                        //settings.agxColorPostLayer.external.Override(false);
+
                         if (GradingMode.LowDefinitionRange == settings.colorGradingLayer.gradingMode.value)
                         {
                             Selection("LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
-                                lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.colorGradingLayer.ldrLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
-                                settings.colorGradingLayer.ldrLut.overrideState, overrideState => settings.colorGradingLayer.ldrLut.overrideState = overrideState);
-                            Slider("LUT Blend", settings.colorGradingLayer.ldrLutContribution.value, 0, 1, "N3", ldrLutContribution => settings.colorGradingLayer.ldrLutContribution.value = ldrLutContribution,
+                                lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.colorGradingLayer.ldrLut.Override(postprocessingManager.LoadLUT(lut)); } }, 3);
+                            Slider("LUT Blend", settings.colorGradingLayer.ldrLutContribution.value, 0, 1, "N2", ldrLutContribution => settings.colorGradingLayer.ldrLutContribution.value = ldrLutContribution,
                                 settings.colorGradingLayer.ldrLutContribution.overrideState, overrideState => settings.colorGradingLayer.ldrLutContribution.overrideState = overrideState);
                         }
                         else
                         {
                             Selection("Tonemapping", settings.colorGradingLayer.tonemapper.value, mode => settings.colorGradingLayer.tonemapper.value = mode);
                         }
+
                         GUILayout.Space(30);
                         Label("WHITE BALANCE", "", true);
                         GUILayout.Space(10);
-                        Slider("Temperature", settings.colorGradingLayer.temperature.value, -100, 100, "N1", temperature => settings.colorGradingLayer.temperature.value = temperature,
+                        SliderColorTemp("Temperature", settings.colorGradingLayer.temperature.value, -100, 100, "N0", temperature => settings.colorGradingLayer.temperature.value = temperature,
                             settings.colorGradingLayer.temperature.overrideState, overrideState => settings.colorGradingLayer.temperature.overrideState = overrideState);
-                        Slider("Tint", settings.colorGradingLayer.tint.value, -100, 100, "N1", tint => settings.colorGradingLayer.tint.value = tint,
+                        SliderColorTint("Tint", settings.colorGradingLayer.tint.value, -100, 100, "N0", tint => settings.colorGradingLayer.tint.value = tint,
                             settings.colorGradingLayer.tint.overrideState, overrideState => settings.colorGradingLayer.tint.overrideState = overrideState);
-                        GUILayout.Space(10);
+
+                        GUILayout.Space(30);
                         Label("TONE", "", true);
                         GUILayout.Space(10);
                         if (GradingMode.HighDefinitionRange == settings.colorGradingLayer.gradingMode.value)
                         {
-                            Slider("Post-exposure (EV)", settings.colorGradingLayer.postExposure.value, -3, 3, "N2", value => settings.colorGradingLayer.postExposure.value = value, settings.colorGradingLayer.postExposure.overrideState, overrideState => settings.colorGradingLayer.postExposure.overrideState = overrideState);
+                            SliderAlpha("Post-exposure (EV)", settings.colorGradingLayer.postExposure.value, -3, 3, "N2", false, value => settings.colorGradingLayer.postExposure.value = value, settings.colorGradingLayer.postExposure.overrideState, overrideState => settings.colorGradingLayer.postExposure.overrideState = overrideState);
                         }
-                        Slider("Hue Shift", settings.colorGradingLayer.hueShift.value, -180, 180, "N1", hueShift => settings.colorGradingLayer.hueShift.value = hueShift,
+                        SliderColorHue("Hue Shift", settings.colorGradingLayer.hueShift.value, -180, 180, "N0", hueShift => settings.colorGradingLayer.hueShift.value = hueShift,
                             settings.colorGradingLayer.hueShift.overrideState, overrideState => settings.colorGradingLayer.hueShift.overrideState = overrideState);
-                        Slider("Saturation", settings.colorGradingLayer.saturation.value, -100, 100, "N1", saturation => settings.colorGradingLayer.saturation.value = saturation,
+                        SliderColorVib("Saturation", settings.colorGradingLayer.saturation.value, -100, 100, "N0", saturation => settings.colorGradingLayer.saturation.value = saturation,
                             settings.colorGradingLayer.saturation.overrideState, overrideState => settings.colorGradingLayer.saturation.overrideState = overrideState);
                         if (GradingMode.LowDefinitionRange == settings.colorGradingLayer.gradingMode.value)
                         {
-                            Slider("Brightness", settings.colorGradingLayer.brightness.value, -100, 100, "N1", brightness => settings.colorGradingLayer.brightness.value = brightness,
+                            SliderAlpha("Brightness", settings.colorGradingLayer.brightness.value, -100, 100, "N0", false, brightness => settings.colorGradingLayer.brightness.value = brightness,
                                 settings.colorGradingLayer.brightness.overrideState, overrideState => settings.colorGradingLayer.brightness.overrideState = overrideState);
                         }
-                        Slider("Contrast", settings.colorGradingLayer.contrast.value, -100, 100, "N1", contrast => settings.colorGradingLayer.contrast.value = contrast,
+                        SliderAlpha("Contrast", settings.colorGradingLayer.contrast.value, -100, 100, "N0", true, contrast => settings.colorGradingLayer.contrast.value = contrast,
                             settings.colorGradingLayer.contrast.overrideState, overrideState => settings.colorGradingLayer.contrast.overrideState = overrideState);
+
+                        GUILayout.Space(30);
+                        Label("CHANNEL MIXER", "", true);
+                        GUILayout.Space(10);
+                        Selection("Channel", settings.agxColorLayer.channelMixer, mode => settings.agxColorLayer.channelMixer = mode);
+                        if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Red)
+                        {
+                            GUILayout.Space(10);
+                            Slider("Red", settings.agxColorLayer.mixerRedOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerRedOutRedIn.value = red,
+                                settings.agxColorLayer.mixerRedOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerRedOutRedIn.overrideState = overrideState);
+                            Slider("Green", settings.agxColorLayer.mixerRedOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerRedOutGreenIn.value = green,
+                                settings.agxColorLayer.mixerRedOutGreenIn.overrideState, overrideState => settings.agxColorLayer.mixerRedOutGreenIn.overrideState = overrideState);
+                            Slider("Blue", settings.agxColorLayer.mixerRedOutBlueIn.value, -200, 200, "N0", blue => settings.agxColorLayer.mixerRedOutBlueIn.value = blue,
+                                settings.agxColorLayer.mixerRedOutBlueIn.overrideState, overrideState => settings.agxColorLayer.mixerRedOutBlueIn.overrideState = overrideState);
+                        }
+                        if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Green)
+                        {
+                            GUILayout.Space(10);
+                            Slider("Red", settings.agxColorLayer.mixerGreenOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerGreenOutRedIn.value = red,
+                                settings.agxColorLayer.mixerGreenOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerGreenOutRedIn.overrideState = overrideState);
+                            Slider("Green", settings.agxColorLayer.mixerGreenOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerGreenOutGreenIn.value = green,
+                                settings.agxColorLayer.mixerGreenOutGreenIn.overrideState, overrideState => settings.agxColorLayer.mixerGreenOutGreenIn.overrideState = overrideState);
+                            Slider("Blue", settings.agxColorLayer.mixerGreenOutBlueIn.value, -200, 200, "N0", blue => settings.agxColorLayer.mixerGreenOutBlueIn.value = blue,
+                                settings.agxColorLayer.mixerGreenOutBlueIn.overrideState, overrideState => settings.agxColorLayer.mixerGreenOutBlueIn.overrideState = overrideState);
+                        }
+                        if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Blue)
+                        {
+                            GUILayout.Space(10);
+                            Slider("Red", settings.agxColorLayer.mixerBlueOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerBlueOutRedIn.value = red,
+                                settings.agxColorLayer.mixerBlueOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutRedIn.overrideState = overrideState);
+                            Slider("Green", settings.agxColorLayer.mixerBlueOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerBlueOutGreenIn.value = green,
+                                settings.agxColorLayer.mixerBlueOutGreenIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutGreenIn.overrideState = overrideState);
+                            Slider("Blue", settings.agxColorLayer.mixerBlueOutBlueIn.value, -200, 200, "N0", blue => settings.agxColorLayer.mixerBlueOutBlueIn.value = blue,
+                                settings.agxColorLayer.mixerBlueOutBlueIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutBlueIn.overrideState = overrideState);
+                        }
+
+                        GUILayout.Space(30);
+                        Label("COLOR BALANCE", "", true);
+                        GUILayout.Space(10);
                         SliderColor("Lift", settings.colorGradingLayer.lift.value, colour => settings.colorGradingLayer.lift.value = colour, false,
-                            settings.colorGradingLayer.lift.overrideState, overrideState => settings.colorGradingLayer.lift.overrideState = overrideState, "Lift range", -1.5f, 3f);
+                            settings.colorGradingLayer.lift.overrideState, overrideState => settings.colorGradingLayer.lift.overrideState = overrideState, "Value", -1.5f, 3f);
                         SliderColor("Gamma", settings.colorGradingLayer.gamma.value, colour => settings.colorGradingLayer.gamma.value = colour, false,
-                            settings.colorGradingLayer.gamma.overrideState, overrideSate => settings.colorGradingLayer.gamma.overrideState = overrideSate, "Gamma range", -1.5f, 3f);
+                            settings.colorGradingLayer.gamma.overrideState, overrideSate => settings.colorGradingLayer.gamma.overrideState = overrideSate, "Value", -1.5f, 3f);
                         SliderColor("Gain", settings.colorGradingLayer.gain.value, colour => settings.colorGradingLayer.gain.value = colour, false,
-                            settings.colorGradingLayer.gain.overrideState, overrideSate => settings.colorGradingLayer.gain.overrideState = overrideSate, "Gain range", -1.5f, 3f);
+                            settings.colorGradingLayer.gain.overrideState, overrideSate => settings.colorGradingLayer.gain.overrideState = overrideSate, "Value", -1.5f, 3f);
+
+                        GUILayout.Space(30);
+                        //Toggle("POST-TRANSFORM (LDR)", settings.agxColorPostLayer.enabled, true, enabled => { settings.agxColorPostLayer.active = enabled; settings.agxColorPostLayer.enabled.Override(enabled); settings.agxColorPostLayer.external.Override(false); });
+                        //if (!settings.agxColorPostLayer.external.value)
+                        //{
                         //GUILayout.Space(30);
-                        //Label("USER LUT", "", true);
+                        //Label("BACKGROUND", "", true);
                         //GUILayout.Space(10);
                         //ToggleAlt("External", settings.agxColorLayer.external, false, external => settings.agxColorLayer.external.Override(external));
-                        //ToggleAlt("Use Background LUT", settings.agxColorLayer.useBackgroundLut, false, useBackgroundLut => settings.agxColorLayer.useBackgroundLut.Override(useBackgroundLut));
-                        //if (settings.agxColorLayer.useBackgroundLut)
+
+                        //ToggleAlt("Use Background LUT", settings.agxColorPostLayer.useBackgroundLut, false, useBackgroundLut => settings.agxColorPostLayer.useBackgroundLut.Override(useBackgroundLut));
+                        //if (settings.agxColorPostLayer.useBackgroundLut)
                         //{
                         //    GUILayout.Space(10);
                         //    Selection("Background LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
-                        //        lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.agxColorLayer.backgroundLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
-                        //        settings.agxColorLayer.backgroundLut.overrideState, overrideState => settings.agxColorLayer.backgroundLut.overrideState = overrideState);
+                        //        lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.agxColorPostLayer.backgroundLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
+                        //        settings.agxColorPostLayer.backgroundLut.overrideState, overrideState => settings.agxColorPostLayer.backgroundLut.overrideState = overrideState);
                         //    GUILayout.Space(10);
-                        //    Slider("LUT Start", settings.agxColorLayer.backgroundBlendStart.value, 0, 1000, "N2", blend => settings.agxColorLayer.backgroundBlendStart.value = blend,
-                        //        settings.agxColorLayer.backgroundBlendStart.overrideState, overrideState => settings.agxColorLayer.backgroundBlendStart.overrideState = overrideState);
-                        //    Slider("LUT End", settings.agxColorLayer.backgroundBlendRange.value, 0, 1000, "N2", blend => settings.agxColorLayer.backgroundBlendRange.value = blend,
-                        //        settings.agxColorLayer.backgroundBlendRange.overrideState, overrideState => settings.agxColorLayer.backgroundBlendRange.overrideState = overrideState);
+                        //    Slider("LUT Start", settings.agxColorPostLayer.backgroundBlendStart.value, 0, 1000, "N0", blend => settings.agxColorPostLayer.backgroundBlendStart.value = blend,
+                        //        settings.agxColorPostLayer.backgroundBlendStart.overrideState, overrideState => settings.agxColorPostLayer.backgroundBlendStart.overrideState = overrideState);
+                        //    Slider("LUT End", settings.agxColorPostLayer.backgroundBlendRange.value, 0, 1000, "N0", blend => settings.agxColorPostLayer.backgroundBlendRange.value = blend,
+                        //        settings.agxColorPostLayer.backgroundBlendRange.overrideState, overrideState => settings.agxColorPostLayer.backgroundBlendRange.overrideState = overrideState);
+                        //    Slider("Intensity", settings.agxColorPostLayer.blend.value, 0f, 1f, "N2", intensity => settings.agxColorPostLayer.blend.value = intensity,
+                        //        settings.agxColorPostLayer.blend.overrideState, overrideState => settings.agxColorPostLayer.blend.overrideState = overrideState);
+                        //}
                         //}
                     }
                     else
                     {
-                        settings.agxColorLayer.active = true;
-                        settings.agxColorLayer.enabled.Override(true);
-                        settings.agxColorLayer.external.Override(true);
-
-                        Selection("Enable", postprocessingManager.Current3DLUTName, postprocessingManager.LUT3DNames,
-                            lut3d => { if (lut3d != postprocessingManager.Current3DLUTName) { settings.colorGradingLayer.externalLut.value = postprocessingManager.Load3DLUT(lut3d); } }, 2,
-                            settings.colorGradingLayer.externalLut.overrideState, overrideState => settings.colorGradingLayer.externalLut.overrideState = overrideState);
+                        //settings.agxColorLayer.active = true;
+                        //settings.agxColorLayer.enabled.Override(true);
                         GUILayout.Space(30);
-                        if (settings.agxColorLayer != null)
+
+                        if (settings.agxColorLayer != null && settings.agxColorPostLayer != null)
                         {
                             if (settings.agxColorLayer.enabled.value)
                             {
+                                settings.colorGradingLayer.postExposure.overrideState = false;
+
+                                GUILayout.Space(30);
+                                Label("PRE-TRANSFORM (HDR)", "This settings should be preferred when doing corrections.", true);
+                                GUILayout.Space(10);
+                                SliderAlpha("Exposure", settings.agxColorLayer.exposure.value, -9, 9, "N2", false, exposure => settings.agxColorLayer.exposure.value = exposure,
+                                    settings.agxColorLayer.exposure.overrideState, overrideState => settings.agxColorLayer.exposure.overrideState = overrideState);
+
                                 GUILayout.Space(30);
                                 Label("WHITE BALANCE", "", true);
                                 GUILayout.Space(10);
-                                Slider("Temperature", settings.agxColorLayer.temperature.value, -100, 100, "N1", temperature => settings.agxColorLayer.temperature.value = temperature,
+                                SliderColorTemp("Temperature", settings.agxColorLayer.temperature.value, -100, 100, "N0", temperature => settings.agxColorLayer.temperature.value = temperature,
                                     settings.agxColorLayer.temperature.overrideState, overrideState => settings.agxColorLayer.temperature.overrideState = overrideState);
-                                Slider("Tint", settings.agxColorLayer.tint.value, -100, 100, "N1", tint => settings.agxColorLayer.tint.value = tint,
+                                SliderColorTint("Tint", settings.agxColorLayer.tint.value, -100, 100, "N0", tint => settings.agxColorLayer.tint.value = tint,
                                     settings.agxColorLayer.tint.overrideState, overrideState => settings.agxColorLayer.tint.overrideState = overrideState);
-                                GUILayout.Space(10);
+
+                                GUILayout.Space(30);
                                 Label("TONE", "", true);
                                 GUILayout.Space(10);
-                                Slider("Hue Shift", settings.agxColorLayer.hueShift.value, -180, 180, "N1", hueShift => settings.agxColorLayer.hueShift.value = hueShift,
+                                SliderColorHue("Hue Shift", settings.agxColorLayer.hueShift.value, -180, 180, "N0", hueShift => settings.agxColorLayer.hueShift.value = hueShift,
                                     settings.agxColorLayer.hueShift.overrideState, overrideState => settings.agxColorLayer.hueShift.overrideState = overrideState);
-                                Slider("Saturation", settings.agxColorLayer.saturation.value, -100, 100, "N1", saturation => settings.agxColorLayer.saturation.value = saturation,
-                                    settings.agxColorLayer.saturation.overrideState, overrideState => settings.agxColorLayer.saturation.overrideState = overrideState);
-                                Slider("Brightness", settings.agxColorLayer.brightness.value, -100, 100, "N1", brightness => settings.agxColorLayer.brightness.value = brightness,
-                                    settings.agxColorLayer.brightness.overrideState, overrideState => settings.agxColorLayer.brightness.overrideState = overrideState);
-                                //Slider("Contrast", settings.agxColorLayer.contrast.value, -100, 100, "N1", contrast => settings.agxColorLayer.contrast.value = contrast,
-                                //    settings.agxColorLayer.contrast.overrideState, overrideState => settings.agxColorLayer.contrast.overrideState = overrideState);
-                                SliderColor("Lift", settings.agxColorLayer.lift.value, colour => settings.agxColorLayer.lift.value = colour, false,
-                                    settings.agxColorLayer.lift.overrideState, overrideState => settings.agxColorLayer.lift.overrideState = overrideState, "Lift range", -1.5f, 3f);
-                                SliderColor("Gamma", settings.agxColorLayer.gamma.value, colour => settings.agxColorLayer.gamma.value = colour, false,
-                                    settings.agxColorLayer.gamma.overrideState, overrideSate => settings.agxColorLayer.gamma.overrideState = overrideSate, "Gamma range", -1.5f, 3f);
-                                SliderColor("Gain", settings.agxColorLayer.gain.value, colour => settings.agxColorLayer.gain.value = colour, false,
-                                    settings.agxColorLayer.gain.overrideState, overrideSate => settings.agxColorLayer.gain.overrideState = overrideSate, "Gain range", -1.5f, 3f);
+                                SliderColorVib("Vibrance", settings.agxColorLayer.colorBoost.value, -1, 1, "N2", colorboost => settings.agxColorLayer.colorBoost.value = colorboost,
+                                    settings.agxColorLayer.colorBoost.overrideState, overrideState => settings.agxColorLayer.colorBoost.overrideState = overrideState);
+                                Slider("Perceptual", settings.agxColorLayer.perceptual.value, 0, 1, "N1", perceptual => settings.agxColorLayer.perceptual.value = perceptual,
+                                    settings.agxColorLayer.perceptual.overrideState, overrideState => settings.agxColorLayer.perceptual.overrideState = overrideState);
+
+                                GUILayout.Space(30);
+                                Label("COLOR BALANCE (HDR)", "", true);
+                                GUILayout.Space(10);
+                                SliderColor("Offset (Highlights)", settings.agxColorLayer.offset.value, colour => settings.agxColorLayer.offset.value = colour, true,
+                                    settings.agxColorLayer.offset.overrideState, overrideState => settings.agxColorLayer.offset.overrideState = overrideState, "Value", 0f, 1f);
+                                SliderColor("Power (Midtones)", settings.agxColorLayer.power.value, colour => settings.agxColorLayer.power.value = colour, true,
+                                    settings.agxColorLayer.power.overrideState, overrideSate => settings.agxColorLayer.power.overrideState = overrideSate, "Value", 0f, 2f);
+                                SliderColor("Slope (Shadows)", settings.agxColorLayer.slope.value, colour => settings.agxColorLayer.slope.value = colour, true,
+                                    settings.agxColorLayer.slope.overrideState, overrideSate => settings.agxColorLayer.slope.overrideState = overrideSate, "Value", 0f, 2f);
+
+                                GUILayout.Space(30);
+                                Label("CHANNEL MIXER", "", true);
+                                GUILayout.Space(10);
+                                Selection("Channel", settings.agxColorLayer.channelMixer, mode => settings.agxColorLayer.channelMixer = mode);
+                                if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Red)
+                                {
+                                    GUILayout.Space(10);
+                                    Slider("Red", settings.agxColorLayer.mixerRedOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerRedOutRedIn.value = red,
+                                        settings.agxColorLayer.mixerRedOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerRedOutRedIn.overrideState = overrideState);
+                                    Slider("Green", settings.agxColorLayer.mixerRedOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerRedOutGreenIn.value = green,
+                                        settings.agxColorLayer.mixerRedOutGreenIn.overrideState, overrideState => settings.agxColorLayer.mixerRedOutGreenIn.overrideState = overrideState);
+                                    Slider("Blue", settings.agxColorLayer.mixerRedOutBlueIn.value, -200, 200, "N0", blue => settings.agxColorLayer.mixerRedOutBlueIn.value = blue,
+                                        settings.agxColorLayer.mixerRedOutBlueIn.overrideState, overrideState => settings.agxColorLayer.mixerRedOutBlueIn.overrideState = overrideState);
+                                }
+                                if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Green)
+                                {
+                                    GUILayout.Space(10);
+                                    Slider("Red", settings.agxColorLayer.mixerGreenOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerGreenOutRedIn.value = red,
+                                        settings.agxColorLayer.mixerGreenOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerGreenOutRedIn.overrideState = overrideState);
+                                    Slider("Green", settings.agxColorLayer.mixerGreenOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerGreenOutGreenIn.value = green,
+                                        settings.agxColorLayer.mixerGreenOutGreenIn.overrideState, overrideState => settings.agxColorLayer.mixerGreenOutGreenIn.overrideState = overrideState);
+                                    Slider("Blue", settings.agxColorLayer.mixerGreenOutBlueIn.value, -200, 200, "N0", blue => settings.agxColorLayer.mixerGreenOutBlueIn.value = blue,
+                                        settings.agxColorLayer.mixerGreenOutBlueIn.overrideState, overrideState => settings.agxColorLayer.mixerGreenOutBlueIn.overrideState = overrideState);
+                                }
+                                if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Blue)
+                                {
+                                    GUILayout.Space(10);
+                                    Slider("Red", settings.agxColorLayer.mixerBlueOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerBlueOutRedIn.value = red,
+                                        settings.agxColorLayer.mixerBlueOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutRedIn.overrideState = overrideState);
+                                    Slider("Green", settings.agxColorLayer.mixerBlueOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerBlueOutGreenIn.value = green,
+                                        settings.agxColorLayer.mixerBlueOutGreenIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutGreenIn.overrideState = overrideState);
+                                    Slider("Blue", settings.agxColorLayer.mixerBlueOutBlueIn.value, -200, 200, "N0", blue => settings.agxColorLayer.mixerBlueOutBlueIn.value = blue,
+                                        settings.agxColorLayer.mixerBlueOutBlueIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutBlueIn.overrideState = overrideState);
+                                }
+
+                            }
+                            GUILayout.Space(30);
+                            Label("COLOR TRANSFORM", "", true);
+                            GUILayout.Space(10);
+                            Selection("Tonemapper", postprocessingManager.Current3DLUTName, postprocessingManager.LUT3DNames,
+                                lut3d => { if (lut3d != postprocessingManager.Current3DLUTName) { settings.colorGradingLayer.externalLut.value = postprocessingManager.Load3DLUT(lut3d); } }, 2);
+
+                            GUILayout.Space(30);
+                            //Toggle("POST-TRANSFORM (LDR)", settings.agxColorPostLayer.enabled, true, enabled => { settings.agxColorPostLayer.active = enabled; settings.agxColorPostLayer.enabled.Override(enabled); settings.agxColorPostLayer.external.Override(enabled); });
+                            if (settings.agxColorPostLayer.enabled.value)
+                            {
+                                GUILayout.Space(10);
+                                Label("", "Warning! This settings may be destructive. Prefer to use Pre-Transform instead.", true);
+                                GUILayout.Space(10);
+                                SliderColorVib("Saturation", settings.agxColorPostLayer.saturation.value, -100, 100, "N0", saturation => settings.agxColorPostLayer.saturation.value = saturation,
+                                    settings.agxColorPostLayer.saturation.overrideState, overrideState => settings.agxColorPostLayer.saturation.overrideState = overrideState);
+                                SliderAlpha("Brightness", settings.agxColorPostLayer.brightness.value, -100, 100, "N0", false, brightness => settings.agxColorPostLayer.brightness.value = brightness,
+                                    settings.agxColorPostLayer.brightness.overrideState, overrideState => settings.agxColorPostLayer.brightness.overrideState = overrideState);
+                                SliderAlpha("Contrast", settings.agxColorPostLayer.contrast.value, -100, 100, "N0", true, contrast => settings.agxColorPostLayer.contrast.value = contrast,
+                                    settings.agxColorPostLayer.contrast.overrideState, overrideState => settings.agxColorPostLayer.contrast.overrideState = overrideState);
+
+                                GUILayout.Space(30);
+                                Label("COLOR BALANCE (LDR)", "", true);
+                                GUILayout.Space(10);
+                                SliderColor("Lift", settings.agxColorPostLayer.lift.value, colour => settings.agxColorPostLayer.lift.value = colour, false,
+                                    settings.agxColorPostLayer.lift.overrideState, overrideState => settings.agxColorPostLayer.lift.overrideState = overrideState, "Value", -1.5f, 3f);
+                                SliderColor("Gamma", settings.agxColorPostLayer.gamma.value, colour => settings.agxColorPostLayer.gamma.value = colour, false,
+                                    settings.agxColorPostLayer.gamma.overrideState, overrideSate => settings.agxColorPostLayer.gamma.overrideState = overrideSate, "Value", -1.5f, 3f);
+                                SliderColor("Gain", settings.agxColorPostLayer.gain.value, colour => settings.agxColorPostLayer.gain.value = colour, false,
+                                    settings.agxColorPostLayer.gain.overrideState, overrideSate => settings.agxColorPostLayer.gain.overrideState = overrideSate, "Value", -1.5f, 3f);
+
                                 //GUILayout.Space(30);
-                                //Label("USER LUT", "", true);
+                                //Label("BACKGROUND", "", true);
                                 //GUILayout.Space(10);
-                                //ToggleAlt("External", settings.agxColorLayer.external, false, external => settings.agxColorLayer.external.Override(external));
-                                //ToggleAlt("Use Background LUT", settings.agxColorLayer.useBackgroundLut, false, useBackgroundLut => settings.agxColorLayer.useBackgroundLut.Override(useBackgroundLut));
-                                //if (settings.agxColorLayer.useBackgroundLut)
+                                //ToggleAlt("Use Background LUT", settings.agxColorPostLayer.useBackgroundLut, false, useBackgroundLut => settings.agxColorPostLayer.useBackgroundLut.Override(useBackgroundLut));
+                                //if (settings.agxColorPostLayer.useBackgroundLut)
                                 //{
                                 //    GUILayout.Space(10);
                                 //    Selection("Background LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
-                                //        lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.agxColorLayer.backgroundLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
-                                //        settings.agxColorLayer.backgroundLut.overrideState, overrideState => settings.agxColorLayer.backgroundLut.overrideState = overrideState);
+                                //        lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.agxColorPostLayer.backgroundLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
+                                //        settings.agxColorPostLayer.backgroundLut.overrideState, overrideState => settings.agxColorPostLayer.backgroundLut.overrideState = overrideState);
                                 //    GUILayout.Space(10);
-                                //    Slider("LUT Start", settings.agxColorLayer.backgroundBlendStart.value, 0, 1000, "N2", blend => settings.agxColorLayer.backgroundBlendStart.value = blend,
-                                //        settings.agxColorLayer.backgroundBlendStart.overrideState, overrideState => settings.agxColorLayer.backgroundBlendStart.overrideState = overrideState);
-                                //    Slider("LUT End", settings.agxColorLayer.backgroundBlendRange.value, 0, 1000, "N2", blend => settings.agxColorLayer.backgroundBlendRange.value = blend,
-                                //        settings.agxColorLayer.backgroundBlendRange.overrideState, overrideState => settings.agxColorLayer.backgroundBlendRange.overrideState = overrideState);
+                                //    Slider("LUT Start", settings.agxColorPostLayer.backgroundBlendStart.value, 0, 1000, "N0", blend => settings.agxColorPostLayer.backgroundBlendStart.value = blend,
+                                //        settings.agxColorPostLayer.backgroundBlendStart.overrideState, overrideState => settings.agxColorPostLayer.backgroundBlendStart.overrideState = overrideState);
+                                //    Slider("LUT End", settings.agxColorPostLayer.backgroundBlendRange.value, 0, 1000, "N0", blend => settings.agxColorPostLayer.backgroundBlendRange.value = blend,
+                                //        settings.agxColorPostLayer.backgroundBlendRange.overrideState, overrideState => settings.agxColorPostLayer.backgroundBlendRange.overrideState = overrideState);
+                                //    Slider("Intensity", settings.agxColorPostLayer.blend.value, 0f, 1f, "N2", intensity => settings.agxColorPostLayer.blend.value = intensity,
+                                //        settings.agxColorPostLayer.blend.overrideState, overrideState => settings.agxColorPostLayer.blend.overrideState = overrideState);
                                 //}
                             }
                         }
@@ -570,10 +717,9 @@ namespace Graphics.Inspector
                 {
                     GUILayout.Space(30);
                     Selection("Spectral Lut", postprocessingManager.CurrentSpecLUTName, postprocessingManager.LUTSpecNames,
-                        speclut => { if (speclut != postprocessingManager.CurrentSpecLUTName) { settings.chromaticAberrationLayer.spectralLut.value = postprocessingManager.LoadSpecLUT(speclut); } }, 4,
-                        settings.chromaticAberrationLayer.spectralLut.overrideState, overrideState => settings.chromaticAberrationLayer.spectralLut.overrideState = overrideState);
+                        speclut => { if (speclut != postprocessingManager.CurrentSpecLUTName) { settings.chromaticAberrationLayer.spectralLut.Override(postprocessingManager.LoadSpecLUT(speclut)); } }, 4);
                     GUILayout.Space(10);
-                    Slider("Intensity", settings.chromaticAberrationLayer.intensity.value, 0f, 5f, "N3", intensity => settings.chromaticAberrationLayer.intensity.value = intensity,
+                    Slider("Intensity", settings.chromaticAberrationLayer.intensity.value, 0f, 5f, "N2", intensity => settings.chromaticAberrationLayer.intensity.value = intensity,
                         settings.chromaticAberrationLayer.intensity.overrideState, overrideState => settings.chromaticAberrationLayer.intensity.overrideState = overrideState);
                     ToggleAlt("Fast Mode", settings.chromaticAberrationLayer.fastMode.value, false, fastMode => settings.chromaticAberrationLayer.fastMode.value = fastMode);
                 }
@@ -638,7 +784,7 @@ namespace Graphics.Inspector
                         Slider("Focus Speed", focusSettings.Speed.value, 1f, 12f, "N1", speed => { focusSettings.Speed.value = speed; FocusManager.UpdateSettings(); },
                             focusSettings.Speed.overrideState, overrideState => { focusSettings.Speed.overrideState = overrideState; FocusManager.UpdateSettings(); });
                     }
-                    Slider("Focal Distance", settings.depthOfFieldLayer.focusDistance.value, 0.1f, 1000f, "N2", focusDistance => settings.depthOfFieldLayer.focusDistance.value = focusDistance,
+                    Slider("Focal Distance", settings.depthOfFieldLayer.focusDistance.value, 0.1f, 1000f, "N0", focusDistance => settings.depthOfFieldLayer.focusDistance.value = focusDistance,
                         settings.depthOfFieldLayer.focusDistance.overrideState && !focusPuller.enabled, overrideState => settings.depthOfFieldLayer.focusDistance.overrideState = overrideState);
                     GUILayout.Space(30);
                     Label("LENS SETTINGS", "", true);
@@ -656,21 +802,46 @@ namespace Graphics.Inspector
                 GUILayout.EndVertical();
             }
 
-            if (settings.grainLayer != null)
+            //if (settings.grainLayer != null)
+            //{
+            //    GUILayout.BeginVertical(SmallTab);
+            //    Switch(renderSettings.FontSize, "GRAIN", settings.grainLayer.enabled.value, true, enabled => settings.grainLayer.active = settings.grainLayer.enabled.value = enabled);
+            //    if (settings.grainLayer.enabled.value)
+            //    {
+            //        GUILayout.Space(10);
+            //        ToggleAlt("Colored", settings.grainLayer.colored.overrideState, false, overrideState => settings.grainLayer.colored.overrideState = overrideState);
+            //        Slider("Intensity", settings.grainLayer.intensity.value, 0f, 20f, "N2", intensity => settings.grainLayer.intensity.value = intensity,
+            //            settings.grainLayer.intensity.overrideState, overrideState => settings.grainLayer.intensity.overrideState = overrideState);
+            //        Slider("Size", settings.grainLayer.size.value, 0f, 10f, "N0", focalLength => settings.grainLayer.size.value = focalLength,
+            //            settings.grainLayer.size.overrideState, overrideState => settings.grainLayer.size.overrideState = overrideState);
+            //        Slider("Luminance Contribution", settings.grainLayer.lumContrib.value, 0f, 22f, "N1", lumContrib => settings.grainLayer.lumContrib.value = lumContrib,
+            //            settings.grainLayer.lumContrib.overrideState, overrideState => settings.grainLayer.lumContrib.overrideState = overrideState);
+            //        LabelColorRed("Warning:", "Grain can greatly increase ghosting artifacts.");
+            //    }
+            //    GUILayout.EndVertical();
+            //}
+
+            if (FilmGrainManager.settings != null)
             {
+                FilmGrainSettings grainLayer = FilmGrainManager.settings;
+
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "GRAIN", settings.grainLayer.enabled.value, true, enabled => settings.grainLayer.active = settings.grainLayer.enabled.value = enabled);
-                if (settings.grainLayer.enabled.value)
+                Switch(renderSettings.FontSize, "GRAIN", grainLayer.enabled, true, enabled => { grainLayer.enabled = enabled; FilmGrainManager.UpdateSettings(); });
+
+                if (grainLayer.enabled)
                 {
-                    GUILayout.Space(10);
-                    ToggleAlt("Colored", settings.grainLayer.colored.overrideState, false, overrideState => settings.grainLayer.colored.overrideState = overrideState);
-                    Slider("Intensity", settings.grainLayer.intensity.value, 0f, 20f, "N2", intensity => settings.grainLayer.intensity.value = intensity,
-                        settings.grainLayer.intensity.overrideState, overrideState => settings.grainLayer.intensity.overrideState = overrideState);
-                    Slider("Size", settings.grainLayer.size.value, 0f, 10f, "N0", focalLength => settings.grainLayer.size.value = focalLength,
-                        settings.grainLayer.size.overrideState, overrideState => settings.grainLayer.size.overrideState = overrideState);
-                    Slider("Luminance Contribution", settings.grainLayer.lumContrib.value, 0f, 22f, "N1", lumContrib => settings.grainLayer.lumContrib.value = lumContrib,
-                        settings.grainLayer.lumContrib.overrideState, overrideState => settings.grainLayer.lumContrib.overrideState = overrideState);
-                    LabelColorRed("Warning:", "Grain can greatly increase ghosting artifacts.");
+                    GUILayout.Space(30);
+
+                    ToggleAlt("Colored", grainLayer.colored.value, false, colored => { grainLayer.colored.value = colored; FilmGrainManager.UpdateSettings(); });
+
+                    Slider("Intensity", grainLayer.intensity.value, 0f, 1f, "N2", intensity => { grainLayer.intensity.value = intensity; FilmGrainManager.UpdateSettings(); },
+                        grainLayer.intensity.overrideState, overrideState => { grainLayer.intensity.overrideState = overrideState; FilmGrainManager.UpdateSettings(); });
+                    Slider("Size", grainLayer.size.value, 0f, 1f, "N2", size => { grainLayer.size.value = size; FilmGrainManager.UpdateSettings(); },
+                        grainLayer.size.overrideState, overrideState => { grainLayer.size.overrideState = overrideState; FilmGrainManager.UpdateSettings(); });
+                    Slider("Luminance Contribution", grainLayer.lumContrib.value, 0f, 1f, "N2", lumContrib => { grainLayer.lumContrib.value = lumContrib; FilmGrainManager.UpdateSettings(); },
+                        grainLayer.lumContrib.overrideState, overrideState => { grainLayer.lumContrib.overrideState = overrideState; FilmGrainManager.UpdateSettings(); });
+
+
                 }
                 GUILayout.EndVertical();
             }
@@ -699,9 +870,9 @@ namespace Graphics.Inspector
 
                     Text("Maximum March Distance", settings.screenSpaceReflectionsLayer.maximumMarchDistance.value, "N2", value => settings.screenSpaceReflectionsLayer.maximumMarchDistance.value = value,
                         settings.screenSpaceReflectionsLayer.maximumMarchDistance.overrideState, overrideState => settings.screenSpaceReflectionsLayer.maximumMarchDistance.overrideState = overrideState);
-                    Slider("Distance Fade", settings.screenSpaceReflectionsLayer.distanceFade, 0f, 1f, "N3", fade => settings.screenSpaceReflectionsLayer.distanceFade.value = fade,
+                    Slider("Distance Fade", settings.screenSpaceReflectionsLayer.distanceFade, 0f, 1f, "N2", fade => settings.screenSpaceReflectionsLayer.distanceFade.value = fade,
                         settings.screenSpaceReflectionsLayer.distanceFade.overrideState, overrideState => settings.screenSpaceReflectionsLayer.distanceFade.overrideState = overrideState);
-                    Slider("Vignette", settings.screenSpaceReflectionsLayer.vignette.value, 0f, 1f, "N3", vignette => settings.screenSpaceReflectionsLayer.vignette.value = vignette,
+                    Slider("Vignette", settings.screenSpaceReflectionsLayer.vignette.value, 0f, 1f, "N2", vignette => settings.screenSpaceReflectionsLayer.vignette.value = vignette,
                         settings.screenSpaceReflectionsLayer.vignette.overrideState, overrideState => settings.screenSpaceReflectionsLayer.vignette.overrideState = overrideState);
                 }
                 GUILayout.EndVertical();
@@ -718,11 +889,11 @@ namespace Graphics.Inspector
                         settings.vignetteLayer.mode.overrideState, overrideState => settings.vignetteLayer.mode.overrideState = overrideState);
                     SliderColor("Colour", settings.vignetteLayer.color.value, colour => settings.vignetteLayer.color.value = colour, false,
                         settings.vignetteLayer.color.overrideState, overrideState => settings.vignetteLayer.color.overrideState = overrideState);
-                    Slider("Intensity", settings.vignetteLayer.intensity, 0f, 1f, "N3", fade => settings.vignetteLayer.intensity.value = fade,
+                    Slider("Intensity", settings.vignetteLayer.intensity, 0f, 1f, "N2", fade => settings.vignetteLayer.intensity.value = fade,
                         settings.vignetteLayer.intensity.overrideState, overrideState => settings.vignetteLayer.intensity.overrideState = overrideState);
-                    Slider("Smoothness", settings.vignetteLayer.smoothness.value, 0.01f, 1f, "N3", vignette => settings.vignetteLayer.smoothness.value = vignette,
+                    Slider("Smoothness", settings.vignetteLayer.smoothness.value, 0.01f, 1f, "N2", vignette => settings.vignetteLayer.smoothness.value = vignette,
                         settings.vignetteLayer.smoothness.overrideState, overrideState => settings.vignetteLayer.smoothness.overrideState = overrideState);
-                    Slider("Roundness", settings.vignetteLayer.roundness.value, 0f, 1f, "N3", vignette => settings.vignetteLayer.roundness.value = vignette,
+                    Slider("Roundness", settings.vignetteLayer.roundness.value, 0f, 1f, "N2", vignette => settings.vignetteLayer.roundness.value = vignette,
                         settings.vignetteLayer.roundness.overrideState, overrideState => settings.vignetteLayer.roundness.overrideState = overrideState);
                     ToggleAlt("Rounded", settings.vignetteLayer.rounded, settings.vignetteLayer.rounded.overrideState, rounded => settings.vignetteLayer.rounded.value = rounded);
                 }
@@ -736,7 +907,7 @@ namespace Graphics.Inspector
                 if (settings.motionBlurLayer.enabled.value)
                 {
                     GUILayout.Space(30);
-                    Slider("Shutter Angle", settings.motionBlurLayer.shutterAngle.value, 0f, 360f, "N2", intensity => settings.motionBlurLayer.shutterAngle.value = intensity,
+                    Slider("Shutter Angle", settings.motionBlurLayer.shutterAngle.value, 0f, 360f, "N0", intensity => settings.motionBlurLayer.shutterAngle.value = intensity,
                         settings.motionBlurLayer.shutterAngle.overrideState, overrideState => settings.motionBlurLayer.shutterAngle.overrideState = overrideState);
                     Slider("Sample Count", settings.motionBlurLayer.sampleCount.value, 4, 32, intensity => settings.motionBlurLayer.sampleCount.value = intensity,
                         settings.motionBlurLayer.sampleCount.overrideState, overrideState => settings.motionBlurLayer.sampleCount.overrideState = overrideState);
@@ -757,7 +928,7 @@ namespace Graphics.Inspector
                     ToggleAlt("Use Radial Distance", globalfogSettings.useRadialDistance.value, false, useRadialDistance => { globalfogSettings.useRadialDistance.value = useRadialDistance; GlobalFogManager.UpdateSettings(); });
 
                     Slider("Height", globalfogSettings.height.value, 1f, 100f, "N0", height => { globalfogSettings.height.value = height; GlobalFogManager.UpdateSettings(); });
-                    Slider("Height Density", globalfogSettings.heightDensity.value, 0.001f, 10f, "N3", density => { globalfogSettings.heightDensity.value = density; GlobalFogManager.UpdateSettings(); });
+                    Slider("Height Density", globalfogSettings.heightDensity.value, 0.001f, 10f, "N1", density => { globalfogSettings.heightDensity.value = density; GlobalFogManager.UpdateSettings(); });
                     Slider("Start Distance", globalfogSettings.startDistance.value, 1f, 100f, "N0", start => { globalfogSettings.startDistance.value = start; GlobalFogManager.UpdateSettings(); });
 
                     SliderColor("Fog Color", globalfogSettings.fogColor, colour => { globalfogSettings.fogColor = colour; GlobalFogManager.UpdateSettings(); });

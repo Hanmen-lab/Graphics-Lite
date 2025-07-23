@@ -64,7 +64,7 @@ namespace Graphics.Inspector
                     SelectionMask("Culling Mask", cameraSettings.CullingMask, mask => cameraSettings.CullingMask = mask);
                     GUI.enabled = true;
                 }
-                Slider("Near Clipping Plane", cameraSettings.NearClipPlane, 0.01f, 15000f, "N2", ncp => { cameraSettings.NearClipPlane = ncp; });
+                Slider("Near Clipping Plane", cameraSettings.NearClipPlane, 0.01f, 15000f, "N0", ncp => { cameraSettings.NearClipPlane = ncp; });
                 Slider("Far Clipping Plane", cameraSettings.FarClipPlane, 0.01f, 150000f, "N0", ncp => { cameraSettings.FarClipPlane = ncp; });
                 Selection("Rendering Path", cameraSettings.RenderingPath, path =>
                 {
@@ -88,7 +88,7 @@ namespace Graphics.Inspector
                 Toggle("Realtime Reflection Probes", renderingSettings.RealtimeReflectionProbes, false, realtime => renderingSettings.RealtimeReflectionProbes = realtime);
                 Toggle("Pulse Realtime Reflection Probes", renderingSettings.PulseReflectionProbes, false, pulse => renderingSettings.PulseReflectionProbes = pulse);
                 if (renderingSettings.PulseReflectionProbes)
-                    Slider("Pulse Timing (Secs)", renderingSettings.PulseReflectionTimer, .25f, 10f, "N2", prt => { renderingSettings.PulseReflectionTimer = prt; });
+                    Slider("Pulse Timing (Secs)", renderingSettings.PulseReflectionTimer, .25f, 10f, "N1", prt => { renderingSettings.PulseReflectionTimer = prt; });
                 GUILayout.Space(25);
                 Label("SHADOWS", "", true);
                 GUILayout.Space(1);
@@ -96,8 +96,8 @@ namespace Graphics.Inspector
                 Selection("Shadows", renderingSettings.ShadowQualitySetting, setting => renderingSettings.ShadowQualitySetting = setting);
                 Selection("Shadow Resolution", renderingSettings.ShadowResolutionSetting, resolution => renderingSettings.ShadowResolutionSetting = resolution);
                 Selection("Shadow Projection", renderingSettings.ShadowProjectionSetting, projection => renderingSettings.ShadowProjectionSetting = projection);
-                Text("Shadow Distance", renderingSettings.ShadowDistance, "N2", distance => renderingSettings.ShadowDistance = distance);
-                Text("Shadow Near Plane Offset", renderingSettings.ShadowNearPlaneOffset, "N2", offset => renderingSettings.ShadowNearPlaneOffset = offset);
+                Text("Shadow Distance", renderingSettings.ShadowDistance, "N0", distance => renderingSettings.ShadowDistance = distance);
+                Text("Shadow Near Plane Offset", renderingSettings.ShadowNearPlaneOffset, "N0", offset => renderingSettings.ShadowNearPlaneOffset = offset);
                 GUILayout.Space(10);
                 Toggle("Use PCSS (Experimental)", renderingSettings.UsePCSS, false, pcss => renderingSettings.UsePCSS = pcss);
                 if (renderingSettings.UsePCSS)
@@ -111,7 +111,7 @@ namespace Graphics.Inspector
                     Slider("Max Static Gradient Bias", PCSSLight.MaxStaticGradientBias, 0f, 0.15f, "N2", bias => PCSSLight.MaxStaticGradientBias = bias);
                     Slider("Cascade Blend Distance", PCSSLight.CascadeBlendDistance, 0f, 1f, "N2", distance => PCSSLight.CascadeBlendDistance = distance);
                 }
-                GUILayout.Space(30);
+                GUILayout.Space(25);
                 if (DitheredShadowsManager.settings != null)
                 {
                     DitheredShadowsSettings ditheredSettings = DitheredShadowsManager.settings;
@@ -130,6 +130,38 @@ namespace Graphics.Inspector
                         Slider("Spot Size", ditheredSettings.spot_size.value, 0.0f, 0.1f, "N2", spot => { ditheredSettings.spot_size.value = spot; DitheredShadowsManager.UpdateSettings(); });
                     }
 
+                }
+
+                GUILayout.Space(25);
+
+                if (DecalsSystemManager.settings != null)
+                {
+                    DeferredDecalsSettings decalsSettings = DecalsSystemManager.settings;
+
+                    ToggleAlt("DEFERRED DECALS", decalsSettings.enabled, true, enabled => { decalsSettings.enabled = enabled; DecalsSystemManager.UpdateSettings(); });
+
+                    if (decalsSettings.enabled)
+                    {
+                        GUILayout.Space(30);
+                        ToggleAlt("Lock Rebuild", decalsSettings.LockRebuild.value, false, lockRebuild => { decalsSettings.LockRebuild.value = lockRebuild; DecalsSystemManager.UpdateSettings(); });
+                        //Selection("Terrain Decals", decalsSettings.TerrainDecals, terrainDecals => { decalsSettings.TerrainDecals = terrainDecals; DecalsSystemManager.UpdateSettings(); });
+                        //if (decalsSettings.TerrainDecals != DeferredDecalsSettings.TerrainDecalsType.None)
+                        //{
+                        //    Slider("Terrain Height Map Size", decalsSettings.TerrainHeightMapSize.value, 256, 4096, size => { decalsSettings.TerrainHeightMapSize.value = size; DecalsSystemManager.UpdateSettings(); },
+                        //        decalsSettings.TerrainHeightMapSize.overrideState, overrideState => { decalsSettings.TerrainHeightMapSize.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
+                        //}
+                        ToggleAlt("Use Exclusion Mask", decalsSettings.UseExclusionMask.value, false, useExclusionMask => { decalsSettings.UseExclusionMask.value = useExclusionMask; DecalsSystemManager.UpdateSettings(); });
+                        if (decalsSettings.UseExclusionMask.value)
+                            SelectionMask("Exclusion Mask", decalsSettings.ExclusionMask, mask => { decalsSettings.ExclusionMask = mask; DecalsSystemManager.UpdateSettings(); });
+                        ToggleAlt("Frustum Culling", decalsSettings.FrustumCulling.value, false, frustumCulling => { decalsSettings.FrustumCulling.value = frustumCulling; DecalsSystemManager.UpdateSettings(); });
+                        ToggleAlt("Distance Culling", decalsSettings.DistanceCulling.value, false, distanceCulling => { decalsSettings.DistanceCulling.value = distanceCulling; DecalsSystemManager.UpdateSettings(); });
+                        Slider("Start Fade Distance", decalsSettings.StartFadeDistance.value, 0f, 1000f, "N0", startFadeDistance => { decalsSettings.StartFadeDistance.value = startFadeDistance; DecalsSystemManager.UpdateSettings(); },
+                            decalsSettings.StartFadeDistance.overrideState, overrideState => { decalsSettings.StartFadeDistance.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
+                        Slider("Fade Length", decalsSettings.FadeLength.value, 0f, 100f, "N0", fadeLength => { decalsSettings.FadeLength.value = fadeLength; DecalsSystemManager.UpdateSettings(); },
+                            decalsSettings.FadeLength.overrideState, overrideState => { decalsSettings.FadeLength.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
+
+                        ToggleAlt("Draw Decal Gizmos", decalsSettings.DrawDecalGizmos.value, false, drawDecalGizmos => { decalsSettings.DrawDecalGizmos.value = drawDecalGizmos; DecalsSystemManager.UpdateSettings(); });
+                    }
                 }
 
                 GUILayout.Space(25);

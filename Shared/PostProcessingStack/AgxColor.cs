@@ -8,7 +8,7 @@ using UnityEngine.Rendering.PostProcessing;
 namespace Graphics
 {
     [Serializable]
-    [PostProcess(typeof(AgXColorRenderer), PostProcessEvent.AfterStack, "Custom/UserLUT")]
+    [PostProcess(typeof(AgXColorRenderer), PostProcessEvent.BeforeStack, "Custom/UserLUT")]
     public sealed class AgXColor : PostProcessEffectSettings
     {
         [DisplayName("Saturation"), Range(-100f, 100f), Tooltip("Pushes the intensity of all colors.")]
@@ -43,12 +43,18 @@ namespace Graphics
         public FloatParameter mixerBlueOutGreenIn = new FloatParameter { value = 0f };
         [DisplayName("Blue"), Range(-200f, 200f), Tooltip("Modify influence of the blue channel in the overall mix.")]
         public FloatParameter mixerBlueOutBlueIn = new FloatParameter { value = 100f };
-        [DisplayName("Lift"), Tooltip("Controls the darkest portions of the render.")]
-        public Vector4Parameter lift = new Vector4Parameter { value = new Vector4(1f, 1f, 1f, 0f) };
-        [DisplayName("Gamma"), Tooltip("Power function that controls mid-range tones.")]
-        public Vector4Parameter gamma = new Vector4Parameter { value = new Vector4(1f, 1f, 1f, 0f) };
-        [DisplayName("Gain"), Tooltip("Controls the lightest portions of the render.")]
-        public Vector4Parameter gain = new Vector4Parameter { value = new Vector4(1f, 1f, 1f, 0f) };
+        [DisplayName("Offset"), Tooltip("Controls the darkest portions of the render.")]
+        public Vector4Parameter offset = new Vector4Parameter { value = new Vector4(1f, 1f, 1f, 0f) };
+        [DisplayName("Power"), Tooltip("Power function that controls mid-range tones.")]
+        public Vector4Parameter power = new Vector4Parameter { value = new Vector4(1f, 1f, 1f, 1f) };
+        [DisplayName("Slope"), Tooltip("Controls the lightest portions of the render.")]
+        public Vector4Parameter slope = new Vector4Parameter { value = new Vector4(1f, 1f, 1f, 1f) };
+        [DisplayName("Color Boost"), Range(-0f, 1f), Tooltip("Adjusts the saturation of the lower saturated areas, without changing the highly saturated areas.")]
+        public FloatParameter colorBoost = new FloatParameter { value = 0f };
+        [DisplayName("Perceptual"), Range(0f, 1f), Tooltip("Use perceptual color space for the curves, instead of linear RGB.")]
+        public FloatParameter perceptual = new FloatParameter { value = 0.5f };
+        [DisplayName("Exposure"), Range(0f, 1f), Tooltip("Sets exposure pre-transform.")]
+        public FloatParameter exposure = new FloatParameter { value = 0f };
         public SplineParameter hueVsHueCurve = new SplineParameter { value = new Spline(new AnimationCurve(), 0.5f, true, new Vector2(0f, 1f)) };
         public SplineParameter hueVsSatCurve = new SplineParameter { value = new Spline(new AnimationCurve(), 0.5f, true, new Vector2(0f, 1f)) };
         public SplineParameter satVsSatCurve = new SplineParameter { value = new Spline(new AnimationCurve(), 0.5f, false, new Vector2(0f, 1f)) };
@@ -59,8 +65,8 @@ namespace Graphics
         public SplineParameter blueCurve = new SplineParameter { value = new Spline(new AnimationCurve(new Keyframe(0f, 0f, 1f, 1f), new Keyframe(1f, 1f, 1f, 1f)), 0f, false, new Vector2(0f, 1f)) };
         //[DisplayName("LUT"), Tooltip("LDR Lookup Texture, 1024x32")]
         //public TextureParameter lut = new TextureParameter { value = null, defaultState = TextureParameterDefault.Lut2D };
-        [Range(0f, 1f), Tooltip("LUT blend")]
-        public FloatParameter blend = new FloatParameter { value = 1.0f };
+        //[Range(0f, 1f), Tooltip("LUT blend")]
+        //public FloatParameter blend = new FloatParameter { value = 1.0f };
         //[DisplayName("Use Background LUT"), Tooltip("Activate background LUT")]
         //public BoolParameter useBackgroundLut = new BoolParameter { value = false };
         //[DisplayName("Background LUT"), Tooltip("Background Lookup Texture, 1024x32")]
@@ -80,6 +86,13 @@ namespace Graphics
         //    }
         //    return enabled.value;
         //}
+        public enum ChannelMixer
+        {
+            Red = 0,
+            Green = 1,
+            Blue = 2,
+        }
+        public ChannelMixer channelMixer = ChannelMixer.Red;
     }
 
     public sealed class AgXColorRenderer : PostProcessEffectRenderer<AgXColor>
@@ -101,9 +114,9 @@ namespace Graphics
             internal static readonly int ChannelMixerRed = Shader.PropertyToID("_ChannelMixerRed");
             internal static readonly int ChannelMixerGreen = Shader.PropertyToID("_ChannelMixerGreen");
             internal static readonly int ChannelMixerBlue = Shader.PropertyToID("_ChannelMixerBlue");
-            internal static readonly int Lift = Shader.PropertyToID("_Lift");
-            internal static readonly int InvGamma = Shader.PropertyToID("_InvGamma");
-            internal static readonly int Gain = Shader.PropertyToID("_Gain");
+            internal static readonly int Offset = Shader.PropertyToID("_Offset");
+            internal static readonly int Power = Shader.PropertyToID("_Power");
+            internal static readonly int Slope = Shader.PropertyToID("_Slope");
             internal static readonly int Curves = Shader.PropertyToID("_Curves");
             internal static readonly int CustomToneCurve = Shader.PropertyToID("_CustomToneCurve");
             internal static readonly int ToeSegmentA = Shader.PropertyToID("_ToeSegmentA");
@@ -118,9 +131,12 @@ namespace Graphics
             internal static readonly int Lut2D_Params = Shader.PropertyToID("_Lut2D_Params");
             internal static readonly int _UserLut = Shader.PropertyToID("_UserLut");
             internal static readonly int _UserLut_Params = Shader.PropertyToID("_UserLut_Params");
-            internal static readonly int _BGLut = Shader.PropertyToID("_BGLut");
-            internal static readonly int _BGLut_Params = Shader.PropertyToID("_BGLut_Params");
-            internal static readonly int _BGLut_Blend = Shader.PropertyToID("_BGLut_Blend");
+            //internal static readonly int _BGLut = Shader.PropertyToID("_BGLut");
+            //internal static readonly int _BGLut_Params = Shader.PropertyToID("_BGLut_Params");
+            //internal static readonly int _BGLut_Blend = Shader.PropertyToID("_BGLut_Blend");
+            internal static readonly int ColorBoost = Shader.PropertyToID("_ColorBoost");
+            internal static readonly int Perceptual = Shader.PropertyToID("_Perceptual");
+            internal static readonly int Exposure = Shader.PropertyToID("_Exposure");
         }
 
         //public override DepthTextureMode GetCameraFlags()
@@ -137,7 +153,7 @@ namespace Graphics
             assetbundle = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("userlut.unity3d"));
             if (assetbundle == null) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load asset bunle 'userlut.unity3d'");
 
-            lutbaker = assetbundle.LoadAsset<Shader>("Assets/X-PostProcessing/Effects/AgXColor/Shaders/LutBaker.shader");
+            lutbaker = assetbundle.LoadAsset<Shader>("Assets/X-PostProcessing/Effects/AgXColor/Shaders/PreCorrection.shader");
             if (lutbaker == null) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load shader 'HanmenColorGrading.shader'");
 
             shader = assetbundle.LoadAsset<Shader>("Assets/X-PostProcessing/Effects/AgXColor/Shaders/UserLUT.shader");
@@ -148,134 +164,122 @@ namespace Graphics
 
         public override void Render(PostProcessRenderContext context)
         {
-            if (settings.external)
-            {
-                RenderExternal(context);
-            }
-            else
-            {
+            //if (settings.external)
+            //{
+            RenderExternal(context);
+            //}
+            //else
+            //{
 
-                RenderInternal(context);
-            }
+            //    RenderInternal(context);
+            //}
         }
 
         void RenderExternal(PostProcessRenderContext context)
         {
-            var sheet = context.propertySheets.Get(shader);
-            sheet.ClearKeywords();
-            {
-                CheckInternalStripLut();
-
-                // Lut setup
-                var lutSheet = context.propertySheets.Get(lutbaker);
-                lutSheet.ClearKeywords();
-
-                lutSheet.properties.SetVector(ShaderIDs.Lut2D_Params, new Vector4(k_Lut2DSize, 0.5f / (k_Lut2DSize * k_Lut2DSize), 0.5f / k_Lut2DSize, k_Lut2DSize / (k_Lut2DSize - 1f)));
-
-                var colorBalance = ColorUtilities.ComputeColorBalance(settings.temperature.value, settings.tint.value);
-                lutSheet.properties.SetVector(ShaderIDs.ColorBalance, colorBalance);
-                lutSheet.properties.SetVector(ShaderIDs.ColorFilter, settings.colorFilter.value);
-
-                float hue = settings.hueShift.value / 360f;         // Remap to [-0.5;0.5]
-                float sat = settings.saturation.value / 100f + 1f;  // Remap to [0;2]
-                float con = settings.contrast.value / 100f + 1f;    // Remap to [0;2]
-                lutSheet.properties.SetVector(ShaderIDs.HueSatCon, new Vector3(hue, sat, con));
-
-                var channelMixerR = new Vector3(settings.mixerRedOutRedIn, settings.mixerRedOutGreenIn, settings.mixerRedOutBlueIn);
-                var channelMixerG = new Vector3(settings.mixerGreenOutRedIn, settings.mixerGreenOutGreenIn, settings.mixerGreenOutBlueIn);
-                var channelMixerB = new Vector3(settings.mixerBlueOutRedIn, settings.mixerBlueOutGreenIn, settings.mixerBlueOutBlueIn);
-                lutSheet.properties.SetVector(ShaderIDs.ChannelMixerRed, channelMixerR / 100f);            // Remap to [-2;2]
-                lutSheet.properties.SetVector(ShaderIDs.ChannelMixerGreen, channelMixerG / 100f);
-                lutSheet.properties.SetVector(ShaderIDs.ChannelMixerBlue, channelMixerB / 100f);
-
-                var lift = ColorUtilities.ColorToLift(settings.lift.value);
-                var gain = ColorUtilities.ColorToGain(settings.gain.value);
-                var invgamma = ColorUtilities.ColorToInverseGamma(settings.gamma.value);
-                lutSheet.properties.SetVector(ShaderIDs.Lift, lift);
-                lutSheet.properties.SetVector(ShaderIDs.InvGamma, invgamma);
-                lutSheet.properties.SetVector(ShaderIDs.Gain, gain);
-
-                lutSheet.properties.SetFloat(ShaderIDs.Brightness, (settings.brightness.value + 100f) / 100f);
-                lutSheet.properties.SetTexture(ShaderIDs.Curves, GetCurveTexture(false));
-
-                //Generate LUT
-                context.command.BlitFullscreenTriangle(UnityEngine.Rendering.BuiltinRenderTextureType.None, m_InternalLdrLut, lutSheet, 0);
-            }
-
-            Texture lut = m_InternalLdrLut;
-            Vector4 lutParams = new Vector4(1f / lut.width, 1f / lut.height, lut.height - 1f, settings.blend.value);
-            sheet.properties.SetTexture(ShaderIDs._UserLut, lut);
-            sheet.properties.SetVector(ShaderIDs._UserLut_Params, lutParams);
-
-            //if (settings.useBackgroundLut)
+            //var sheet = context.propertySheets.Get(shader);
+            //sheet.ClearKeywords();
             //{
-            //    sheet.EnableKeyword("USE_BG_LUT");
-            //    if (settings.backgroundLut.value != null)
-            //    {
-            //        lut = settings.backgroundLut.value;
-            //    }
-            //    lutParams = new Vector4(1f / lut.width, 1f / lut.height, lut.height - 1f, 0);
-            //    sheet.properties.SetTexture(ShaderIDs._BGLut, lut);
-            //    sheet.properties.SetVector(ShaderIDs._BGLut_Params, lutParams);
-            //    sheet.properties.SetVector(ShaderIDs._BGLut_Blend, new Vector4(settings.backgroundBlendStart.value, settings.backgroundBlendRange.value, 0, 0));
-            //}
-            //else
-            //{
-            //    sheet.DisableKeyword("USE_BG_LUT");
+            //CheckInternalStripLut();
+
+            // Lut setup
+            var lutSheet = context.propertySheets.Get(lutbaker);
+            lutSheet.ClearKeywords();
+
+            lutSheet.properties.SetVector(ShaderIDs.Lut2D_Params, new Vector4(k_Lut2DSize, 0.5f / (k_Lut2DSize * k_Lut2DSize), 0.5f / k_Lut2DSize, k_Lut2DSize / (k_Lut2DSize - 1f)));
+
+            var colorBalance = ColorUtilities.ComputeColorBalance(settings.temperature.value, settings.tint.value);
+            lutSheet.properties.SetVector(ShaderIDs.ColorBalance, colorBalance);
+            lutSheet.properties.SetVector(ShaderIDs.ColorFilter, settings.colorFilter.value);
+
+            float hue = settings.hueShift.value / 360f;         // Remap to [-0.5;0.5]
+            float sat = settings.saturation.value / 100f + 1f;  // Remap to [0;2]
+            float con = settings.contrast.value / 100f + 1f;    // Remap to [0;2]
+            lutSheet.properties.SetVector(ShaderIDs.HueSatCon, new Vector3(hue, sat, con));
+
+            var channelMixerR = new Vector3(settings.mixerRedOutRedIn, settings.mixerRedOutGreenIn, settings.mixerRedOutBlueIn);
+            var channelMixerG = new Vector3(settings.mixerGreenOutRedIn, settings.mixerGreenOutGreenIn, settings.mixerGreenOutBlueIn);
+            var channelMixerB = new Vector3(settings.mixerBlueOutRedIn, settings.mixerBlueOutGreenIn, settings.mixerBlueOutBlueIn);
+            lutSheet.properties.SetVector(ShaderIDs.ChannelMixerRed, channelMixerR / 100f);            // Remap to [-2;2]
+            lutSheet.properties.SetVector(ShaderIDs.ChannelMixerGreen, channelMixerG / 100f);
+            lutSheet.properties.SetVector(ShaderIDs.ChannelMixerBlue, channelMixerB / 100f);
+
+            //convert to color with intensity linearly.
+            var offset = ColorToLinearIntensity(settings.offset.value);
+            var power = ColorToLinearIntensity(settings.power.value);
+            var slope = ColorToLinearIntensity(settings.slope.value);
+
+            lutSheet.properties.SetVector(ShaderIDs.Offset, offset);
+            lutSheet.properties.SetVector(ShaderIDs.Power, power);
+            lutSheet.properties.SetVector(ShaderIDs.Slope, slope);
+
+            lutSheet.properties.SetFloat(ShaderIDs.ColorBoost, settings.colorBoost.value);
+            lutSheet.properties.SetFloat(ShaderIDs.Perceptual, settings.perceptual.value);
+            lutSheet.properties.SetFloat(ShaderIDs.Exposure, settings.exposure.value);
+
+            lutSheet.properties.SetFloat(ShaderIDs.Brightness, (settings.brightness.value + 100f) / 100f);
+            lutSheet.properties.SetTexture(ShaderIDs.Curves, GetCurveTexture(false));
+
+            //Generate LUT
+            //context.command.BlitFullscreenTriangle(UnityEngine.Rendering.BuiltinRenderTextureType.None, m_InternalLdrLut, lutSheet, 0);
             //}
 
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
-        }
-
-        void RenderInternal(PostProcessRenderContext context)
-        {
-            var sheet = context.propertySheets.Get(shader);
-            sheet.ClearKeywords();
-            Texture lut = null;
-            //lut = null;
-            //Vector4 lutParams = new Vector4(1f / lut.width, 1f / lut.height, lut.height - 1f, settings.blend.value);
+            //Texture lut = m_InternalLdrLut;
+            //Vector4 lutParams = new Vector4(1f / lut.width, 1f / lut.height, lut.height - 1f, 1);
             //sheet.properties.SetTexture(ShaderIDs._UserLut, lut);
             //sheet.properties.SetVector(ShaderIDs._UserLut_Params, lutParams);
 
-
-            //if (settings.useBackgroundLut)
-            //{
-            //    sheet.EnableKeyword("USE_BG_LUT");
-            //    if (settings.backgroundLut.value != null)
-            //    {
-            //        lut = settings.backgroundLut.value;
-            //    }
-            //    Vector4 lutParams = new Vector4(1f / lut.width, 1f / lut.height, lut.height - 1f, 0);
-            //    sheet.properties.SetTexture(ShaderIDs._BGLut, lut);
-            //    sheet.properties.SetVector(ShaderIDs._BGLut_Params, lutParams);
-            //    sheet.properties.SetVector(ShaderIDs._BGLut_Blend, new Vector4(settings.backgroundBlendStart.value, settings.backgroundBlendRange.value, 0, 0));
-            //}
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 1);
+            context.command.BlitFullscreenTriangle(context.source, context.destination, lutSheet, 0);
         }
 
-        void CheckInternalStripLut()
-        {
-            // Check internal lut state, (re)create it if needed
-            if (m_InternalLdrLut == null || !m_InternalLdrLut.IsCreated())
-            {
-                RuntimeUtilities.Destroy(m_InternalLdrLut);
+        //void RenderInternal(PostProcessRenderContext context)
+        //{
+        //    var sheet = context.propertySheets.Get(shader);
+        //    sheet.ClearKeywords();
+        //    Texture lut = null;
+        //lut = null;
+        //Vector4 lutParams = new Vector4(1f / lut.width, 1f / lut.height, lut.height - 1f, settings.blend.value);
+        //sheet.properties.SetTexture(ShaderIDs._UserLut, lut);
+        //sheet.properties.SetVector(ShaderIDs._UserLut_Params, lutParams);
 
-                var format = GetLutFormat();
-                m_InternalLdrLut = new RenderTexture(k_Lut2DSize * k_Lut2DSize, k_Lut2DSize, 0, format, RenderTextureReadWrite.Linear)
-                {
-                    name = "Color Grading Strip Lut",
-                    hideFlags = HideFlags.DontSave,
-                    filterMode = FilterMode.Bilinear,
-                    wrapMode = TextureWrapMode.Clamp,
-                    anisoLevel = 0,
-                    autoGenerateMips = false,
-                    useMipMap = false
-                };
-                m_InternalLdrLut.Create();
-            }
-        }
+
+        //if (settings.useBackgroundLut)
+        //{
+        //    sheet.EnableKeyword("USE_BG_LUT");
+        //    if (settings.backgroundLut.value != null)
+        //    {
+        //        lut = settings.backgroundLut.value;
+        //    }
+        //    Vector4 lutParams = new Vector4(1f / lut.width, 1f / lut.height, lut.height - 1f, 0);
+        //    sheet.properties.SetTexture(ShaderIDs._BGLut, lut);
+        //    sheet.properties.SetVector(ShaderIDs._BGLut_Params, lutParams);
+        //    sheet.properties.SetVector(ShaderIDs._BGLut_Blend, new Vector4(settings.backgroundBlendStart.value, settings.backgroundBlendRange.value, 0, 0));
+        //}
+
+        //    context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 1);
+        //}
+
+        //void CheckInternalStripLut()
+        //{
+        //    // Check internal lut state, (re)create it if needed
+        //    if (m_InternalLdrLut == null || !m_InternalLdrLut.IsCreated())
+        //    {
+        //        RuntimeUtilities.Destroy(m_InternalLdrLut);
+
+        //        var format = GetLutFormat();
+        //        m_InternalLdrLut = new RenderTexture(k_Lut2DSize * k_Lut2DSize, k_Lut2DSize, 0, format, RenderTextureReadWrite.Linear)
+        //        {
+        //            name = "Color Grading Strip Lut",
+        //            hideFlags = HideFlags.DontSave,
+        //            filterMode = FilterMode.Bilinear,
+        //            wrapMode = TextureWrapMode.Clamp,
+        //            anisoLevel = 0,
+        //            autoGenerateMips = false,
+        //            useMipMap = false
+        //        };
+        //        m_InternalLdrLut.Create();
+        //    }
+        //}
         Texture2D GetCurveTexture(bool hdr)
         {
             if (m_GradingCurves == null)
@@ -325,6 +329,17 @@ namespace Graphics
             m_GradingCurves.Apply(false, false);
 
             return m_GradingCurves;
+        }
+
+        public static Vector3 ColorToLinearIntensity(Vector4 color)
+        {
+            // Highlights
+            var H = new Vector3(color.x, color.y, color.z);
+            //float lumGain = H.x * 0.2126f + H.y * 0.7152f + H.z * 0.0722f;
+            //H = new Vector3(H.x - lumGain, H.y - lumGain, H.z - lumGain);
+
+            float gainOffset = color.w;
+            return new Vector3(H.x * gainOffset, H.y * gainOffset, H.z * gainOffset);
         }
 
         static RenderTextureFormat GetLutFormat()

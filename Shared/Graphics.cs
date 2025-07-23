@@ -20,7 +20,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using NVIDIA;
+using static Graphics.DebugUtils;
 
 namespace Graphics
 {
@@ -74,6 +74,8 @@ namespace Graphics
         private DitheredShadowsManager _ditheredshadowsManager;
         private FocusManager _focusManager;
         private AuraManager _auraManager;
+        private FilmGrainManager _filmGrainManager;
+        private DecalsSystemManager _decalsSystemManager;
 
         private Inspector.Inspector _inspector;
 
@@ -188,6 +190,9 @@ namespace Graphics
             _ditheredshadowsManager = new DitheredShadowsManager();
             _ditheredshadowsManager.Initialize();
 
+            _decalsSystemManager = new DecalsSystemManager();
+            _decalsSystemManager.Initialize();
+
             if (KKAPI.Studio.StudioAPI.InsideStudio)
                 smartphoneScanner = this.gameObject.AddComponent<HoohSmartphoneScanner>();
 
@@ -200,6 +205,9 @@ namespace Graphics
             //Destroy(ansel);
             //Graphics.Instance.CameraSettings.MainCamera.gameObject.AddComponent<NVIDIA.Ansel>();
             //ansel.Start();
+
+            _filmGrainManager = new FilmGrainManager();
+            _filmGrainManager.Initialize();
 
             _skyboxManager = Instance.GetOrAddComponent<SkyboxManager>();
             _skyboxManager.Parent = this;
@@ -223,7 +231,7 @@ namespace Graphics
             _presetManager.LoadDefaultForCurrentGameMode();
             CameraSettings.Fov = (float)_fov; // put it back
             CameraSettings.MainCamera.fieldOfView = _fov;
-            Log.LogInfo("Graphics...ONLINE");
+            LogWithDots("Graphics", "ONLINE");
 
             if (KKAPI.Studio.StudioAPI.InsideStudio)
             {

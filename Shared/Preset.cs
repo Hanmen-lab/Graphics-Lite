@@ -10,6 +10,8 @@ using MessagePack;
 using System;
 using System.IO;
 using UnityEngine;
+using static Graphics.DebugUtils;
+
 
 namespace Graphics
 {
@@ -38,9 +40,12 @@ namespace Graphics
         public TwoPointColorSkyboxSettings twopointsky;
         public FourPointGradientSkyboxSetting fourpointsky;
         public HemisphereGradientSkyboxSetting hemispheresky;
+        public GroundProjectionSkyboxSettings groundProjectionSkybox;
         public AIOSkySettings aiosky;
         public ProceduralSkyboxSettings proceduralsky;
         public AuraSettings aura;
+        public FilmGrainSettings filmGrain;
+        public DeferredDecalsSettings deferredDecals;
 
         public Preset(GlobalSettings global, CameraSettings camera, LightingSettings lights, PostProcessingSettings pp, SkyboxParams skybox)
         {
@@ -63,6 +68,9 @@ namespace Graphics
             this.trigger = new WaterVolumeTriggerSettings();
             this.connectSun = new ConnectSunToUnderwaterSettings();
             this.focus = FocusManager.settings;
+            this.filmGrain = FilmGrainManager.settings;
+            this.aura = AuraManager.settings;
+            this.deferredDecals = DecalsSystemManager.settings;
 
             // Skybox setting is generated when preset is being saved.
             skyboxSetting = null;
@@ -71,7 +79,7 @@ namespace Graphics
             this.fourpointsky = SkyboxManager.dynFourPointGradientSettings;
             this.twopointsky = SkyboxManager.dynTwoPointGradientSettings;
             this.proceduralsky = SkyboxManager.dynProceduralSkySettings;
-            this.aura = AuraManager.settings;
+            this.groundProjectionSkybox = SkyboxManager.groundProjectionSkyboxSettings;
         }
 
         public void UpdateParameters()
@@ -89,13 +97,17 @@ namespace Graphics
             trigger = LuxWater_WaterVolumeTriggerManager.settings;
             connectSun = ConnectSunToUnderwaterManager.settings;
             focus = FocusManager.settings;
+            filmGrain = FilmGrainManager.settings;
             SkyboxManager manager = Graphics.Instance.SkyboxManager;
             hemispheresky = SkyboxManager.dynHemisphereGradientSettings;
             aiosky = SkyboxManager.dynAIOSkySetting;
             fourpointsky = SkyboxManager.dynFourPointGradientSettings;
             twopointsky = SkyboxManager.dynTwoPointGradientSettings;
             proceduralsky = SkyboxManager.dynProceduralSkySettings;
+            groundProjectionSkybox = SkyboxManager.groundProjectionSkyboxSettings;
             aura = AuraManager.settings;
+            deferredDecals = DecalsSystemManager.settings;
+
 
             Material mat = manager.Skybox;
             if (mat)
@@ -137,8 +149,9 @@ namespace Graphics
         {
             return MessagePackSerializer.Serialize(this);
         }
+
         public void Save(string targetPath, bool overwrite = true)
-        {          
+        {
             Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
             UpdateParameters();
             byte[] bytes = Serialize();
@@ -153,14 +166,15 @@ namespace Graphics
                 File.WriteAllBytes(targetPath, bytes);
             }
         }
+
         public bool Load(string targetPath, string name)
         {
-           if (File.Exists(targetPath))
+            if (File.Exists(targetPath))
             {
                 try
                 {
                     byte[] bytes = File.ReadAllBytes(targetPath);
-                    Load(bytes);
+                    LoadPreset(bytes, name);
                     return true;
                 }
                 catch (Exception e)
@@ -177,10 +191,47 @@ namespace Graphics
             }
         }
 
-        public void Load(byte[] bytes)
+        public bool LoadDefaultPreset(string targetPath, string name)
         {
+            if (File.Exists(targetPath))
+            {
+                try
+                {
+                    byte[] bytes = File.ReadAllBytes(targetPath);
+                    LoadScenePreset(bytes);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, string.Format("Couldn't open preset file '{0}' at {1}", name + ".preset", targetPath));
+                    Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, e.Message + "\n" + e.StackTrace);
+                    return false;
+                }
+            }
+            else
+            {
+                Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, string.Format("Couldn't find preset file '{0}' at {1}", name + ".preset", targetPath));
+                return false;
+            }
+        }
+
+        public void LoadPreset(byte[] bytes, string name)
+        {
+            LogWithDotsWarning("LOADING USER PRESET", name);
+            PresetManager presetManager = Graphics.Instance.PresetManager;
             Deserialize(bytes);
-            ApplyParameters();
+            ApplyParameters(presetManager.loadSkybox, presetManager.loadSEGI, presetManager.loadSSS, presetManager.loadShadows,
+                presetManager.loadLoadAura, presetManager.loadVolumetrics, presetManager.loadLuxwater, presetManager.loadHeightFog, presetManager.loadDoF, presetManager.loadRain, name);
+            LogWithDotsMessage("USER PRESET", name);
+            //Graphics.Instance.Log.LogMessage($"Preset: {name}");
+        }
+
+        public void LoadScenePreset(byte[] bytes)
+        {
+            LogWithDotsWarning("LOADING PRESET", "SCENE");
+            Deserialize(bytes);
+            ApplyParameters(true, true, true, true, true, true, true, true, true, true, "Scene Preset");
+
         }
 
         public void Deserialize(byte[] bytes)
@@ -188,114 +239,198 @@ namespace Graphics
             this = MessagePackSerializer.Deserialize<Preset>(bytes);
         }
 
-        public void ApplyParameters()
+        public void ApplyParameters(bool loadskybox, bool loadsegi, bool loadsss, bool loadshadows,
+            bool loadAura, bool LoadVolumetrics, bool loadluxwater, bool loadfog, bool loaddof, bool loadrain, string name)
         {
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Applying Parameters");
-#endif
-            pp.LoadParameters();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with Post Processing Stack");
-#endif
-            SSSManager.settings = sss;
-            SSSManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with SSS");
-#endif
-            SEGIManager.settings = segi;
-            SEGIManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with SEGI");
-#endif
+            pp.LoadParameters(loaddof);
+
+            //ContactShadowsManager.settings = contactshadows;
+            //ContactShadowsManager.UpdateSettings();
+            //LogWithDots("Contact Shadows", "OK");
+
+            if (loadsss)
+            {
+                SSSManager.settings = sss;
+                SSSManager.UpdateSettings();
+                LogWithDots("SSS", "OK");
+            }
+            else
+            {
+                LogWithDots("SSS", "SKIP");
+            }
+
+            //SSSManager.skinSettings = skin;
+            //SSSManager.UpdateGlobalSettings();
+            //LogWithDots("Global Skin Settings", "OK");
+
+            if (loadsegi)
+            {
+                SEGIManager.settings = segi;
+                SEGIManager.UpdateSettings();
+                LogWithDots("SEGI", "OK");
+
+            }
+            else
+                LogWithDots("SEGI", "SKIP");
+
             GTAOManager.settings = gtao;
             GTAOManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with GTAO");
-#endif
-            DitheredShadowsManager.settings = ditheredShadows;
-            DitheredShadowsManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with Dithered Shadows");
-#endif
+            LogWithDots("GTAO", "OK");
 
-            GlobalFogManager.settings = fog;
-            GlobalFogManager.UpdateSettings();
+            //if (loadshadows)
+            //{
+            //    LightManager.ngsssettings = ngss;
+            //    LightManager.UpdateNGSSSettings();
+            //    LogWithDots("Next-Gen Soft Shadows", "OK");
+            //    //FrustumShadowsManager.settings = frustumShadows;
+            //    //FrustumShadowsManager.UpdateSettings();
+            //    //LogWithDots("Frustum Shadows", "OK");
+            //}
+            //else
+            //{
+            //    LogWithDots("Next-Gen Soft Shadows", "SKIP");
+            //    LogWithDots("Frustum Shadows", "SKIP");
+            //}
 
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with Global Fog");
-#endif
-            LuxWater_UnderWaterRenderingManager.settings = underwater;
-            LuxWater_UnderWaterRenderingManager.UpdateSettings();
+            if (loadfog)
+            {
+                GlobalFogManager.settings = fog;
+                GlobalFogManager.UpdateSettings();
+                LogWithDots("Global Fog", "OK");
+            }
+            else
+            {
+                LogWithDots("Global Fog", "SKIP");
+            }
 
-            LuxWater_WaterVolumeTriggerManager.settings = trigger;
-            LuxWater_WaterVolumeTriggerManager.UpdateSettings();
+            if (loadluxwater)
+            {
+                LuxWater_UnderWaterRenderingManager.settings = underwater;
+                LuxWater_UnderWaterRenderingManager.UpdateSettings();
+                LuxWater_WaterVolumeTriggerManager.settings = trigger;
+                LuxWater_WaterVolumeTriggerManager.UpdateSettings();
+                ConnectSunToUnderwaterManager.settings = connectSun;
+                ConnectSunToUnderwaterManager.UpdateSettings();
+                LogWithDots("LuxWater", "OK");
+            }
+            else
+            {
+                LogWithDots("LuxWater", "SKIP");
+            }
 
-            ConnectSunToUnderwaterManager.settings = connectSun;
-            ConnectSunToUnderwaterManager.UpdateSettings();
-
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with LuxWater");
-#endif
             VAOManager.settings = vao;
             VAOManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with VAO");
-#endif
+            LogWithDots("Volumetic Ambient Occlusion", "OK");
 
             AmplifyOccManager.settings = amplifyocc;
             AmplifyOccManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with Amplify Occlusion");
-#endif
+            LogWithDots("Amplify Occlusion", "OK");
+
+            //ShinySSRRManager.settings = shinyssrr;
+            //ShinySSRRManager.UpdateSettings();
+            //LogWithDots("Shiny SSRR", "OK");
+
             if (ctaa == null)
                 ctaa = new CTAASettings();
             CTAAManager.settings = ctaa;
             CTAAManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with CTAA");
-#endif
-            FocusManager.settings = focus;
-            FocusManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with FocusPuller");
-#endif
-            AuraManager.settings = aura;
-            AuraManager.UpdateSettings();
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with Aura 2");
-#endif
-            SkyboxManager manager = Graphics.Instance.SkyboxManager;
-            if (manager)
+            LogWithDots("CTAA", "OK");
+
+            if (loaddof)
             {
-                // Foward-port skybox settings
-                if (skyboxSetting != null)
-                {
-                    if (skyboxSetting is AIOSkySettings && aiosky == null) SkyboxManager.dynAIOSkySetting = skyboxSetting as AIOSkySettings;
-                    else if (skyboxSetting is HemisphereGradientSkyboxSetting && hemispheresky == null) SkyboxManager.dynHemisphereGradientSettings = skyboxSetting as HemisphereGradientSkyboxSetting;
-                    else if (skyboxSetting is FourPointGradientSkyboxSetting && fourpointsky == null) SkyboxManager.dynFourPointGradientSettings = skyboxSetting as FourPointGradientSkyboxSetting;
-                    else if (skyboxSetting is TwoPointColorSkyboxSettings && twopointsky == null) SkyboxManager.dynTwoPointGradientSettings = skyboxSetting as TwoPointColorSkyboxSettings;
-                    else if (skyboxSetting is ProceduralSkyboxSettings && proceduralsky == null) SkyboxManager.dynProceduralSkySettings = skyboxSetting as ProceduralSkyboxSettings;
-                }
+                FocusManager.settings = focus;
+                FocusManager.UpdateSettings();
+                LogWithDots("DoF Focus", "OK");
+            }
+            else
+                LogWithDots("DoF Focus", "SKIP");
 
-                SkyboxManager.dynAIOSkySetting = aiosky;
-                SkyboxManager.dynHemisphereGradientSettings = hemispheresky;
-                SkyboxManager.dynFourPointGradientSettings = fourpointsky;
-                SkyboxManager.dynTwoPointGradientSettings = twopointsky;
-                SkyboxManager.dynProceduralSkySettings = proceduralsky;
+            //FrostFXManager.settings = frostfx;
+            //FrostFXManager.UpdateSettings();
+            //LogWithDots("FrostFX", "OK");
 
-                manager.skyboxParams = skybox;
-                manager.PresetUpdate = true;
-                manager.LoadSkyboxParams();
-                manager.SetupDefaultReflectionProbe(Graphics.Instance.LightingSettings);
+            if (loadAura)
+            {
+                AuraManager.settings = aura;
+                AuraManager.UpdateSettings();
+                LogWithDots("Aura 2 Volumetrics", "OK");
+            }
+            else
+            {
+                LogWithDots("Aura 2 Volumetrics", "SKIP");
             }
 
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with skybox");
-#endif
+            //if (LoadVolumetrics)
+            //{
+            //    VolumetricLightManager.settings = volumetric;
+            //    VolumetricLightManager.UpdateSettings();
+            //    LogWithDots("Volumetric Lights", "OK");
+            //}
+            //else
+            //{
+            //    LogWithDots("Volumetric Lights", "SKIP");
+            //}
+
+            DecalsSystemManager.settings = deferredDecals;
+            DecalsSystemManager.UpdateSettings();
+            LogWithDots("Deferred Decals", "OK");
+
+            FilmGrainManager.settings = filmGrain;
+            FilmGrainManager.UpdateSettings();
+            LogWithDots("Film Grain", "OK");
+
+            if (loadskybox)
+            {
+                SkyboxManager manager = Graphics.Instance.SkyboxManager;
+                if (manager)
+                {
+                    // Foward-port skybox settings
+                    if (skyboxSetting != null)
+                    {
+                        if (skyboxSetting is AIOSkySettings && aiosky == null) SkyboxManager.dynAIOSkySetting = skyboxSetting as AIOSkySettings;
+                        else if (skyboxSetting is HemisphereGradientSkyboxSetting && hemispheresky == null) SkyboxManager.dynHemisphereGradientSettings = skyboxSetting as HemisphereGradientSkyboxSetting;
+                        else if (skyboxSetting is FourPointGradientSkyboxSetting && fourpointsky == null) SkyboxManager.dynFourPointGradientSettings = skyboxSetting as FourPointGradientSkyboxSetting;
+                        else if (skyboxSetting is TwoPointColorSkyboxSettings && twopointsky == null) SkyboxManager.dynTwoPointGradientSettings = skyboxSetting as TwoPointColorSkyboxSettings;
+                        else if (skyboxSetting is ProceduralSkyboxSettings && proceduralsky == null) SkyboxManager.dynProceduralSkySettings = skyboxSetting as ProceduralSkyboxSettings;
+                        else if (skyboxSetting is GroundProjectionSkyboxSettings && groundProjectionSkybox == null) SkyboxManager.groundProjectionSkyboxSettings = skyboxSetting as GroundProjectionSkyboxSettings;
+                    }
+
+                    SkyboxManager.dynAIOSkySetting = aiosky;
+                    SkyboxManager.dynHemisphereGradientSettings = hemispheresky;
+                    SkyboxManager.dynFourPointGradientSettings = fourpointsky;
+                    SkyboxManager.dynTwoPointGradientSettings = twopointsky;
+                    SkyboxManager.dynProceduralSkySettings = proceduralsky;
+                    SkyboxManager.groundProjectionSkyboxSettings = groundProjectionSkybox;
+
+                    manager.skyboxParams = skybox;
+                    manager.PresetUpdate = true;
+                    manager.LoadSkyboxParams();
+                    manager.SetupDefaultReflectionProbe(Graphics.Instance.LightingSettings);
+                }
+
+                //LogWithDots("Skybox");
+            }
+            else
+            {
+                //camera = new CameraSettings();
+                Graphics.Instance.CameraSettings.ClearFlag = CameraSettings.AICameraClearFlags.Skybox;
+                LogWithDots("Skybox", "SKIP");
+            }
+
             Graphics.Instance.LightingSettings.DefaultReflectionProbeSettings = lights.DefaultReflectionProbeSettings;
-#if DEBUG
-            Graphics.Instance.Log.LogInfo($"Done with Default RP");
-#endif
+            LogWithDots("Reflection Probes", "OK");
+
         }
+
+
+        //void LogAndUpdateManager<T>(Manager<T> manager, T settings, string managerName)
+        //{
+        //    manager.settings = settings;
+        //    manager.UpdateSettings();
+
+        //    Graphics.Instance.Log.LogInfo($"Done with {managerName}");
+
+        //}
+
     }
 }
