@@ -410,315 +410,12 @@ namespace Graphics.SEGI
 
         #endregion
 
-        void Start()
+        private void Start()
         {
             InitCheck();
         }
 
-        void InitCheck()
-        {
-            if (initChecker == null)
-            {
-                Init();
-            }
-        }
-
-        void CreateVolumeTextures()
-        {
-            if (volumeTextures != null)
-            {
-                for (int i = 0; i < numMipLevels; i++)
-                {
-                    if (volumeTextures[i] != null)
-                    {
-                        volumeTextures[i].DiscardContents();
-                        volumeTextures[i].Release();
-                        DestroyImmediate(volumeTextures[i]);
-                    }
-                }
-            }
-
-            volumeTextures = new RenderTexture[numMipLevels];
-
-            for (int i = 0; i < numMipLevels; i++)
-            {
-                int resolution = (int)voxelResolution >> i;
-                volumeTextures[i] = new RenderTexture(resolution, resolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
-                {
-                    dimension = TextureDimension.Tex3D,
-                    volumeDepth = resolution,
-                    enableRandomWrite = true,
-                    filterMode = FilterMode.Bilinear,
-                    autoGenerateMips = false,
-                    useMipMap = false
-                };
-                volumeTextures[i].Create();
-                volumeTextures[i].hideFlags = HideFlags.HideAndDontSave;
-            }
-
-            //if (volumeTextureB)
-            //{
-            //    volumeTextureB.DiscardContents();
-            //    volumeTextureB.Release();
-            //    DestroyImmediate(volumeTextureB);
-            //}
-            //volumeTextureB = new RenderTexture((int)voxelResolution, (int)voxelResolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
-            //{
-            //    dimension = TextureDimension.Tex3D,
-            //    volumeDepth = (int)voxelResolution,
-            //    enableRandomWrite = true,
-            //    filterMode = FilterMode.Bilinear,
-            //    autoGenerateMips = false,
-            //    useMipMap = false
-            //};
-            //volumeTextureB.Create();
-            //volumeTextureB.hideFlags = HideFlags.HideAndDontSave;
-
-            if (secondaryIrradianceVolume)
-            {
-                secondaryIrradianceVolume.DiscardContents();
-                secondaryIrradianceVolume.Release();
-                DestroyImmediate(secondaryIrradianceVolume);
-            }
-
-            if (infiniteBounces)
-            {
-                secondaryIrradianceVolume = new RenderTexture((int)voxelResolution, (int)voxelResolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
-                {
-                    dimension = TextureDimension.Tex3D,
-                    volumeDepth = (int)voxelResolution,
-                    enableRandomWrite = true,
-                    filterMode = FilterMode.Point,
-                    autoGenerateMips = false,
-                    useMipMap = false,
-                    antiAliasing = 1
-                };
-                secondaryIrradianceVolume.Create();
-                secondaryIrradianceVolume.hideFlags = HideFlags.HideAndDontSave;
-            }
-
-            if (integerVolume)
-            {
-                integerVolume.DiscardContents();
-                integerVolume.Release();
-                DestroyImmediate(integerVolume);
-            }
-            integerVolume = new RenderTexture((int)voxelResolution, (int)voxelResolution, 0, RenderTextureFormat.RInt, RenderTextureReadWrite.Linear)
-            {
-                dimension = TextureDimension.Tex3D,
-                volumeDepth = (int)voxelResolution,
-                enableRandomWrite = true,
-                filterMode = FilterMode.Point
-            };
-            integerVolume.Create();
-            integerVolume.hideFlags = HideFlags.HideAndDontSave;
-
-            ResizeDummyTexture();
-        }
-
-        void ResizeDummyTexture()
-        {
-            if (dummyVoxelTextureAAScaled)
-            {
-                dummyVoxelTextureAAScaled.DiscardContents();
-                dummyVoxelTextureAAScaled.Release();
-                DestroyImmediate(dummyVoxelTextureAAScaled);
-            }
-            dummyVoxelTextureAAScaled = new RenderTexture(DummyVoxelResolution, DummyVoxelResolution, 0, RenderTextureFormat.R8);
-            dummyVoxelTextureAAScaled.Create();
-            dummyVoxelTextureAAScaled.hideFlags = HideFlags.HideAndDontSave;
-
-            if (dummyVoxelTextureFixed)
-            {
-                dummyVoxelTextureFixed.DiscardContents();
-                dummyVoxelTextureFixed.Release();
-                DestroyImmediate(dummyVoxelTextureFixed);
-            }
-            dummyVoxelTextureFixed = new RenderTexture((int)voxelResolution, (int)voxelResolution, 0, RenderTextureFormat.R8);
-            dummyVoxelTextureFixed.Create();
-            dummyVoxelTextureFixed.hideFlags = HideFlags.HideAndDontSave;
-        }
-
-        internal static bool LoadAssets()
-        {
-            AssetBundle assetBundle = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("segi.unity3d"));
-            sunDepthShader = assetBundle.LoadAsset<Shader>("Assets/SEGI/Resources/SEGIRenderSunDepth.shader");
-            if (!sunDepthShader) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGIRenderSunDepth");
-            UnityEngine.Object.DontDestroyOnLoad(sunDepthShader);
-            clearCompute = assetBundle.LoadAsset<ComputeShader>("Assets/SEGI/Resources/SEGIClear.compute");
-            if (!clearCompute) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGIClear");
-            UnityEngine.Object.DontDestroyOnLoad(clearCompute);
-            transferIntsCompute = assetBundle.LoadAsset<ComputeShader>("Assets/SEGI/Resources/SEGITransferInts.compute");
-            if (!transferIntsCompute) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGITransferInts");
-            UnityEngine.Object.DontDestroyOnLoad(transferIntsCompute);
-            mipFilterCompute = assetBundle.LoadAsset<ComputeShader>("Assets/SEGI/Resources/SEGIMipFilter.compute");
-            if (!mipFilterCompute) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGIMipFilter");
-            UnityEngine.Object.DontDestroyOnLoad(mipFilterCompute);
-            voxelizationShader = assetBundle.LoadAsset<Shader>("Assets/SEGI/Resources/SEGIVoxelizeScene.shader");
-            if (!voxelizationShader) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGIVoxelizeScene");
-            UnityEngine.Object.DontDestroyOnLoad(voxelizationShader);
-            voxelTracingShader = assetBundle.LoadAsset<Shader>("Assets/SEGI/Resources/SEGITraceScene.shader");
-            if (!voxelTracingShader) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGITraceScene");
-            UnityEngine.Object.DontDestroyOnLoad(voxelTracingShader);
-
-            if (!material)
-            {
-                segi = assetBundle.LoadAsset<Shader>("Assets/SEGI/Resources/SEGI.shader");
-                if (!segi)
-                {
-                    Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGI");
-                    return false;
-                }
-                material = new Material(segi)
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
-                UnityEngine.Object.DontDestroyOnLoad(segi);
-                UnityEngine.Object.DontDestroyOnLoad(material);
-            }
-            assetBundle.Unload(false);
-
-            return true;
-        }
-
-        void Init()
-        {
-            //Get the camera attached to this game object
-            attachedCamera = this.GetComponent<Camera>();
-            attachedCamera.depthTextureMode |= DepthTextureMode.Depth;
-            attachedCamera.depthTextureMode |= DepthTextureMode.MotionVectors;
-
-            giCullingMask = attachedCamera.cullingMask;
-
-            //Find the proxy shadow rendering camera if it exists
-            GameObject scgo = GameObject.Find("SEGI_SHADOWCAM");
-
-            //If not, create it
-            if (!scgo)
-            {
-                shadowCamGameObject = new GameObject("SEGI_SHADOWCAM");
-                shadowCam = shadowCamGameObject.AddComponent<Camera>();
-                shadowCamGameObject.hideFlags = HideFlags.HideAndDontSave;
-
-
-                shadowCam.enabled = false;
-                shadowCam.aspect = 1;
-                shadowCam.depth = attachedCamera.depth - 1;
-                shadowCam.orthographic = true;
-                shadowCam.orthographicSize = shadowSpaceSize;
-                shadowCam.clearFlags = CameraClearFlags.SolidColor;
-                shadowCam.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
-                shadowCam.farClipPlane = shadowSpaceSize * 2.0f * shadowSpaceDepthRatio;
-                shadowCam.cullingMask = giCullingMask;
-                shadowCam.useOcclusionCulling = false;
-
-                shadowCamTransform = shadowCamGameObject.transform;
-            }
-            else    //Otherwise, it already exists, just get it
-            {
-                shadowCamGameObject = scgo;
-                shadowCam = scgo.GetComponent<Camera>();
-                shadowCamTransform = shadowCamGameObject.transform;
-            }
-
-            //Create the proxy camera objects responsible for rendering the scene to voxelize the scene. If they already exist, destroy them
-            GameObject vcgo = GameObject.Find("SEGI_VOXEL_CAMERA");
-
-            if (!vcgo)
-            {
-                voxelCameraGO = new GameObject("SEGI_VOXEL_CAMERA")
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
-
-                voxelCamera = voxelCameraGO.AddComponent<Camera>();
-                voxelCamera.enabled = false;
-                voxelCamera.aspect = 1;
-                voxelCamera.orthographic = true;
-                voxelCamera.orthographicSize = voxelSpaceSize * 0.5f;
-                voxelCamera.nearClipPlane = 0.0f;
-                voxelCamera.farClipPlane = voxelSpaceSize;
-                voxelCamera.depth = -2;
-                voxelCamera.renderingPath = RenderingPath.Forward;
-                voxelCamera.clearFlags = CameraClearFlags.Color;
-                voxelCamera.backgroundColor = Color.black;
-                voxelCamera.useOcclusionCulling = false;
-            }
-            else
-            {
-                voxelCameraGO = vcgo;
-                voxelCamera = vcgo.GetComponent<Camera>();
-            }
-
-            GameObject lvp = GameObject.Find("SEGI_LEFT_VOXEL_VIEW");
-
-            if (!lvp)
-            {
-                leftViewPoint = new GameObject("SEGI_LEFT_VOXEL_VIEW")
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
-            }
-            else
-            {
-                leftViewPoint = lvp;
-            }
-
-            GameObject tvp = GameObject.Find("SEGI_TOP_VOXEL_VIEW");
-
-            if (!tvp)
-            {
-                topViewPoint = new GameObject("SEGI_TOP_VOXEL_VIEW")
-                {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
-            }
-            else
-            {
-                topViewPoint = tvp;
-            }
-
-            //Setup sun depth texture
-            if (sunDepthTexture)
-            {
-                sunDepthTexture.DiscardContents();
-                sunDepthTexture.Release();
-                DestroyImmediate(sunDepthTexture);
-            }
-            sunDepthTexture = new RenderTexture(sunShadowResolution, sunShadowResolution, 16, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear)
-            {
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Point
-            };
-            sunDepthTexture.Create();
-            sunDepthTexture.hideFlags = HideFlags.HideAndDontSave;
-
-            //Create the volume textures
-            CreateVolumeTextures();
-
-            initChecker = new bool();
-        }
-
-        void CheckSupport()
-        {
-            systemSupported.hdrTextures = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf);
-            systemSupported.rIntTextures = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RInt);
-            systemSupported.dx11 = SystemInfo.graphicsShaderLevel >= 50 && SystemInfo.supportsComputeShaders;
-            systemSupported.volumeTextures = SystemInfo.supports3DTextures;
-
-            systemSupported.postShader = material.shader.isSupported;
-            systemSupported.sunDepthShader = sunDepthShader.isSupported;
-            systemSupported.voxelizationShader = voxelizationShader.isSupported;
-            systemSupported.tracingShader = voxelTracingShader.isSupported;
-
-            if (!systemSupported.FullFunctionality)
-            {
-                Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "SEGI is not supported on the current platform. Check for shader compile errors in SEGI/Resources");
-                enabled = false;
-            }
-        }
-
-        void OnDrawGizmosSelected()
+        private void OnDrawGizmosSelected()
         {
             if (!enabled)
                 return;
@@ -733,46 +430,7 @@ namespace Graphics.SEGI
             Gizmos.color = prevColor;
         }
 
-        void CleanupTexture(ref RenderTexture texture)
-        {
-            if (texture != null)
-            {
-                texture.DiscardContents();
-                texture.Release();
-                DestroyImmediate(texture);
-                texture = null; // Set the texture reference to null after cleanup
-            }
-        }
-
-        void CleanupTextures()
-        {
-            CleanupTexture(ref sunDepthTexture);
-            CleanupTexture(ref previousGIResult);
-            CleanupTexture(ref previousCameraDepth);
-            CleanupTexture(ref integerVolume);
-            for (int i = 0; i < volumeTextures.Length; i++)
-            {
-                CleanupTexture(ref volumeTextures[i]);
-            }
-            CleanupTexture(ref secondaryIrradianceVolume);
-            //CleanupTexture(ref volumeTextureB);
-            CleanupTexture(ref dummyVoxelTextureAAScaled);
-            CleanupTexture(ref dummyVoxelTextureFixed);
-        }
-
-        void Cleanup()
-        {
-            //DestroyImmediate(material);
-            DestroyImmediate(voxelCameraGO);
-            DestroyImmediate(leftViewPoint);
-            DestroyImmediate(topViewPoint);
-            DestroyImmediate(shadowCamGameObject);
-            initChecker = null;
-
-            CleanupTextures();
-        }
-
-        void OnEnable()
+        private void OnEnable()
         {
             //Shader.EnableKeyword("SS_SEGI");
             InitCheck();
@@ -788,7 +446,7 @@ namespace Graphics.SEGI
             //}
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             Shader.DisableKeyword("SS_SEGI");
             Cleanup();
@@ -802,62 +460,7 @@ namespace Graphics.SEGI
 
         }
 
-        void ResizeRenderTextures()
-        {
-            if (previousGIResult)
-            {
-                previousGIResult.DiscardContents();
-                previousGIResult.Release();
-                DestroyImmediate(previousGIResult);
-            }
-
-            int width = attachedCamera.pixelWidth == 0 ? 2 : attachedCamera.pixelWidth;
-            int height = attachedCamera.pixelHeight == 0 ? 2 : attachedCamera.pixelHeight;
-
-            previousGIResult = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf)
-            {
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Bilinear,
-                useMipMap = true,
-                autoGenerateMips = false
-            };
-            previousGIResult.Create();
-            previousGIResult.hideFlags = HideFlags.HideAndDontSave;
-
-            if (previousCameraDepth)
-            {
-                previousCameraDepth.DiscardContents();
-                previousCameraDepth.Release();
-                DestroyImmediate(previousCameraDepth);
-            }
-            previousCameraDepth = new RenderTexture(width, height, 0, RenderTextureFormat.RFloat, RenderTextureReadWrite.Linear)
-            {
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Bilinear
-            };
-            previousCameraDepth.Create();
-            previousCameraDepth.hideFlags = HideFlags.HideAndDontSave;
-        }
-
-        void ResizeSunShadowBuffer()
-        {
-
-            if (sunDepthTexture)
-            {
-                sunDepthTexture.DiscardContents();
-                sunDepthTexture.Release();
-                DestroyImmediate(sunDepthTexture);
-            }
-            sunDepthTexture = new RenderTexture(sunShadowResolution, sunShadowResolution, 16, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear)
-            {
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Point
-            };
-            sunDepthTexture.Create();
-            sunDepthTexture.hideFlags = HideFlags.HideAndDontSave;
-        }
-
-        void Update()
+        private void Update()
         {
             if (notReadyToRender)
                 return;
@@ -892,20 +495,7 @@ namespace Graphics.SEGI
             }
         }
 
-        Matrix4x4 TransformViewMatrix(Matrix4x4 mat)
-        {
-            //Since the third column of the view matrix needs to be reversed if using reversed z-buffer, do so here
-            if (SystemInfo.usesReversedZBuffer)
-            {
-                mat[2, 0] = -mat[2, 0];
-                mat[2, 1] = -mat[2, 1];
-                mat[2, 2] = -mat[2, 2];
-                mat[2, 3] = -mat[2, 3];
-            }
-            return mat;
-        }
-
-        void OnPreRender()
+        private void OnPreRender()
         {
             //Force reinitialization to make sure that everything is working properly if one of the cameras was unexpectedly destroyed
             if (!voxelCamera || !shadowCam)
@@ -1118,7 +708,7 @@ namespace Graphics.SEGI
         }
 
         [ImageEffectOpaque]
-        void OnRenderImage(RenderTexture source, RenderTexture destination)
+        private void OnRenderImage(RenderTexture source, RenderTexture destination)
         {
             if (notReadyToRender)
             {
@@ -1306,5 +896,416 @@ namespace Graphics.SEGI
             //Advance the frame counter
             frameCounter = (frameCounter + 1) % (64);
         }
+
+        private void InitCheck()
+        {
+            if (initChecker == null)
+            {
+                Init();
+            }
+        }
+
+        private void CreateVolumeTextures()
+        {
+            if (volumeTextures != null)
+            {
+                for (int i = 0; i < numMipLevels; i++)
+                {
+                    if (volumeTextures[i] != null)
+                    {
+                        volumeTextures[i].DiscardContents();
+                        volumeTextures[i].Release();
+                        DestroyImmediate(volumeTextures[i]);
+                    }
+                }
+            }
+
+            volumeTextures = new RenderTexture[numMipLevels];
+
+            for (int i = 0; i < numMipLevels; i++)
+            {
+                int resolution = (int)voxelResolution >> i;
+                volumeTextures[i] = new RenderTexture(resolution, resolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
+                {
+                    dimension = TextureDimension.Tex3D,
+                    volumeDepth = resolution,
+                    enableRandomWrite = true,
+                    filterMode = FilterMode.Bilinear,
+                    autoGenerateMips = false,
+                    useMipMap = false
+                };
+                volumeTextures[i].Create();
+                volumeTextures[i].hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            //if (volumeTextureB)
+            //{
+            //    volumeTextureB.DiscardContents();
+            //    volumeTextureB.Release();
+            //    DestroyImmediate(volumeTextureB);
+            //}
+            //volumeTextureB = new RenderTexture((int)voxelResolution, (int)voxelResolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
+            //{
+            //    dimension = TextureDimension.Tex3D,
+            //    volumeDepth = (int)voxelResolution,
+            //    enableRandomWrite = true,
+            //    filterMode = FilterMode.Bilinear,
+            //    autoGenerateMips = false,
+            //    useMipMap = false
+            //};
+            //volumeTextureB.Create();
+            //volumeTextureB.hideFlags = HideFlags.HideAndDontSave;
+
+            if (secondaryIrradianceVolume)
+            {
+                secondaryIrradianceVolume.DiscardContents();
+                secondaryIrradianceVolume.Release();
+                DestroyImmediate(secondaryIrradianceVolume);
+            }
+
+            if (infiniteBounces)
+            {
+                secondaryIrradianceVolume = new RenderTexture((int)voxelResolution, (int)voxelResolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
+                {
+                    dimension = TextureDimension.Tex3D,
+                    volumeDepth = (int)voxelResolution,
+                    enableRandomWrite = true,
+                    filterMode = FilterMode.Point,
+                    autoGenerateMips = false,
+                    useMipMap = false,
+                    antiAliasing = 1
+                };
+                secondaryIrradianceVolume.Create();
+                secondaryIrradianceVolume.hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            if (integerVolume)
+            {
+                integerVolume.DiscardContents();
+                integerVolume.Release();
+                DestroyImmediate(integerVolume);
+            }
+            integerVolume = new RenderTexture((int)voxelResolution, (int)voxelResolution, 0, RenderTextureFormat.RInt, RenderTextureReadWrite.Linear)
+            {
+                dimension = TextureDimension.Tex3D,
+                volumeDepth = (int)voxelResolution,
+                enableRandomWrite = true,
+                filterMode = FilterMode.Point
+            };
+            integerVolume.Create();
+            integerVolume.hideFlags = HideFlags.HideAndDontSave;
+
+            ResizeDummyTexture();
+        }
+
+        private void ResizeDummyTexture()
+        {
+            if (dummyVoxelTextureAAScaled)
+            {
+                dummyVoxelTextureAAScaled.DiscardContents();
+                dummyVoxelTextureAAScaled.Release();
+                DestroyImmediate(dummyVoxelTextureAAScaled);
+            }
+            dummyVoxelTextureAAScaled = new RenderTexture(DummyVoxelResolution, DummyVoxelResolution, 0, RenderTextureFormat.R8);
+            dummyVoxelTextureAAScaled.Create();
+            dummyVoxelTextureAAScaled.hideFlags = HideFlags.HideAndDontSave;
+
+            if (dummyVoxelTextureFixed)
+            {
+                dummyVoxelTextureFixed.DiscardContents();
+                dummyVoxelTextureFixed.Release();
+                DestroyImmediate(dummyVoxelTextureFixed);
+            }
+            dummyVoxelTextureFixed = new RenderTexture((int)voxelResolution, (int)voxelResolution, 0, RenderTextureFormat.R8);
+            dummyVoxelTextureFixed.Create();
+            dummyVoxelTextureFixed.hideFlags = HideFlags.HideAndDontSave;
+        }
+
+        internal static bool LoadAssets()
+        {
+            AssetBundle assetBundle = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("segi.unity3d"));
+            sunDepthShader = assetBundle.LoadAsset<Shader>("Assets/SEGI/Resources/SEGIRenderSunDepth.shader");
+            if (!sunDepthShader) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGIRenderSunDepth");
+            UnityEngine.Object.DontDestroyOnLoad(sunDepthShader);
+            clearCompute = assetBundle.LoadAsset<ComputeShader>("Assets/SEGI/Resources/SEGIClear.compute");
+            if (!clearCompute) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGIClear");
+            UnityEngine.Object.DontDestroyOnLoad(clearCompute);
+            transferIntsCompute = assetBundle.LoadAsset<ComputeShader>("Assets/SEGI/Resources/SEGITransferInts.compute");
+            if (!transferIntsCompute) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGITransferInts");
+            UnityEngine.Object.DontDestroyOnLoad(transferIntsCompute);
+            mipFilterCompute = assetBundle.LoadAsset<ComputeShader>("Assets/SEGI/Resources/SEGIMipFilter.compute");
+            if (!mipFilterCompute) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGIMipFilter");
+            UnityEngine.Object.DontDestroyOnLoad(mipFilterCompute);
+            voxelizationShader = assetBundle.LoadAsset<Shader>("Assets/SEGI/Resources/SEGIVoxelizeScene.shader");
+            if (!voxelizationShader) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGIVoxelizeScene");
+            UnityEngine.Object.DontDestroyOnLoad(voxelizationShader);
+            voxelTracingShader = assetBundle.LoadAsset<Shader>("Assets/SEGI/Resources/SEGITraceScene.shader");
+            if (!voxelTracingShader) Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGITraceScene");
+            UnityEngine.Object.DontDestroyOnLoad(voxelTracingShader);
+
+            if (!material)
+            {
+                segi = assetBundle.LoadAsset<Shader>("Assets/SEGI/Resources/SEGI.shader");
+                if (!segi)
+                {
+                    Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "failed to load SEGI");
+                    return false;
+                }
+                material = new Material(segi)
+                {
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+                UnityEngine.Object.DontDestroyOnLoad(segi);
+                UnityEngine.Object.DontDestroyOnLoad(material);
+            }
+            assetBundle.Unload(false);
+
+            return true;
+        }
+
+        private void Init()
+        {
+            //Get the camera attached to this game object
+            attachedCamera = this.GetComponent<Camera>();
+            attachedCamera.depthTextureMode |= DepthTextureMode.Depth;
+            attachedCamera.depthTextureMode |= DepthTextureMode.MotionVectors;
+
+            giCullingMask = attachedCamera.cullingMask;
+
+            //Find the proxy shadow rendering camera if it exists
+            GameObject scgo = GameObject.Find("SEGI_SHADOWCAM");
+
+            //If not, create it
+            if (!scgo)
+            {
+                shadowCamGameObject = new GameObject("SEGI_SHADOWCAM");
+                shadowCam = shadowCamGameObject.AddComponent<Camera>();
+                shadowCamGameObject.hideFlags = HideFlags.HideAndDontSave;
+
+
+                shadowCam.enabled = false;
+                shadowCam.aspect = 1;
+                shadowCam.depth = attachedCamera.depth - 1;
+                shadowCam.orthographic = true;
+                shadowCam.orthographicSize = shadowSpaceSize;
+                shadowCam.clearFlags = CameraClearFlags.SolidColor;
+                shadowCam.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+                shadowCam.farClipPlane = shadowSpaceSize * 2.0f * shadowSpaceDepthRatio;
+                shadowCam.cullingMask = giCullingMask;
+                shadowCam.useOcclusionCulling = false;
+
+                shadowCamTransform = shadowCamGameObject.transform;
+            }
+            else    //Otherwise, it already exists, just get it
+            {
+                shadowCamGameObject = scgo;
+                shadowCam = scgo.GetComponent<Camera>();
+                shadowCamTransform = shadowCamGameObject.transform;
+            }
+
+            //Create the proxy camera objects responsible for rendering the scene to voxelize the scene. If they already exist, destroy them
+            GameObject vcgo = GameObject.Find("SEGI_VOXEL_CAMERA");
+
+            if (!vcgo)
+            {
+                voxelCameraGO = new GameObject("SEGI_VOXEL_CAMERA")
+                {
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+
+                voxelCamera = voxelCameraGO.AddComponent<Camera>();
+                voxelCamera.enabled = false;
+                voxelCamera.aspect = 1;
+                voxelCamera.orthographic = true;
+                voxelCamera.orthographicSize = voxelSpaceSize * 0.5f;
+                voxelCamera.nearClipPlane = 0.0f;
+                voxelCamera.farClipPlane = voxelSpaceSize;
+                voxelCamera.depth = -2;
+                voxelCamera.renderingPath = RenderingPath.Forward;
+                voxelCamera.clearFlags = CameraClearFlags.Color;
+                voxelCamera.backgroundColor = Color.black;
+                voxelCamera.useOcclusionCulling = false;
+            }
+            else
+            {
+                voxelCameraGO = vcgo;
+                voxelCamera = vcgo.GetComponent<Camera>();
+            }
+
+            GameObject lvp = GameObject.Find("SEGI_LEFT_VOXEL_VIEW");
+
+            if (!lvp)
+            {
+                leftViewPoint = new GameObject("SEGI_LEFT_VOXEL_VIEW")
+                {
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+            }
+            else
+            {
+                leftViewPoint = lvp;
+            }
+
+            GameObject tvp = GameObject.Find("SEGI_TOP_VOXEL_VIEW");
+
+            if (!tvp)
+            {
+                topViewPoint = new GameObject("SEGI_TOP_VOXEL_VIEW")
+                {
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+            }
+            else
+            {
+                topViewPoint = tvp;
+            }
+
+            //Setup sun depth texture
+            if (sunDepthTexture)
+            {
+                sunDepthTexture.DiscardContents();
+                sunDepthTexture.Release();
+                DestroyImmediate(sunDepthTexture);
+            }
+            sunDepthTexture = new RenderTexture(sunShadowResolution, sunShadowResolution, 16, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point
+            };
+            sunDepthTexture.Create();
+            sunDepthTexture.hideFlags = HideFlags.HideAndDontSave;
+
+            //Create the volume textures
+            CreateVolumeTextures();
+
+            initChecker = new bool();
+        }
+
+        private void CheckSupport()
+        {
+            systemSupported.hdrTextures = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf);
+            systemSupported.rIntTextures = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RInt);
+            systemSupported.dx11 = SystemInfo.graphicsShaderLevel >= 50 && SystemInfo.supportsComputeShaders;
+            systemSupported.volumeTextures = SystemInfo.supports3DTextures;
+
+            systemSupported.postShader = material.shader.isSupported;
+            systemSupported.sunDepthShader = sunDepthShader.isSupported;
+            systemSupported.voxelizationShader = voxelizationShader.isSupported;
+            systemSupported.tracingShader = voxelTracingShader.isSupported;
+
+            if (!systemSupported.FullFunctionality)
+            {
+                Graphics.Instance.Log.Log(BepInEx.Logging.LogLevel.Error, "SEGI is not supported on the current platform. Check for shader compile errors in SEGI/Resources");
+                enabled = false;
+            }
+        }
+
+        private void CleanupTexture(ref RenderTexture texture)
+        {
+            if (texture != null)
+            {
+                texture.DiscardContents();
+                texture.Release();
+                DestroyImmediate(texture);
+                texture = null; // Set the texture reference to null after cleanup
+            }
+        }
+
+        private void CleanupTextures()
+        {
+            CleanupTexture(ref sunDepthTexture);
+            CleanupTexture(ref previousGIResult);
+            CleanupTexture(ref previousCameraDepth);
+            CleanupTexture(ref integerVolume);
+            for (int i = 0; i < volumeTextures.Length; i++)
+            {
+                CleanupTexture(ref volumeTextures[i]);
+            }
+            CleanupTexture(ref secondaryIrradianceVolume);
+            //CleanupTexture(ref volumeTextureB);
+            CleanupTexture(ref dummyVoxelTextureAAScaled);
+            CleanupTexture(ref dummyVoxelTextureFixed);
+        }
+
+        private void Cleanup()
+        {
+            //DestroyImmediate(material);
+            DestroyImmediate(voxelCameraGO);
+            DestroyImmediate(leftViewPoint);
+            DestroyImmediate(topViewPoint);
+            DestroyImmediate(shadowCamGameObject);
+            initChecker = null;
+
+            CleanupTextures();
+        }
+
+        private void ResizeRenderTextures()
+        {
+            if (previousGIResult)
+            {
+                previousGIResult.DiscardContents();
+                previousGIResult.Release();
+                DestroyImmediate(previousGIResult);
+            }
+
+            int width = attachedCamera.pixelWidth == 0 ? 2 : attachedCamera.pixelWidth;
+            int height = attachedCamera.pixelHeight == 0 ? 2 : attachedCamera.pixelHeight;
+
+            previousGIResult = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+                useMipMap = true,
+                autoGenerateMips = false
+            };
+            previousGIResult.Create();
+            previousGIResult.hideFlags = HideFlags.HideAndDontSave;
+
+            if (previousCameraDepth)
+            {
+                previousCameraDepth.DiscardContents();
+                previousCameraDepth.Release();
+                DestroyImmediate(previousCameraDepth);
+            }
+            previousCameraDepth = new RenderTexture(width, height, 0, RenderTextureFormat.RFloat, RenderTextureReadWrite.Linear)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear
+            };
+            previousCameraDepth.Create();
+            previousCameraDepth.hideFlags = HideFlags.HideAndDontSave;
+        }
+
+        private void ResizeSunShadowBuffer()
+        {
+
+            if (sunDepthTexture)
+            {
+                sunDepthTexture.DiscardContents();
+                sunDepthTexture.Release();
+                DestroyImmediate(sunDepthTexture);
+            }
+            sunDepthTexture = new RenderTexture(sunShadowResolution, sunShadowResolution, 16, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point
+            };
+            sunDepthTexture.Create();
+            sunDepthTexture.hideFlags = HideFlags.HideAndDontSave;
+        }
+
+        private Matrix4x4 TransformViewMatrix(Matrix4x4 mat)
+        {
+            //Since the third column of the view matrix needs to be reversed if using reversed z-buffer, do so here
+            if (SystemInfo.usesReversedZBuffer)
+            {
+                mat[2, 0] = -mat[2, 0];
+                mat[2, 1] = -mat[2, 1];
+                mat[2, 2] = -mat[2, 2];
+                mat[2, 3] = -mat[2, 3];
+            }
+            return mat;
+        }
+
     }
 }
