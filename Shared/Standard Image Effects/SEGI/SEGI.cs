@@ -667,6 +667,16 @@ namespace Graphics.SEGI
                     }
 
                     int destinationRes = (int)voxelResolution >> (i + 1);
+
+                    /*TODO: This IF statement below is applied to handle the incorrect operation of dividing 4 by 8
+                     * when the Voxel Resolution is a Low value(128), when an integer greater than or equal to 0 is desired.
+                     * Since this is a temporary measure, we need to figure out the Mipmap intention of this loop later
+                     * and handle the exception properly
+                     */
+                    if (destinationRes == 4)
+                    {
+                        destinationRes = 8;
+                    }
                     mipFilterCompute.SetInt(_destinationResId, destinationRes);
                     mipFilterCompute.SetTexture(MipFilterKernel, _SourceId, source);
                     mipFilterCompute.SetTexture(MipFilterKernel, _DestinationId, volumeTextures[i + 1]);
