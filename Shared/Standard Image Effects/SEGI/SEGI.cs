@@ -355,6 +355,7 @@ namespace Graphics.SEGI
         static readonly int _VoxelAAId = Shader.PropertyToID("VoxelAA");
         static readonly int _VoxelOriginDeltaId = Shader.PropertyToID("VoxelOriginDelta");
         static readonly int[] _SEGIVolumeLevelIds = new int[numMipLevels];
+        static readonly string[] _SEGI_VOLUME_LEVEL_NAMES = new string[numMipLevels];
         static readonly int _SEGIVolumeLevel0Id = Shader.PropertyToID("SEGIVolumeLevel0");
         static readonly int _destinationResId = Shader.PropertyToID("destinationRes");
         static readonly int _SourceId = Shader.PropertyToID("Source");
@@ -413,6 +414,17 @@ namespace Graphics.SEGI
         private void Start()
         {
             InitCheck();
+
+            // Move _SEGIVolumeLevelIds[] to here to make it as static that use in OnPreRender(), that line looks as below
+            // _SEGIVolumeLevelIds[i + 1] = Shader.PropertyToID("SEGIVolumeLevel" + (i + 1).ToString());
+            // I don't know why, but  _SEGIVolumeLevelIds[0] are not used because of _SEGIVolumeLevel0Id, I guess?
+            for (int i = 0; i < numMipLevels; i++)
+            {
+                _SEGI_VOLUME_LEVEL_NAMES[i] = "SEGIVolumeLevel" + i.ToString();
+                _SEGIVolumeLevelIds[i] = Shader.PropertyToID(_SEGI_VOLUME_LEVEL_NAMES[i]);
+                /*Graphics.Instance.Log.LogInfo($"_SEGI_VOLUME_LEVEL_NAMES: {_SEGI_VOLUME_LEVEL_NAMES[i]}," +
+                    $"_SEGIVolumeLevelIds: {_SEGIVolumeLevelIds[i]}");*/
+            }
         }
 
         private void OnDrawGizmosSelected()
@@ -660,8 +672,7 @@ namespace Graphics.SEGI
                     mipFilterCompute.SetTexture(MipFilterKernel, _DestinationId, volumeTextures[i + 1]);
                     mipFilterCompute.Dispatch(MipFilterKernel, destinationRes / 8, destinationRes / 8, 1);
                     //Shader.SetGlobalTexture("SEGIVolumeLevel" + (i + 1).ToString(), volumeTextures[i + 1]);
-
-                    _SEGIVolumeLevelIds[i + 1] = Shader.PropertyToID("SEGIVolumeLevel" + (i + 1).ToString());
+                    //_SEGIVolumeLevelIds[i + 1] = Shader.PropertyToID("SEGIVolumeLevel" + (i + 1).ToString());
                     Shader.SetGlobalTexture(_SEGIVolumeLevelIds[i + 1], volumeTextures[i + 1]);
                 }
 
