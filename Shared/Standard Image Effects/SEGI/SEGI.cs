@@ -413,7 +413,7 @@ namespace Graphics.SEGI
 
         private void Start()
         {
-            InitCheck();
+            //InitCheck();
 
             // Move _SEGIVolumeLevelIds[] to here to make it as static that use in OnPreRender(), that line looks as below
             // _SEGIVolumeLevelIds[i + 1] = Shader.PropertyToID("SEGIVolumeLevel" + (i + 1).ToString());
@@ -476,6 +476,16 @@ namespace Graphics.SEGI
         {
             if (notReadyToRender)
                 return;
+
+            /*TODO: When toggle Infinite Boundces, secondaryIrradianceVolume must be initialized.
+             * I think this If statement should be in UI eventListener part.
+             * Additionally, when using the current rendering function on Update(),
+             * the results may vary depending on the computer environment as it does not meet the Unity standards.
+             */
+            if (infiniteBounces == true && secondaryIrradianceVolume == null)
+            {
+                initChecker = null;
+            }
 
             int currentCameraWidth = attachedCamera.pixelWidth;
             int currentCameraHeight = attachedCamera.pixelHeight;
