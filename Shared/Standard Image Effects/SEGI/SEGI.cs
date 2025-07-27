@@ -165,7 +165,7 @@ namespace Graphics.SEGI
         ///<summary>A 2D texture with the size of [voxel resolution, voxel resolution] that must be used as the active render texture when rendering the scene for voxelization. This texture is always the same size whether Voxel AA is enabled or not.</summary>
         RenderTexture dummyVoxelTextureFixed;
 
-        bool notReadyToRender = false;
+        //bool notReadyToRender = false;
 
         private static Shader voxelizationShader;
         private static Shader voxelTracingShader;
@@ -411,10 +411,8 @@ namespace Graphics.SEGI
 
         #endregion
 
-        private void Start()
+        private void Awake()
         {
-            //InitCheck();
-
             // Move _SEGIVolumeLevelIds[] to here to make it as static that use in OnPreRender(), that line looks as below
             // _SEGIVolumeLevelIds[i + 1] = Shader.PropertyToID("SEGIVolumeLevel" + (i + 1).ToString());
             // I don't know why, but  _SEGIVolumeLevelIds[0] are not used because of _SEGIVolumeLevel0Id, I guess?
@@ -425,6 +423,11 @@ namespace Graphics.SEGI
                 /*Graphics.Instance.Log.LogInfo($"_SEGI_VOLUME_LEVEL_NAMES: {_SEGI_VOLUME_LEVEL_NAMES[i]}," +
                     $"_SEGIVolumeLevelIds: {_SEGIVolumeLevelIds[i]}");*/
             }
+        }
+
+        private void Start()
+        {
+            //InitCheck();
         }
 
         private void OnDrawGizmosSelected()
@@ -474,17 +477,32 @@ namespace Graphics.SEGI
 
         private void Update()
         {
-            if (notReadyToRender)
-                return;
+            /*if (notReadyToRender)
+                return;*/
+        }
+
+        private void OnPreRender()
+        {
+            //Force reinitialization to make sure that everything is working properly if one of the cameras was unexpectedly destroyed
+            if (!voxelCamera || !shadowCam)
+                initChecker = null;
 
             /*TODO: When toggle Infinite Boundces, secondaryIrradianceVolume must be initialized.
              * I think this If statement should be in UI eventListener part.
-             * Additionally, when using the current rendering function on Update(),
-             * the results may vary depending on the computer environment as it does not meet the Unity standards.
              */
             if (infiniteBounces == true && secondaryIrradianceVolume == null)
             {
                 initChecker = null;
+            }
+
+            InitCheck();
+
+            /*if (notReadyToRender)
+                return;*/
+
+            if (!updateGI)
+            {
+                return;
             }
 
             int currentCameraWidth = attachedCamera.pixelWidth;
@@ -514,24 +532,6 @@ namespace Graphics.SEGI
             if (dummyVoxelTextureAAScaled.width != DummyVoxelResolution)
             {
                 ResizeDummyTexture();
-            }
-        }
-
-        private void OnPreRender()
-        {
-            //Force reinitialization to make sure that everything is working properly if one of the cameras was unexpectedly destroyed
-            if (!voxelCamera || !shadowCam)
-                initChecker = null;
-
-
-            InitCheck();
-
-            if (notReadyToRender)
-                return;
-
-            if (!updateGI)
-            {
-                return;
             }
 
             //Cache the previous active render texture to avoid issues with other Unity rendering going on
@@ -741,11 +741,11 @@ namespace Graphics.SEGI
         [ImageEffectOpaque]
         private void OnRenderImage(RenderTexture source, RenderTexture destination)
         {
-            if (notReadyToRender)
+            /*if (notReadyToRender)
             {
                 UnityEngine.Graphics.Blit(source, destination);
                 return;
-            }
+            }*/
 
             //Set parameters
             Shader.SetGlobalFloat(_SEGIVoxelScaleFactorId, VoxelScaleFactor);
