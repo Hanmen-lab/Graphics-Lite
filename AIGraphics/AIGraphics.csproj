@@ -65,6 +65,7 @@
     </Reference>
     <Reference Include="Aura2_Core">
       <HintPath>..\packages\HoohPlugins\Aura2_Core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx, Version=5.4.20.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.BepInEx.5.4.20\lib\net35\BepInEx.dll</HintPath>

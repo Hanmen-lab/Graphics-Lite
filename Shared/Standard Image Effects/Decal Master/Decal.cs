@@ -239,7 +239,7 @@ namespace Knife.DeferredDecals
             gizmoCommandBuffer.name = "Gizmo Overlay";
 
             // Добавляем команды после всех post-processing эффектов
-            Camera.main.AddCommandBuffer(CameraEvent.AfterEverything, gizmoCommandBuffer);
+            Camera.main.AddCommandBuffer(CameraEvent.AfterImageEffects, gizmoCommandBuffer);
         }
 
         LineRenderer MaterialProxy;
@@ -305,7 +305,7 @@ namespace Knife.DeferredDecals
         {
             if (gizmoCommandBuffer != null && Camera.main != null)
             {
-                Camera.main.RemoveCommandBuffer(CameraEvent.AfterEverything, gizmoCommandBuffer);
+                Camera.main.RemoveCommandBuffer(CameraEvent.AfterImageEffects, gizmoCommandBuffer);
                 gizmoCommandBuffer.Release();
                 gizmoCommandBuffer = null;
             }
