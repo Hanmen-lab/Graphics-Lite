@@ -26,7 +26,7 @@ namespace Knife.DeferredDecals
         public LayerMask ExclusionMask;
         public bool FrustumCulling = true;
         public bool DistanceCulling = true;
-        public float StartFadeDistance = 50;
+        public float StartFadeDistance = 500;
         public float FadeLength = 2;
         public static bool DrawDecalGizmos = true;
 

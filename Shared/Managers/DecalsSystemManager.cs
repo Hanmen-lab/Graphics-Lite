@@ -27,6 +27,8 @@ namespace Graphics
             }
 
             settings.Load(DeferredDecalsSystemInstance);
+
+            DeferredDecalsSystemInstance.enabled = true;
         }
 
         public static void UpdateSettings()
@@ -50,6 +52,8 @@ namespace Graphics
                 Camera camera = Graphics.Instance.CameraSettings.MainCamera;
                 DeferredDecalsSystemInstance = camera.GetOrAddComponent<DeferredDecalsSystem>();
             }
+
+            DeferredDecalsSystemInstance.enabled = true;
         }
 
     }

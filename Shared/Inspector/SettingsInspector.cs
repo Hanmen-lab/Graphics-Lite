@@ -160,7 +160,7 @@ namespace Graphics.Inspector
                         Slider("Fade Length", decalsSettings.FadeLength.value, 0f, 100f, "N0", fadeLength => { decalsSettings.FadeLength.value = fadeLength; DecalsSystemManager.UpdateSettings(); },
                             decalsSettings.FadeLength.overrideState, overrideState => { decalsSettings.FadeLength.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
 
-                        ToggleAlt("Draw Decal Gizmos", decalsSettings.DrawDecalGizmos.value, false, drawDecalGizmos => { decalsSettings.DrawDecalGizmos.value = drawDecalGizmos; DecalsSystemManager.UpdateSettings(); });
+                        //ToggleAlt("Draw Decal Gizmos", decalsSettings.DrawDecalGizmos.value, false, drawDecalGizmos => { decalsSettings.DrawDecalGizmos.value = drawDecalGizmos; DecalsSystemManager.UpdateSettings(); });
                     }
                 }
 
