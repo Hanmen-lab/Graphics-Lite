@@ -585,12 +585,6 @@ namespace Graphics
                         ctaa.enabled = CTAAManager.settings.Enabled;
                     }
 
-                    //if (!ansel)
-                    //{
-                    //    ansel = lightingCameraGO.AddComponent<Ansel>();
-                    //    ansel.Start();
-                    //}
-
                     if (!sss_convolution)
                         sss_convolution = lightingCameraGO.AddComponent<SSS_convolution>();
 
