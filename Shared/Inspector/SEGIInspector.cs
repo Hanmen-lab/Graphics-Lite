@@ -64,7 +64,7 @@ namespace Graphics.Inspector
                         Label("MAIN CONFIGURATION", "", true);
                         GUILayout.Space(2);
                         Selection("Voxel Resolution", segiSettings.voxelResolution, resolution => { segiSettings.voxelResolution = resolution; SEGIManager.UpdateSettings(); });
-                        Toggle("Volex AA", segiSettings.voxelAA, false, aa => { segiSettings.voxelAA = aa; SEGIManager.UpdateSettings(); });
+                        Toggle("Voxel AA", segiSettings.voxelAA, false, aa => { segiSettings.voxelAA = aa; SEGIManager.UpdateSettings(); });
                         Toggle("Infinite Bounces (Slow)", segiSettings.infiniteBounces, false, bounce => { segiSettings.infiniteBounces = bounce; SEGIManager.UpdateSettings(); });
                         Toggle("Gaussian Mip Filter", segiSettings.gaussianMipFilter, false, filter => { segiSettings.gaussianMipFilter = filter; SEGIManager.UpdateSettings(); });
                         Text("Voxel Space Size", segiSettings.voxelSpaceSize, "N0", size => { segiSettings.voxelSpaceSize = size; SEGIManager.UpdateSettings(); });
