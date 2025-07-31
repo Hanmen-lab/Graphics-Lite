@@ -312,6 +312,7 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\sunshaftshdr.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\segi.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\grain.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defref.unity3d" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\spectral_luts.unity3d" />
