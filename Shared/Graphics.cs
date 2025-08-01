@@ -21,6 +21,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Graphics.DebugUtils;
+using UnityEngine.Rendering;
 
 namespace Graphics
 {
@@ -222,8 +223,12 @@ namespace Graphics
             _lightManager = new LightManager(this);
             _presetManager = new PresetManager(ConfigPresetPath.Value, this);
 
+            // Load PCSS Assets
             yield return new WaitUntil(PCSSLight.LoadAssets);
+            // Load SEGI Assets
             yield return new WaitUntil(SEGI.SEGI.LoadAssets);
+            // Set up the reflection shader
+            yield return new WaitUntil(LoadAssets);
 
             _inspector = new Inspector.Inspector(this);
             _isLoaded = true;
@@ -255,6 +260,20 @@ namespace Graphics
         internal PostProcessingManager PostProcessingManager => _postProcessingManager;
         internal LightManager LightManager => _lightManager;
         internal PresetManager PresetManager => _presetManager;
+
+        internal static bool LoadAssets()
+        {
+            AssetBundle assetref = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("defref.unity3d"));
+            Shader reflectionShader = assetref.LoadAsset<Shader>("Assets/GTAO/Shaders/GTRO-DeferredReflections.shader");
+
+            UnityEngine.Object.DontDestroyOnLoad(reflectionShader);
+            assetref.Unload(false);
+
+            GraphicsSettings.SetShaderMode(BuiltinShaderType.DeferredReflections, BuiltinShaderMode.UseCustom);
+            GraphicsSettings.SetCustomShader(BuiltinShaderType.DeferredReflections, reflectionShader);
+            LogWithDots("Deferred Reflections Shader", "INSTALLED");
+            return true;
+        }
 
         internal void OnGUI()
         {

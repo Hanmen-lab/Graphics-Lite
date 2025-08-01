@@ -520,7 +520,7 @@ namespace Graphics
                     DontDestroyOnLoad(_probe);
                 }
 
-                if (lights.DefaultReflectionProbeSettings != null && lights.DefaultReflectionProbeSettings.Intensity > 0)
+                if (lights.DefaultReflectionProbeSettings != null)
                 {
                     lights.DefaultReflectionProbeSettings.ApplySettings(_probe);
                 }

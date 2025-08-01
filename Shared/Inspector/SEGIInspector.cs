@@ -126,6 +126,7 @@ namespace Graphics.Inspector
                         Slider("Reflection Steps", segiSettings.reflectionSteps, 12, 128, cones => { segiSettings.reflectionSteps = cones; SEGIManager.UpdateSettings(); });
                         Slider("Reflection Occlusion Power", segiSettings.reflectionOcclusionPower, 0.001f, 4f, "N2", cones => { segiSettings.reflectionOcclusionPower = cones; SEGIManager.UpdateSettings(); });
                         Slider("Sky Reflection Intensity", segiSettings.skyReflectionIntensity, 0f, 1f, "N2", intensity => { segiSettings.skyReflectionIntensity = intensity; SEGIManager.UpdateSettings(); });
+                        Toggle("Downsampling", segiSettings.reflectionDownsampling, false, downsample => { segiSettings.reflectionDownsampling = downsample; SEGIManager.UpdateSettings(); });
                         GUILayout.Space(30);
                         Label("TROUBLESHOOTING:", "", true);
                         GUILayout.Space(5);

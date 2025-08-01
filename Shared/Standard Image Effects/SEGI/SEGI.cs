@@ -64,6 +64,7 @@ namespace Graphics.SEGI
         public bool halfResolution = true;
         public bool stochasticSampling = true;
         public bool infiniteBounces = false;
+        public bool reflectionDownsampling = false;
         public Transform followTransform;
         [Range(1, 128)]
         public int cones = 35;
@@ -93,11 +94,11 @@ namespace Graphics.SEGI
         [Range(0.0f, 8.0f)]
         public float skyIntensity = 0.7f;
 
-        public bool doReflections = false;
+        public bool doReflections = true;
         [Range(12, 128)]
-        public int reflectionSteps = 64;
+        public int reflectionSteps = 32;
         [Range(0.001f, 4.0f)]
-        public float reflectionOcclusionPower = 1.0f;
+        public float reflectionOcclusionPower = 0.2f;
         [Range(0.0f, 1.0f)]
         public float skyReflectionIntensity = 1.0f;
 
@@ -327,6 +328,14 @@ namespace Graphics.SEGI
             }
         }
 
+        int ReflectionRes
+        {
+            get
+            {
+                return reflectionDownsampling ? 2 : 1;
+            }
+        }
+
         #endregion
 
         #region ShaderIDs
@@ -386,6 +395,7 @@ namespace Graphics.SEGI
             public static readonly int NearOcclusionStrength = Shader.PropertyToID("NearOcclusionStrength");
             public static readonly int DoReflections = Shader.PropertyToID("DoReflections");
             public static readonly int HalfResolution = Shader.PropertyToID("HalfResolution");
+            public static readonly int ReflectionDownsampling = Shader.PropertyToID("ReflectionDownsampling");
             public static readonly int ReflectionSteps = Shader.PropertyToID("ReflectionSteps");
             public static readonly int ReflectionOcclusionPower = Shader.PropertyToID("ReflectionOcclusionPower");
             public static readonly int SkyReflectionIntensity = Shader.PropertyToID("SkyReflectionIntensity");
@@ -493,8 +503,9 @@ namespace Graphics.SEGI
         private void OnDisable()
         {
 
-            Cleanup();
+
             RemoveCommandBuffers();
+            Cleanup();
             //Shader.DisableKeyword("SS_SEGI");
             //RenderShadows renderShadows = attachedCamera.GetComponent<RenderShadows>();
             //if (renderShadows != null)
@@ -800,7 +811,7 @@ namespace Graphics.SEGI
             material.SetFloat(ID.NearLightGain, nearLightGain);
             material.SetFloat(ID.NearOcclusionStrength, nearOcclusionStrength);
             Shader.SetGlobalInt(ID.DoReflections, doReflections ? 1 : 0);
-            material.SetInt(ID.DoReflections, doReflections ? 1 : 0);
+            //material.SetInt(ID.DoReflections, doReflections ? 1 : 0);
             material.SetInt(ID.HalfResolution, halfResolution ? 1 : 0);
             material.SetInt(ID.ReflectionSteps, reflectionSteps);
             material.SetFloat(ID.ReflectionOcclusionPower, reflectionOcclusionPower);
@@ -839,8 +850,8 @@ namespace Graphics.SEGI
             //If reflections are enabled, create a temporary render buffer to hold them
             if (doReflections)
             {
-                ComputeSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-                DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+                ComputeSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+                DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
             }
 
             //Setup textures to hold the current camera depth and normal

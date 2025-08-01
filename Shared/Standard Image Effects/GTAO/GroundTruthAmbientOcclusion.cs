@@ -70,6 +70,7 @@ namespace Graphics.GTAO
         private Material GTAOMaterial;
         private CommandBuffer GTAOBufferCompute = null;
         private CommandBuffer GTAOBufferApply = null;
+        private CommandBuffer GTAOBufferDebug = null;
 
         //////Transform property 
         private Matrix4x4 projectionMatrix;
@@ -139,9 +140,9 @@ namespace Graphics.GTAO
         {
             RenderCamera = gameObject.GetComponent<Camera>();
             assetBundle = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("gtao.unity3d"));
-            assetref = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("defref.unity3d"));
+
             gtaoShader = assetBundle.LoadAsset<Shader>("Assets/GTAO/Shaders/GTAO.shader");
-            reflectionShader = assetref.LoadAsset<Shader>("Assets/GTAO/Shaders/GTRO-DeferredReflections.shader");
+
             RenderCamera.depthTextureMode = DepthTextureMode.Depth | DepthTextureMode.DepthNormals | DepthTextureMode.MotionVectors;
             GTAOMaterial = new Material(gtaoShader);
         }
@@ -159,13 +160,14 @@ namespace Graphics.GTAO
             GTAOBufferApply = new CommandBuffer();
             GTAOBufferApply.name = "Apply GTAO";
 
+            GTAOBufferDebug = new CommandBuffer();
+            GTAOBufferDebug.name = "Debug GTAO";
+
             RenderCamera.AddCommandBuffer(CameraEvent.BeforeReflections, GTAOBufferCompute);
             RenderCamera.AddCommandBuffer(CameraEvent.AfterFinalPass, GTAOBufferApply);
+            RenderCamera.AddCommandBuffer(CameraEvent.AfterImageEffects, GTAOBufferDebug);
 
             Shader.SetGlobalInt("GTRO_ENABLED", 1);
-
-            GraphicsSettings.SetShaderMode(BuiltinShaderType.DeferredReflections, BuiltinShaderMode.UseCustom);
-            GraphicsSettings.SetCustomShader(BuiltinShaderType.DeferredReflections, reflectionShader);
         }
 
         void OnPreRender()
@@ -173,30 +175,28 @@ namespace Graphics.GTAO
             //RenderResolution = new Vector2(RenderCamera.pixelWidth, RenderCamera.pixelHeight) / (int)SamplerResolution;
             RenderResolution = new Vector2(RenderCamera.pixelWidth, RenderCamera.pixelHeight);
 
-            if (GTAOBufferApply != null)
-            {
-                //if (!GTAOMaterial)
-                //{
-                //    CreateMaterial();
-                //}
+            //if (!GTAOMaterial)
+            //{
+            //    CreateMaterial();
+            //}
 
-                UpdateVariable_SSAO();
-                RenderSSAO();
-            }
+            UpdateVariable_SSAO();
+            RenderSSAO();
         }
 
         void OnDisable()
         {
             Shader.SetGlobalInt("GTRO_ENABLED", 0);
 
-            GraphicsSettings.SetShaderMode(BuiltinShaderType.DeferredReflections, BuiltinShaderMode.UseCustom);
-            GraphicsSettings.SetCustomShader(BuiltinShaderType.DeferredReflections, Shader.Find("Hidden/Internal-DeferredReflections"));
+            //GraphicsSettings.SetShaderMode(BuiltinShaderType.DeferredReflections, BuiltinShaderMode.UseCustom);
+            //GraphicsSettings.SetCustomShader(BuiltinShaderType.DeferredReflections, Shader.Find("Hidden/Internal-DeferredReflections"));
 
-            if (GTAOBufferApply != null)
-            {
+            if (GTAOBufferCompute != null)
                 RenderCamera.RemoveCommandBuffer(CameraEvent.BeforeReflections, GTAOBufferCompute);
+            if (GTAOBufferApply != null)
                 RenderCamera.RemoveCommandBuffer(CameraEvent.AfterFinalPass, GTAOBufferApply);
-            }
+            if (GTAOBufferDebug != null)
+                RenderCamera.RemoveCommandBuffer(CameraEvent.AfterImageEffects, GTAOBufferDebug);
 
             Cleanup();
         }
@@ -218,6 +218,12 @@ namespace Graphics.GTAO
             {
                 GTAOBufferApply.Dispose();
                 //GTAOBufferApply = null;
+            }
+
+            if (GTAOBufferDebug != null)
+            {
+                GTAOBufferDebug.Dispose();
+                //GTAOBufferDebug = null;
             }
 
             if (AO_BentNormal_RT[0] != null)
@@ -321,6 +327,7 @@ namespace Graphics.GTAO
         {
             GTAOBufferCompute.Clear();
             GTAOBufferApply.Clear();
+            GTAOBufferDebug.Clear();
 
             GTAOBufferApply.GetTemporaryRT(_AO_Scene_Color_ID, (int)RenderResolution.x, (int)RenderResolution.y, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
             GTAOBufferApply.Blit(BuiltinRenderTextureType.CameraTarget, _AO_Scene_Color_ID);
@@ -347,10 +354,28 @@ namespace Graphics.GTAO
 
 
             ////// Combien Scene Color
-            GTAOBufferApply.GetTemporaryRT(_Combien_AO_RT_ID, (int)RenderResolution.x, (int)RenderResolution.y, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
-            GTAOBufferApply.BlitSRT(_Combien_AO_RT_ID, BuiltinRenderTextureType.CameraTarget, GTAOMaterial, (int)Debug);
+
+            if (Debug == OutPass.Combined)
+            {
+                GTAOBufferApply.GetTemporaryRT(_Combien_AO_RT_ID, (int)RenderResolution.x, (int)RenderResolution.y, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
+                GTAOBufferApply.BlitSRT(_Combien_AO_RT_ID, BuiltinRenderTextureType.CameraTarget, GTAOMaterial, (int)Debug);
+            }
+            else
+            {
+                GTAOBufferDebug.GetTemporaryRT(_Combien_AO_RT_ID, (int)RenderResolution.x, (int)RenderResolution.y, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
+                GTAOBufferDebug.BlitSRT(_Combien_AO_RT_ID, BuiltinRenderTextureType.CameraTarget, GTAOMaterial, (int)Debug);
+            }
 
             LastFrameViewProjectionMatrix = View_ProjectionMatrix;
+
+            GTAOBufferApply.ReleaseTemporaryRT(_AO_Scene_Color_ID);
+            GTAOBufferCompute.ReleaseTemporaryRT(_GTAO_Spatial_Texture_ID);
+            GTAOBufferCompute.ReleaseTemporaryRT(_CurrRT_ID);
+            if (Debug == OutPass.Combined)
+                GTAOBufferApply.ReleaseTemporaryRT(_Combien_AO_RT_ID);
+            else
+                GTAOBufferDebug.ReleaseTemporaryRT(_Combien_AO_RT_ID);
+
         }
     }
 }

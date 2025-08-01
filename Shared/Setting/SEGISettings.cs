@@ -26,7 +26,8 @@ namespace Graphics.Settings
         public bool useBilateralFiltering = true;
         public bool halfResolution = true;
         public bool stochasticSampling = true;
-        public bool doReflections = false;
+        public bool doReflections = true;
+        public bool reflectionDownsampling = false;
 
         [Range(1, 128)]
         public int cones = 35;
@@ -51,9 +52,9 @@ namespace Graphics.Settings
         [Range(0.0f, 2.0f)]
         public float secondaryBounceGain = 1.0f;
         [Range(12, 128)]
-        public int reflectionSteps = 64;
+        public int reflectionSteps = 32;
         [Range(0.001f, 4.0f)]
-        public float reflectionOcclusionPower = 1.0f;
+        public float reflectionOcclusionPower = 0.2f;
         [Range(0.0f, 1.0f)]
         public float skyReflectionIntensity = 1.0f;
         public bool gaussianMipFilter = true;
@@ -126,6 +127,7 @@ namespace Graphics.Settings
             instance.voxelSpaceSize = voxelSpaceSize;
             instance.sphericalSkylight = sphericalSkylight;
             instance.debugTools = debugTools;
+            instance.reflectionDownsampling = reflectionDownsampling;
         }
         public void Save(SEGI.SEGI instance)
         {
@@ -169,6 +171,7 @@ namespace Graphics.Settings
             voxelSpaceSize = instance.voxelSpaceSize;
             sphericalSkylight = instance.sphericalSkylight;
             debugTools = instance.debugTools;
+            reflectionDownsampling = instance.reflectionDownsampling;
 
         }
 
