@@ -183,8 +183,6 @@ namespace Graphics.GTAO
                 UpdateVariable_SSAO();
                 RenderSSAO();
             }
-
-
         }
 
         void OnDisable()

@@ -492,10 +492,10 @@ namespace Graphics.SEGI
 
         private void OnDisable()
         {
+
+            Cleanup();
             RemoveCommandBuffers();
             //Shader.DisableKeyword("SS_SEGI");
-            Cleanup();
-
             //RenderShadows renderShadows = attachedCamera.GetComponent<RenderShadows>();
             //if (renderShadows != null)
             //{
@@ -867,8 +867,6 @@ namespace Graphics.SEGI
 
                 if ((debugTools & DebugTools.Reflections) != 0)
                 {
-                    //DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-                    //DebugSEGI.SetGlobalTexture(ID.SegiReflections, ID.reflections);
                     DebugSEGI.Blit(ID.reflections, BuiltinRenderTextureType.CameraTarget);
                 }
             }
@@ -1315,6 +1313,19 @@ namespace Graphics.SEGI
             initChecker = null;
 
             CleanupTextures();
+
+            if (ComputeSEGI != null)
+            {
+                ComputeSEGI.Dispose();
+            }
+            if (ApplySEGI != null)
+            {
+                ApplySEGI.Dispose();
+            }
+            if (DebugSEGI != null)
+            {
+                DebugSEGI.Dispose();
+            }
         }
 
         private void ResizeRenderTextures()
