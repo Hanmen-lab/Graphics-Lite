@@ -51,19 +51,11 @@ namespace Graphics.SEGI
             Off = 1 << 0,
             GI = 1 << 1,
             Voxels = 1 << 2,
-            Reflections = 1 << 3
-
+            SunDepthTexture = 1 << 3,
+            Reflections = 1 << 4
         }
         public DebugTools debugTools = DebugTools.Off;
-
-        public bool visualizeSunDepthTexture = false;
-        public bool visualizeGI = false;
-        public bool visualizeVoxels = false;
-        public bool visualizeReflections = false;
-        private bool _previousVisualizeSunDepthTexture;
-        private bool _previousVisualizeGI;
-        private bool _previousVisualizeVoxels;
-        private bool _previousVisualizeReflections;
+        private DebugTools _previousDebugTools;
 
         public bool halfResolution = true;
         public bool stochasticSampling = true;
@@ -450,10 +442,7 @@ namespace Graphics.SEGI
         private void Start()
         {
             //InitCheck();
-            _previousVisualizeSunDepthTexture = visualizeSunDepthTexture;
-            _previousVisualizeGI = visualizeGI;
-            _previousVisualizeVoxels = visualizeVoxels;
-            _previousVisualizeReflections = visualizeReflections;
+            _previousDebugTools = debugTools;
         }
 
         private void OnDrawGizmosSelected()
@@ -486,7 +475,7 @@ namespace Graphics.SEGI
             if ((debugTools & DebugTools.Voxels) != 0)
             {
                 DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeVoxels);
-                return;
+                //return;
             }
             else if ((debugTools & DebugTools.GI) != 0)
             {
@@ -494,7 +483,7 @@ namespace Graphics.SEGI
                 DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeGI);
                 //return;
             }
-            else if (visualizeSunDepthTexture)
+            else if ((debugTools & DebugTools.SunDepthTexture) != 0)
             {
                 DebugSEGI.Blit(sunDepthTexture, BuiltinRenderTextureType.CameraTarget);
                 //return;
@@ -681,26 +670,11 @@ namespace Graphics.SEGI
         {
             /*if (notReadyToRender)
                 return;*/
-            if (visualizeSunDepthTexture != _previousVisualizeSunDepthTexture)
+            if (debugTools != _previousDebugTools)
             {
                 RefreshCommandBuffers();
             }
-            if (visualizeGI != _previousVisualizeGI)
-            {
-                RefreshCommandBuffers();
-            }
-            if (visualizeVoxels != _previousVisualizeVoxels)
-            {
-                RefreshCommandBuffers();
-            }
-            if (visualizeReflections != _previousVisualizeReflections)
-            {
-                RefreshCommandBuffers();
-            }
-            _previousVisualizeSunDepthTexture = visualizeSunDepthTexture;
-            _previousVisualizeGI = visualizeGI;
-            _previousVisualizeVoxels = visualizeVoxels;
-            _previousVisualizeReflections = visualizeReflections;
+            _previousDebugTools = debugTools;
         }
 
         private void OnPreRender()
