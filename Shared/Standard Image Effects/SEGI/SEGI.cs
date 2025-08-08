@@ -60,6 +60,10 @@ namespace Graphics.SEGI
         public bool visualizeGI = false;
         public bool visualizeVoxels = false;
         public bool visualizeReflections = false;
+        private bool _previousVisualizeSunDepthTexture;
+        private bool _previousVisualizeGI;
+        private bool _previousVisualizeVoxels;
+        private bool _previousVisualizeReflections;
 
         public bool halfResolution = true;
         public bool stochasticSampling = true;
@@ -446,6 +450,10 @@ namespace Graphics.SEGI
         private void Start()
         {
             //InitCheck();
+            _previousVisualizeSunDepthTexture = visualizeSunDepthTexture;
+            _previousVisualizeGI = visualizeGI;
+            _previousVisualizeVoxels = visualizeVoxels;
+            _previousVisualizeReflections = visualizeReflections;
         }
 
         private void OnDrawGizmosSelected()
@@ -468,6 +476,159 @@ namespace Graphics.SEGI
             ComputeSEGI = new CommandBuffer { name = "SEGI Compute Buffer" };
             ApplySEGI = new CommandBuffer { name = "SEGI Apply Buffer" };
             DebugSEGI = new CommandBuffer { name = "SEGI Debug Buffer" };
+
+            //Get Scene Color
+            ApplySEGI.GetTemporaryRT(ID.currentSceneColor, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
+            ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.currentSceneColor);
+
+
+            //If Visualize Voxels is enabled, just render the voxel visualization shader pass and return
+            if ((debugTools & DebugTools.Voxels) != 0)
+            {
+                DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeVoxels);
+                return;
+            }
+            else if ((debugTools & DebugTools.GI) != 0)
+            {
+                //Visualize the GI result
+                DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeGI);
+                //return;
+            }
+            else if (visualizeSunDepthTexture)
+            {
+                DebugSEGI.Blit(sunDepthTexture, BuiltinRenderTextureType.CameraTarget);
+                //return;
+            }
+
+            //Setup temporary textures
+            ComputeSEGI.GetTemporaryRT(ID.gi1, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+            ComputeSEGI.GetTemporaryRT(ID.gi2, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+
+            //If reflections are enabled, create a temporary render buffer to hold them
+            if (doReflections)
+            {
+                ComputeSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+                DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+            }
+
+            //Setup textures to hold the current camera depth and normal
+            ComputeSEGI.GetTemporaryRT(ID.currentDepth, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.RFloat, RenderTextureReadWrite.Linear);
+            ComputeSEGI.GetTemporaryRT(ID.currentNormal, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear);
+
+            //Get the camera depth and normals
+            ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.currentDepth, material, Pass.GetCameraDepthTexture);
+            ComputeSEGI.SetGlobalTexture("CurrentDepth", ID.currentDepth);
+            ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.currentNormal, material, Pass.GetWorldNormals);
+            ComputeSEGI.SetGlobalTexture("CurrentNormal", ID.currentNormal);
+
+            ////Set the previous GI result and camera depth textures to access them in the shader
+            ComputeSEGI.SetGlobalTexture(ID.PreviousGITexture, previousGIResult);
+            ComputeSEGI.SetGlobalTexture(ID.PreviousDepth, previousCameraDepth);
+
+            //Render diffuse GI tracing result
+            ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.gi2, material, Pass.DiffuseTrace);
+            if (doReflections)
+            {
+                //Render GI reflections result
+                ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.reflections, material, Pass.SpecularTrace);
+                ComputeSEGI.SetGlobalTexture(ID.SegiReflections, ID.reflections);
+
+                if ((debugTools & DebugTools.Reflections) != 0)
+                {
+                    DebugSEGI.Blit(ID.reflections, BuiltinRenderTextureType.CameraTarget);
+                }
+            }
+
+            //Perform bilateral filtering
+            if (useBilateralFiltering)
+            {
+                Vector2[] kernels = new Vector2[] { new Vector2(0.0f, 1.0f), new Vector2(1.0f, 0.0f), new Vector2(0.0f, 1.0f), new Vector2(1.0f, 0.0f) };
+                for (int i = 0; i < kernels.Length; i++)
+                {
+                    ComputeSEGI.SetGlobalVector(ID.Kernel, kernels[i]);
+                    // Чередуем источники между gi1ID и gi2ID
+                    if (i % 2 == 0)
+                    {
+                        ComputeSEGI.Blit(ID.gi2, ID.gi1, material, Pass.BilateralBlur);
+                    }
+                    else
+                    {
+                        ComputeSEGI.Blit(ID.gi1, ID.gi2, material, Pass.BilateralBlur);
+                    }
+                }
+            }
+
+            //If Half Resolution tracing is enabled
+            if (GiRenderRes == 2)
+            {
+                ComputeSEGI.ReleaseTemporaryRT(ID.gi1);
+
+                //Setup temporary textures
+                ComputeSEGI.GetTemporaryRT(ID.gi3, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+                ComputeSEGI.GetTemporaryRT(ID.gi4, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+
+                //Prepare the half-resolution diffuse GI result to be bilaterally upsampled
+                ComputeSEGI.Blit(ID.gi2, ID.gi4);
+                ComputeSEGI.ReleaseTemporaryRT(ID.gi2);
+
+                //Perform bilateral upsampling on half-resolution diffuse GI result
+                ComputeSEGI.SetGlobalVector(ID.Kernel, new Vector2(1.0f, 0.0f));
+                ComputeSEGI.Blit(ID.gi4, ID.gi3, material, Pass.BilateralUpsample);
+                ComputeSEGI.SetGlobalVector(ID.Kernel, new Vector2(0.0f, 1.0f));
+
+                //Perform temporal reprojection and blending
+                if (temporalBlendWeight < 1.0f)
+                {
+                    ComputeSEGI.Blit(ID.gi3, ID.gi4);
+                    ComputeSEGI.Blit(ID.gi4, ID.gi3, material, Pass.TemporalBlend);
+                    ComputeSEGI.Blit(ID.gi3, previousGIResult);
+                    ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, previousCameraDepth, material, Pass.GetCameraDepthTexture);
+                }
+
+                //Set GI Texture
+                ComputeSEGI.SetGlobalTexture(ID.GITexture, ID.gi3);
+
+                //Perform final Blit
+                ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.BlendWithScene);
+
+                //Release temporary textures
+                ComputeSEGI.ReleaseTemporaryRT(ID.gi3);
+                ComputeSEGI.ReleaseTemporaryRT(ID.gi4);
+
+            }
+            else
+            {
+                //Perform temporal reprojection and blending
+                if (temporalBlendWeight < 1.0f)
+                {
+                    ComputeSEGI.Blit(ID.gi2, ID.gi1, material, Pass.TemporalBlend);
+                    ComputeSEGI.Blit(ID.gi1, previousGIResult);
+                    ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, previousCameraDepth, material, Pass.GetCameraDepthTexture);
+                }
+
+                //Actually apply the GI to the scene using gbuffer data
+                ComputeSEGI.SetGlobalTexture(ID.GITexture, temporalBlendWeight < 1.0f ? ID.gi1 : ID.gi2);
+
+                //Blend the GI result with the scene
+                ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.BlendWithScene);
+
+                //Release temporary textures
+                ComputeSEGI.ReleaseTemporaryRT(ID.gi1);
+                ComputeSEGI.ReleaseTemporaryRT(ID.gi2);
+            }
+
+            ComputeSEGI.ReleaseTemporaryRT(ID.currentDepth);
+            ComputeSEGI.ReleaseTemporaryRT(ID.currentNormal);
+
+            //Release scene color
+            ApplySEGI.ReleaseTemporaryRT(ID.currentSceneColor);
+
+            //Release the temporary reflections result texture
+            if (doReflections)
+            {
+                ComputeSEGI.ReleaseTemporaryRT(ID.reflections);
+                DebugSEGI.ReleaseTemporaryRT(ID.reflections);
+            }
 
             attachedCamera.AddCommandBuffer(CameraEvent.BeforeReflections, ComputeSEGI);
             attachedCamera.AddCommandBuffer(CameraEvent.BeforeImageEffectsOpaque, ApplySEGI);
@@ -520,6 +681,26 @@ namespace Graphics.SEGI
         {
             /*if (notReadyToRender)
                 return;*/
+            if (visualizeSunDepthTexture != _previousVisualizeSunDepthTexture)
+            {
+                RefreshCommandBuffers();
+            }
+            if (visualizeGI != _previousVisualizeGI)
+            {
+                RefreshCommandBuffers();
+            }
+            if (visualizeVoxels != _previousVisualizeVoxels)
+            {
+                RefreshCommandBuffers();
+            }
+            if (visualizeReflections != _previousVisualizeReflections)
+            {
+                RefreshCommandBuffers();
+            }
+            _previousVisualizeSunDepthTexture = visualizeSunDepthTexture;
+            _previousVisualizeGI = visualizeGI;
+            _previousVisualizeVoxels = visualizeVoxels;
+            _previousVisualizeReflections = visualizeReflections;
         }
 
         private void OnPreRender()
@@ -784,9 +965,9 @@ namespace Graphics.SEGI
 
         private void RenderSEGI()
         {
-            ComputeSEGI.Clear();
-            ApplySEGI.Clear();
-            DebugSEGI.Clear();
+            //ComputeSEGI.Clear();
+            //ApplySEGI.Clear();
+            //DebugSEGI.Clear();
 
 
             //Set parameters
@@ -819,159 +1000,6 @@ namespace Graphics.SEGI
             material.SetFloat(ID.FarOcclusionStrength, farOcclusionStrength);
             material.SetFloat(ID.FarthestOcclusionStrength, farthestOcclusionStrength);
             material.SetFloat(ID.BlendWeight, temporalBlendWeight);
-
-            //Get Scene Color
-            ApplySEGI.GetTemporaryRT(ID.currentSceneColor, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
-            ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.currentSceneColor);
-
-
-            //If Visualize Voxels is enabled, just render the voxel visualization shader pass and return
-            if ((debugTools & DebugTools.Voxels) != 0)
-            {
-                DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeVoxels);
-                return;
-            }
-            else if ((debugTools & DebugTools.GI) != 0)
-            {
-                //Visualize the GI result
-                DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeGI);
-                //return;
-            }
-            else if (visualizeSunDepthTexture)
-            {
-                DebugSEGI.Blit(sunDepthTexture, BuiltinRenderTextureType.CameraTarget);
-                //return;
-            }
-
-            //Setup temporary textures
-            ComputeSEGI.GetTemporaryRT(ID.gi1, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-            ComputeSEGI.GetTemporaryRT(ID.gi2, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-
-            //If reflections are enabled, create a temporary render buffer to hold them
-            if (doReflections)
-            {
-                ComputeSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-                DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-            }
-
-            //Setup textures to hold the current camera depth and normal
-            ComputeSEGI.GetTemporaryRT(ID.currentDepth, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.RFloat, RenderTextureReadWrite.Linear);
-            ComputeSEGI.GetTemporaryRT(ID.currentNormal, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear);
-
-            //Get the camera depth and normals
-            ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.currentDepth, material, Pass.GetCameraDepthTexture);
-            ComputeSEGI.SetGlobalTexture("CurrentDepth", ID.currentDepth);
-            ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.currentNormal, material, Pass.GetWorldNormals);
-            ComputeSEGI.SetGlobalTexture("CurrentNormal", ID.currentNormal);
-
-            ////Set the previous GI result and camera depth textures to access them in the shader
-            ComputeSEGI.SetGlobalTexture(ID.PreviousGITexture, previousGIResult);
-            ComputeSEGI.SetGlobalTexture(ID.PreviousDepth, previousCameraDepth);
-
-            //Render diffuse GI tracing result
-            ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.gi2, material, Pass.DiffuseTrace);
-            if (doReflections)
-            {
-                //Render GI reflections result
-                ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.reflections, material, Pass.SpecularTrace);
-                ComputeSEGI.SetGlobalTexture(ID.SegiReflections, ID.reflections);
-
-                if ((debugTools & DebugTools.Reflections) != 0)
-                {
-                    DebugSEGI.Blit(ID.reflections, BuiltinRenderTextureType.CameraTarget);
-                }
-            }
-
-            //Perform bilateral filtering
-            if (useBilateralFiltering)
-            {
-                Vector2[] kernels = new Vector2[] { new Vector2(0.0f, 1.0f), new Vector2(1.0f, 0.0f), new Vector2(0.0f, 1.0f), new Vector2(1.0f, 0.0f) };
-                for (int i = 0; i < kernels.Length; i++)
-                {
-                    ComputeSEGI.SetGlobalVector(ID.Kernel, kernels[i]);
-                    // Чередуем источники между gi1ID и gi2ID
-                    if (i % 2 == 0)
-                    {
-                        ComputeSEGI.Blit(ID.gi2, ID.gi1, material, Pass.BilateralBlur);
-                    }
-                    else
-                    {
-                        ComputeSEGI.Blit(ID.gi1, ID.gi2, material, Pass.BilateralBlur);
-                    }
-                }
-            }
-
-            //If Half Resolution tracing is enabled
-            if (GiRenderRes == 2)
-            {
-                ComputeSEGI.ReleaseTemporaryRT(ID.gi1);
-
-                //Setup temporary textures
-                ComputeSEGI.GetTemporaryRT(ID.gi3, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-                ComputeSEGI.GetTemporaryRT(ID.gi4, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-
-                //Prepare the half-resolution diffuse GI result to be bilaterally upsampled
-                ComputeSEGI.Blit(ID.gi2, ID.gi4);
-                ComputeSEGI.ReleaseTemporaryRT(ID.gi2);
-
-                //Perform bilateral upsampling on half-resolution diffuse GI result
-                ComputeSEGI.SetGlobalVector(ID.Kernel, new Vector2(1.0f, 0.0f));
-                ComputeSEGI.Blit(ID.gi4, ID.gi3, material, Pass.BilateralUpsample);
-                ComputeSEGI.SetGlobalVector(ID.Kernel, new Vector2(0.0f, 1.0f));
-
-                //Perform temporal reprojection and blending
-                if (temporalBlendWeight < 1.0f)
-                {
-                    ComputeSEGI.Blit(ID.gi3, ID.gi4);
-                    ComputeSEGI.Blit(ID.gi4, ID.gi3, material, Pass.TemporalBlend);
-                    ComputeSEGI.Blit(ID.gi3, previousGIResult);
-                    ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, previousCameraDepth, material, Pass.GetCameraDepthTexture);
-                }
-
-                //Set GI Texture
-                ComputeSEGI.SetGlobalTexture(ID.GITexture, ID.gi3);
-
-                //Perform final Blit
-                ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.BlendWithScene);
-
-                //Release temporary textures
-                ComputeSEGI.ReleaseTemporaryRT(ID.gi3);
-                ComputeSEGI.ReleaseTemporaryRT(ID.gi4);
-
-            }
-            else
-            {
-                //Perform temporal reprojection and blending
-                if (temporalBlendWeight < 1.0f)
-                {
-                    ComputeSEGI.Blit(ID.gi2, ID.gi1, material, Pass.TemporalBlend);
-                    ComputeSEGI.Blit(ID.gi1, previousGIResult);
-                    ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, previousCameraDepth, material, Pass.GetCameraDepthTexture);
-                }
-
-                //Actually apply the GI to the scene using gbuffer data
-                ComputeSEGI.SetGlobalTexture(ID.GITexture, temporalBlendWeight < 1.0f ? ID.gi1 : ID.gi2);
-
-                //Blend the GI result with the scene
-                ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.BlendWithScene);
-
-                //Release temporary textures
-                ComputeSEGI.ReleaseTemporaryRT(ID.gi1);
-                ComputeSEGI.ReleaseTemporaryRT(ID.gi2);
-            }
-
-            ComputeSEGI.ReleaseTemporaryRT(ID.currentDepth);
-            ComputeSEGI.ReleaseTemporaryRT(ID.currentNormal);
-
-            //Release scene color
-            ApplySEGI.ReleaseTemporaryRT(ID.currentSceneColor);
-
-            //Release the temporary reflections result texture
-            if (doReflections)
-            {
-                ComputeSEGI.ReleaseTemporaryRT(ID.reflections);
-                DebugSEGI.ReleaseTemporaryRT(ID.reflections);
-            }
 
             //Set matrices/vectors for use during temporal reprojection
             material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
@@ -1405,6 +1433,16 @@ namespace Graphics.SEGI
                 mat[2, 3] = -mat[2, 3];
             }
             return mat;
+        }
+
+        void RefreshCommandBuffers()
+        {
+            //ComputeSEGI.Clear();
+            //ApplySEGI.Clear();
+            //DebugSEGI.Clear();
+
+            RemoveCommandBuffers();
+            SetupCommandBuffers();
         }
 
     }
