@@ -528,8 +528,8 @@ namespace Graphics.SEGI
             //{
             //    renderShadows.enabled = true;
             //}
-            Shader.SetGlobalInt(ID.SegiReflections, 0);
-            Shader.SetGlobalInt(ID.DoReflections, 0);
+            //Shader.SetGlobalInt(ID.SegiReflections, 0);
+            //Shader.SetGlobalInt(ID.DoReflections, 0);
         }
 
         private void OnDisable()
@@ -543,7 +543,7 @@ namespace Graphics.SEGI
             //    renderShadows.enabled = false;
             //}
 
-            Shader.SetGlobalInt(ID.DoReflections, 0);
+            //Shader.SetGlobalInt(ID.DoReflections, 0);
 
             if (SEGIshaderParamBuffer != null)
             {
@@ -1350,7 +1350,7 @@ namespace Graphics.SEGI
             currentParamsArray[0].nearLightGain = nearLightGain;
             currentParamsArray[0].nearOcclusionStrength = nearOcclusionStrength;
             Shader.SetGlobalInt(ID.DoReflections, doReflections ? 1 : 0);
-            //currentParamsArray[0].doReflections = doReflections ? 1 : 0;
+            currentParamsArray[0].doReflections = doReflections ? 1 : 0;
             currentParamsArray[0].halfResolution = halfResolution ? 1 : 0;
             currentParamsArray[0].reflectionSteps = reflectionSteps;
             currentParamsArray[0].reflectionOcclusionPower = reflectionOcclusionPower;
