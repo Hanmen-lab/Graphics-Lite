@@ -55,7 +55,6 @@ namespace Graphics.SEGI
             Reflections = 1 << 4
         }
         public DebugTools debugTools = DebugTools.Off;
-        private DebugTools _previousDebugTools;
 
         public bool halfResolution = true;
         public bool stochasticSampling = true;
@@ -439,11 +438,10 @@ namespace Graphics.SEGI
             }
         }
 
-        private void Start()
+        /*private void Start()
         {
             //InitCheck();
-            _previousDebugTools = debugTools;
-        }
+        }*/
 
         private void OnDrawGizmosSelected()
         {
@@ -627,11 +625,28 @@ namespace Graphics.SEGI
         void RemoveCommandBuffers()
         {
             if (attachedCamera && ComputeSEGI != null)
+            {
+                //ComputeSEGI.Clear();
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeReflections, ComputeSEGI);
+                ComputeSEGI.Dispose();
+                ComputeSEGI = null;
+            }
+                
             if (attachedCamera && ApplySEGI != null)
+            {
+                //ApplySEGI.Clear(); 
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeImageEffectsOpaque, ApplySEGI);
+                ApplySEGI.Dispose();
+                ApplySEGI = null;
+            }
+
             if (attachedCamera && DebugSEGI != null)
+            {
+                //DebugSEGI.Clear(); 
                 attachedCamera.RemoveCommandBuffer(CameraEvent.AfterImageEffects, DebugSEGI);
+                DebugSEGI.Dispose();
+                DebugSEGI = null;
+            }
         }
 
         private void OnEnable()
@@ -652,8 +667,6 @@ namespace Graphics.SEGI
 
         private void OnDisable()
         {
-
-
             RemoveCommandBuffers();
             Cleanup();
             //Shader.DisableKeyword("SS_SEGI");
@@ -666,16 +679,11 @@ namespace Graphics.SEGI
             Shader.SetGlobalInt(ID.DoReflections, 0);
         }
 
-        private void Update()
+        /*private void Update()
         {
-            /*if (notReadyToRender)
-                return;*/
-            if (debugTools != _previousDebugTools)
-            {
-                RefreshCommandBuffers();
-            }
-            _previousDebugTools = debugTools;
-        }
+            //if (notReadyToRender)
+            //    return;
+        }*/
 
         private void OnPreRender()
         {
@@ -1334,14 +1342,17 @@ namespace Graphics.SEGI
             if (ComputeSEGI != null)
             {
                 ComputeSEGI.Dispose();
+                ComputeSEGI = null;
             }
             if (ApplySEGI != null)
             {
                 ApplySEGI.Dispose();
+                ApplySEGI = null;
             }
             if (DebugSEGI != null)
             {
                 DebugSEGI.Dispose();
+                DebugSEGI = null;
             }
         }
 
@@ -1413,7 +1424,7 @@ namespace Graphics.SEGI
             return mat;
         }
 
-        void RefreshCommandBuffers()
+        public void RefreshCommandBuffers()
         {
             //ComputeSEGI.Clear();
             //ApplySEGI.Clear();
