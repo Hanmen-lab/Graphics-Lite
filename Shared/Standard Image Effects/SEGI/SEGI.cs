@@ -778,13 +778,17 @@ namespace Graphics.SEGI
                 voxelCamera.cullingMask = giCullingMask;
 
                 //Move the voxel camera game object and other related objects to the above calculated voxel space origin
-                voxelCameraGO.transform.position = voxelSpaceOrigin - Vector3.forward * voxelSpaceSize * 0.5f;
-                voxelCameraGO.transform.rotation = rotationFront;
+                //voxelCameraGO.transform.position = voxelSpaceOrigin - Vector3.forward * voxelSpaceSize * 0.5f;
+                //voxelCameraGO.transform.rotation = rotationFront;
+                voxelCameraGO.transform.SetPositionAndRotation(voxelSpaceOrigin - Vector3.forward * (voxelSpaceSize * 0.5f), rotationFront);
 
-                leftViewPoint.transform.position = voxelSpaceOrigin + Vector3.left * voxelSpaceSize * 0.5f;
-                leftViewPoint.transform.rotation = rotationLeft;
-                topViewPoint.transform.position = voxelSpaceOrigin + Vector3.up * voxelSpaceSize * 0.5f;
-                topViewPoint.transform.rotation = rotationTop;
+                //leftViewPoint.transform.position = voxelSpaceOrigin + Vector3.left * voxelSpaceSize * 0.5f;
+                //leftViewPoint.transform.rotation = rotationLeft;
+                leftViewPoint.transform.SetPositionAndRotation(voxelSpaceOrigin + Vector3.left * (voxelSpaceSize * 0.5f), rotationLeft);
+
+                //topViewPoint.transform.position = voxelSpaceOrigin + Vector3.up * voxelSpaceSize * 0.5f;
+                //topViewPoint.transform.rotation = rotationTop;
+                topViewPoint.transform.SetPositionAndRotation(voxelSpaceOrigin + Vector3.up * (voxelSpaceSize * 0.5f), rotationTop);
 
                 //Set matrices needed for voxelization
                 Shader.SetGlobalMatrix(ID.WorldToCamera, attachedCamera.worldToCameraMatrix);
@@ -814,7 +818,7 @@ namespace Graphics.SEGI
                 {
                     shadowCam.cullingMask = giCullingMask;
 
-                    Vector3? shadowCamPosition = voxelSpaceOrigin + (Vector3.Normalize(-Sun.transform.forward) * shadowSpaceSize * 0.5f * shadowSpaceDepthRatio);
+                    Vector3? shadowCamPosition = voxelSpaceOrigin + (Vector3.Normalize(-Sun.transform.forward) * (shadowSpaceSize * 0.5f * shadowSpaceDepthRatio));
                     if (shadowCamPosition.HasValue)
                     {
                         shadowCamTransform.position = (Vector3)shadowCamPosition;
