@@ -58,7 +58,7 @@ namespace Graphics.Inspector
 
                 GUILayout.BeginHorizontal();
                 {
-                    if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Studio && showAdvanced)
+                    if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Studio)
                     {
                         if (GUILayout.Button("Save Map Lights to Preset"))
                         {

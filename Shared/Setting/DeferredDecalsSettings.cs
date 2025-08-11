@@ -11,7 +11,7 @@ namespace Graphics.Settings
     [MessagePackObject(true)]
     public class DeferredDecalsSettings
     {
-        public bool enabled = false;
+        public bool enabled = true;
         public BoolValue LockRebuild = new BoolValue(false, false);
         //public TerrainDecalsType TerrainDecals = TerrainDecalsType.None;
         public IntValue TerrainHeightMapSize = new IntValue(1024, false);
@@ -35,7 +35,7 @@ namespace Graphics.Settings
             if (decalLayer == null)
                 return;
 
-            decalLayer.enabled = enabled;
+            //decalLayer.enabled = enabled;
             decalLayer.LockRebuild = LockRebuild.value;
             //decalLayer.TerrainDecals = (DeferredDecalsSystem.TerrainDecalsType)TerrainDecals;
 
@@ -67,7 +67,7 @@ namespace Graphics.Settings
             if (decalLayer == null)
                 return;
 
-            enabled = decalLayer.enabled;
+            //enabled = decalLayer.enabled;
             LockRebuild.value = decalLayer.LockRebuild;
             //TerrainDecals = (TerrainDecalsType)decalLayer.TerrainDecals;
             TerrainHeightMapSize.value = decalLayer.TerrainHeightMapSize;

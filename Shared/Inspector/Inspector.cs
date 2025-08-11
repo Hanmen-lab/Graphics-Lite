@@ -116,7 +116,7 @@ namespace Graphics.Inspector
                     LightInspector.Draw(Parent.Settings, Parent.LightManager, Parent.LightingSettings, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.Probes:
-                    ReflectionProbeInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.LightManager, Parent.Settings.ShowAdvancedSettings);
+                    ReflectionProbeInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.Settings, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.GI:
                     SEGIInspector.Draw(Parent.LightManager, Parent.Settings);

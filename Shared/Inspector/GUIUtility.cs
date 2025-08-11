@@ -96,7 +96,7 @@ namespace Graphics.Inspector
 
             float newValue = GUILayout.HorizontalSlider(value, min, max);
             string valueString = newValue.ToString(format);
-            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize*3f), GUILayout.ExpandWidth(false));
+            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(GUIStyles.fontSize * 3f), GUILayout.ExpandWidth(false));
 
             if (newValueString != valueString)
             {
@@ -360,6 +360,9 @@ namespace Graphics.Inspector
         internal static void SliderColor(string label, Color value, Action<Color> onChanged = null,
             bool useColorDisplayColor32 = false, bool enable = true, Action<bool> onChangedEnable = null, string colourGradingName = "", float mincolourGrading = 0, float maxcolourGrading = 1)
         {
+            GUIStyle colorind = new GUIStyle(GUI.skin.label);
+            colorind.contentOffset = new Vector2(5, 10);
+
             GUILayout.BeginHorizontal();
             int spacing = 0;
 
@@ -370,7 +373,7 @@ namespace Graphics.Inspector
             }
 
             GUI.color = new Color(value.r, value.g, value.b, 1f);
-            GUILayout.Label(colourIndicator);
+            GUILayout.Label(colourIndicator, colorind);
             //GUILayout.Label("", GUILayout.Width(GUIStyles.labelWidth - GUI.skin.label.CalcSize(new GUIContent(label)).x - spacing));
             GUI.color = Color.white;
 
