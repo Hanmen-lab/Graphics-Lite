@@ -117,7 +117,7 @@ namespace Graphics.SEGI
         #endregion
 
         #region InternalVariables
-        object initChecker;
+        public bool initChecker = false;
         private static Material material;
         Camera attachedCamera;
         Transform shadowCamTransform;
@@ -710,15 +710,15 @@ namespace Graphics.SEGI
         {
             //Force reinitialization to make sure that everything is working properly if one of the cameras was unexpectedly destroyed
             if (!voxelCamera || !shadowCam)
-                initChecker = null;
+                initChecker = false;
 
             /*TODO: When toggle Infinite Boundces, secondaryIrradianceVolume must be initialized.
              * I think this If statement should be in UI eventListener part.
              */
-            if (infiniteBounces == true && secondaryIrradianceVolume == null)
+            /*if (infiniteBounces == true && secondaryIrradianceVolume == null)
             {
                 initChecker = null;
-            }
+            }*/
 
             InitCheck();
 
@@ -1021,7 +1021,7 @@ namespace Graphics.SEGI
 
         private void InitCheck()
         {
-            if (initChecker == null)
+            if (initChecker == false)
             {
                 Init();
             }
@@ -1303,7 +1303,7 @@ namespace Graphics.SEGI
             //Refresh CommandBuffers
             RefreshCommandBuffers();
 
-            initChecker = new bool();
+            initChecker = true;
         }
 
         private void CheckSupport()
@@ -1378,7 +1378,7 @@ namespace Graphics.SEGI
                 DebugSEGI = null;
             }
 
-            initChecker = null;
+            initChecker = false;
         }
 
         private void ResizeRenderTextures()
