@@ -49,14 +49,14 @@ namespace Graphics.SEGI
 
         }
         public DebugTools debugTools = DebugTools.Off;
-        public bool visualizeSunDepthTexture = false;
-        public bool visualizeGI = false;
-        public bool visualizeVoxels = false;
-        public bool visualizeReflections = false;
-        private bool _previousVisualizeSunDepthTexture;
-        private bool _previousVisualizeGI;
-        private bool _previousVisualizeVoxels;
-        private bool _previousVisualizeReflections;
+        //public bool visualizeSunDepthTexture = false;
+        //public bool visualizeGI = false;
+        //public bool visualizeVoxels = false;
+        //public bool visualizeReflections = false;
+        //private bool _previousVisualizeSunDepthTexture;
+        //private bool _previousVisualizeGI;
+        //private bool _previousVisualizeVoxels;
+        //private bool _previousVisualizeReflections;
 
         public bool halfResolution = true;
         public bool stochasticSampling = true;
@@ -421,6 +421,8 @@ namespace Graphics.SEGI
             public static readonly int currentSceneColor = Shader.PropertyToID("currentSceneColor");
             public static readonly int SegiReflections = Shader.PropertyToID("SegiReflections");
 
+            public static readonly int SEGIshaderParamBuffer = Shader.PropertyToID("_SEGIShaderParamsBuffer");
+
         }
 
         #endregion
@@ -434,7 +436,7 @@ namespace Graphics.SEGI
             public Matrix4x4 projectionMatrixInverse;
             public Matrix4x4 projectionMatrix;
             public int frameSwitch;
-            public Vector3 cameraPosition;
+            public Vector4 cameraPosition;
             public float deltaTime;
             public int stochasticSampling;
             public int traceDirections;
@@ -447,7 +449,7 @@ namespace Graphics.SEGI
             public float giGain;
             public float nearLightGain;
             public float nearOcclusionStrength;
-            public int doReflections;
+            
             public int halfResolution;
             public int reflectionSteps;
             public float reflectionOcclusionPower;
@@ -499,14 +501,14 @@ namespace Graphics.SEGI
             }
         }
 
-        private void Start()
+        /*private void Start()
         {
             InitCheck();
             _previousVisualizeSunDepthTexture = visualizeSunDepthTexture;
             _previousVisualizeGI = visualizeGI;
             _previousVisualizeVoxels = visualizeVoxels;
             _previousVisualizeReflections = visualizeReflections;
-        }
+        }*/
 
         private void OnEnable()
         {
@@ -514,12 +516,13 @@ namespace Graphics.SEGI
             {
                 currentParamsArray = new SEGIShaderParams[1];
                 SEGIshaderParamBuffer = new ComputeBuffer(1, Marshal.SizeOf(typeof(SEGIShaderParams)));
+                InitializeSEGIBuffer();
             }
 
             //Shader.EnableKeyword("SS_SEGI");
             InitCheck();
             ResizeRenderTextures();
-            SetupCommandBuffers();
+            //SetupCommandBuffers();
             //CheckSupport();
             //SetVoxelCamera();
 
@@ -543,7 +546,7 @@ namespace Graphics.SEGI
             //    renderShadows.enabled = false;
             //}
 
-            //Shader.SetGlobalInt(ID.DoReflections, 0);
+            Shader.SetGlobalInt(ID.DoReflections, 0);
 
             if (SEGIshaderParamBuffer != null)
             {
@@ -557,7 +560,7 @@ namespace Graphics.SEGI
 
         }*/
 
-        private void Update()
+        /*private void Update()
         {
             if (visualizeSunDepthTexture != _previousVisualizeSunDepthTexture)
             {
@@ -579,7 +582,7 @@ namespace Graphics.SEGI
             _previousVisualizeGI = visualizeGI;
             _previousVisualizeVoxels = visualizeVoxels;
             _previousVisualizeReflections = visualizeReflections;
-        }
+        }*/
 
         private void OnDrawGizmosSelected()
         {
@@ -794,7 +797,10 @@ namespace Graphics.SEGI
             CreateVolumeTextures();
 
             //Set static Variable for shaders
-            SetVariableForShader();
+            //SetVariableForShader();
+
+            //Refresh CommandBuffers
+            RefreshCommandBuffers();
 
             initChecker = new bool();
         }
@@ -1174,7 +1180,7 @@ namespace Graphics.SEGI
                 //shadowCam.enabled = false;
                 shadowCam.cullingMask = giCullingMask;
 
-                Vector3? shadowCamPosition = voxelSpaceOrigin + (Vector3.Normalize(-Sun.transform.forward) * shadowSpaceSize * 0.5f * shadowSpaceDepthRatio);
+                Vector3? shadowCamPosition = voxelSpaceOrigin + (Vector3.Normalize(-Sun.transform.forward) * (shadowSpaceSize * 0.5f * shadowSpaceDepthRatio));
                 if (shadowCamPosition.HasValue)
                 {
                     shadowCamTransform.position = (Vector3)shadowCamPosition;
@@ -1309,6 +1315,9 @@ namespace Graphics.SEGI
 
         private void RenderSEGI()
         {
+            //Set static Variable for shaders
+            SetVariableForShader();
+
             //Set parameters
             Shader.SetGlobalFloat(ID.SEGIVoxelScaleFactor, VoxelScaleFactor);
             currentParamsArray[0].cameraToWorld = attachedCamera.cameraToWorldMatrix;
@@ -1328,7 +1337,7 @@ namespace Graphics.SEGI
             currentParamsArray[0].cameraPositionPrev = transform.position;
 
             SEGIshaderParamBuffer.SetData(currentParamsArray);
-            Shader.SetGlobalBuffer("_SEGIShaderParamsBuffer", SEGIshaderParamBuffer);
+            Shader.SetGlobalBuffer(ID.SEGIshaderParamBuffer, SEGIshaderParamBuffer);
             //material.SetBuffer("_SEGIShaderParamsBuffer", SEGIshaderParamBuffer);
 
             //Set the frame counter for the next frame	
@@ -1343,6 +1352,9 @@ namespace Graphics.SEGI
             currentParamsArray[0].traceDirections = cones;
             currentParamsArray[0].traceSteps = coneTraceSteps;
             currentParamsArray[0].traceLength = coneLength;
+
+            currentParamsArray[0].coneSize = coneWidth;
+
             currentParamsArray[0].occlusionStrength = occlusionStrength;
             currentParamsArray[0].occlusionPower = occlusionPower;
             currentParamsArray[0].coneTraceBias = coneTraceBias;
@@ -1350,7 +1362,7 @@ namespace Graphics.SEGI
             currentParamsArray[0].nearLightGain = nearLightGain;
             currentParamsArray[0].nearOcclusionStrength = nearOcclusionStrength;
             Shader.SetGlobalInt(ID.DoReflections, doReflections ? 1 : 0);
-            currentParamsArray[0].doReflections = doReflections ? 1 : 0;
+            
             currentParamsArray[0].halfResolution = halfResolution ? 1 : 0;
             currentParamsArray[0].reflectionSteps = reflectionSteps;
             currentParamsArray[0].reflectionOcclusionPower = reflectionOcclusionPower;
@@ -1360,14 +1372,15 @@ namespace Graphics.SEGI
             currentParamsArray[0].blendWeight = temporalBlendWeight;
 
             SEGIshaderParamBuffer.SetData(currentParamsArray);
-            Shader.SetGlobalBuffer("_SEGIShaderParamsBuffer", SEGIshaderParamBuffer);
+            Shader.SetGlobalBuffer(ID.SEGIshaderParamBuffer, SEGIshaderParamBuffer);
             //material.SetBuffer("_SEGIShaderParamsBuffer", SEGIshaderParamBuffer);
         }
 
         private void SetMatricesForVoxelization()
         {
             //Set matrices needed for voxelization
-            currentParamsArray[0].worldToCamera = attachedCamera.cameraToWorldMatrix;
+            //currentParamsArray[0].worldToCamera = attachedCamera.cameraToWorldMatrix;
+            currentParamsArray[0].worldToCamera = attachedCamera.worldToCameraMatrix;
             currentParamsArray[0].segiVoxelViewFront = TransformViewMatrix(voxelCamera.transform.worldToLocalMatrix);
             currentParamsArray[0].segiVoxelViewLeft = TransformViewMatrix(leftViewPoint.transform.worldToLocalMatrix);
             currentParamsArray[0].segiVoxelViewTop = TransformViewMatrix(topViewPoint.transform.worldToLocalMatrix);
@@ -1400,31 +1413,70 @@ namespace Graphics.SEGI
             currentParamsArray[0].segiInnerOcclusionLayers = innerOcclusionLayers;
 
             SEGIshaderParamBuffer.SetData(currentParamsArray);
-            Shader.SetGlobalBuffer("_SEGIShaderParamsBuffer", SEGIshaderParamBuffer);
+            Shader.SetGlobalBuffer(ID.SEGIshaderParamBuffer, SEGIshaderParamBuffer);
             //material.SetBuffer("_SEGIShaderParamsBuffer", SEGIshaderParamBuffer);
 
         }
 
         private void SetupCommandBuffers()
         {
-            ComputeSEGI = new CommandBuffer { name = "SEGI Compute Buffer" };
-            ApplySEGI = new CommandBuffer { name = "SEGI Apply Buffer" };
-            DebugSEGI = new CommandBuffer { name = "SEGI Debug Buffer" };
+            if (attachedCamera && ComputeSEGI == null)
+            {
+                ComputeSEGI = new CommandBuffer { name = "SEGI Compute Buffer" };
+            }
+            else
+            {
+                ComputeSEGI.Clear();
+            }
+            if (attachedCamera && ApplySEGI == null)
+            {
+                ApplySEGI = new CommandBuffer { name = "SEGI Apply Buffer" };
+            }
+            else
+            {
+                ApplySEGI.Clear();
+            }
+            if (attachedCamera && DebugSEGI == null)
+            {
+                DebugSEGI = new CommandBuffer { name = "SEGI Debug Buffer" };
+            }
+            else
+            {
+                DebugSEGI.Clear();
+            }
 
-            // ==== ComputeSEGI ====
+            //Get Scene Color
+            ApplySEGI.GetTemporaryRT(ID.currentSceneColor, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
+            ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.currentSceneColor);
+
+
+            //If Visualize Voxels is enabled, just render the voxel visualization shader pass and return
+            if ((debugTools & DebugTools.Voxels) != 0)
+            {
+                DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeVoxels);
+                //return;
+            }
+            else if ((debugTools & DebugTools.GI) != 0)
+            {
+                //Visualize the GI result
+                DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeGI);
+                //return;
+            }
+            else if ((debugTools & DebugTools.SunDepthTexture) != 0)
+            {
+                DebugSEGI.Blit(sunDepthTexture, BuiltinRenderTextureType.CameraTarget);
+                //return;
+            }
 
             //Setup temporary textures
             ComputeSEGI.GetTemporaryRT(ID.gi1, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
             ComputeSEGI.GetTemporaryRT(ID.gi2, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
 
+            //If reflections are enabled, create a temporary render buffer to hold them
             if (doReflections)
             {
-                //If reflections are enabled, create a temporary render buffer to hold them
                 ComputeSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-
-                //Render GI reflections result
-                ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.reflections, material, Pass.SpecularTrace);
-                ComputeSEGI.SetGlobalTexture(ID.SegiReflections, ID.reflections);
+                DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
             }
 
             //Setup textures to hold the current camera depth and normal
@@ -1443,6 +1495,17 @@ namespace Graphics.SEGI
 
             //Render diffuse GI tracing result
             ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.gi2, material, Pass.DiffuseTrace);
+            if (doReflections)
+            {
+                //Render GI reflections result
+                ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.reflections, material, Pass.SpecularTrace);
+                ComputeSEGI.SetGlobalTexture(ID.SegiReflections, ID.reflections);
+
+                if ((debugTools & DebugTools.Reflections) != 0)
+                {
+                    DebugSEGI.Blit(ID.reflections, BuiltinRenderTextureType.CameraTarget);
+                }
+            }
 
             //Perform bilateral filtering
             if (useBilateralFiltering)
@@ -1493,6 +1556,9 @@ namespace Graphics.SEGI
                 //Set GI Texture
                 ComputeSEGI.SetGlobalTexture(ID.GITexture, ID.gi3);
 
+                //Perform final Blit
+                ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.BlendWithScene);
+
                 //Release temporary textures
                 ComputeSEGI.ReleaseTemporaryRT(ID.gi3);
                 ComputeSEGI.ReleaseTemporaryRT(ID.gi4);
@@ -1511,6 +1577,9 @@ namespace Graphics.SEGI
                 //Actually apply the GI to the scene using gbuffer data
                 ComputeSEGI.SetGlobalTexture(ID.GITexture, temporalBlendWeight < 1.0f ? ID.gi1 : ID.gi2);
 
+                //Blend the GI result with the scene
+                ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.BlendWithScene);
+
                 //Release temporary textures
                 ComputeSEGI.ReleaseTemporaryRT(ID.gi1);
                 ComputeSEGI.ReleaseTemporaryRT(ID.gi2);
@@ -1519,65 +1588,13 @@ namespace Graphics.SEGI
             ComputeSEGI.ReleaseTemporaryRT(ID.currentDepth);
             ComputeSEGI.ReleaseTemporaryRT(ID.currentNormal);
 
+            //Release scene color
+            ApplySEGI.ReleaseTemporaryRT(ID.currentSceneColor);
+
             //Release the temporary reflections result texture
             if (doReflections)
             {
                 ComputeSEGI.ReleaseTemporaryRT(ID.reflections);
-            }
-
-
-            // ==== ApplySEGI ====
-
-            //Get Scene Color
-            ApplySEGI.GetTemporaryRT(ID.currentSceneColor, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
-            ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.currentSceneColor);
-
-            //Perform final Blit, blend the GI result with the scene
-            ApplySEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.BlendWithScene);
-
-            //Release scene color
-            ApplySEGI.ReleaseTemporaryRT(ID.currentSceneColor);
-
-
-
-
-            // ==== DebugSEGI ====
-            if (doReflections)
-            {
-                //If reflections are enabled, create a temporary render buffer to hold them
-                DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-            }
-
-            if ((debugTools & DebugTools.Voxels) != 0)
-            //if (visualizeVoxels)
-            {
-                //If Visualize Voxels is enabled, just render the voxel visualization shader pass and return
-                DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeVoxels);
-                //return;
-            }
-            else if ((debugTools & DebugTools.GI) != 0)
-            //else if (visualizeGI)
-            {
-                //Visualize the GI result
-                DebugSEGI.Blit(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget, material, Pass.VisualizeGI);
-                //return;
-            }
-            else if ((debugTools & DebugTools.SunDepthTexture) != 0)
-            {
-                //Visualize the SunDepthTexture result
-                DebugSEGI.Blit(sunDepthTexture, BuiltinRenderTextureType.CameraTarget);
-                //return;
-            }
-            else if ((debugTools & DebugTools.Reflections) != 0)
-            {
-                // TODO: recreate DebugSEGI with Pass.SpecularTrace
-                DebugSEGI.Blit(ID.reflections, BuiltinRenderTextureType.CameraTarget);
-            }
-
-
-            if (doReflections)
-            {
-                //Release the temporary reflections result texture
                 DebugSEGI.ReleaseTemporaryRT(ID.reflections);
             }
 
@@ -1588,11 +1605,11 @@ namespace Graphics.SEGI
 
         void RemoveCommandBuffers()
         {
-            if (ComputeSEGI != null)
+            if (attachedCamera && ComputeSEGI != null)
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeReflections, ComputeSEGI);
-            if (ApplySEGI != null)
+            if (attachedCamera && ApplySEGI != null)
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeImageEffectsOpaque, ApplySEGI);
-            if (DebugSEGI != null)
+            if (attachedCamera && DebugSEGI != null)
                 attachedCamera.RemoveCommandBuffer(CameraEvent.AfterImageEffects, DebugSEGI);
         }
 
@@ -1604,6 +1621,62 @@ namespace Graphics.SEGI
 
             RemoveCommandBuffers();
             SetupCommandBuffers();
+        }
+
+        private void InitializeSEGIBuffer()
+        {
+            currentParamsArray[0].cameraToWorld = Matrix4x4.zero;
+            currentParamsArray[0].worldToCamera = Matrix4x4.zero;
+            currentParamsArray[0].projectionMatrixInverse = Matrix4x4.zero;
+            currentParamsArray[0].projectionMatrix = Matrix4x4.zero;
+            currentParamsArray[0].frameSwitch = 0;
+            currentParamsArray[0].cameraPosition = Vector4.zero;
+            currentParamsArray[0].deltaTime = 0.0f;
+            currentParamsArray[0].stochasticSampling = 0;
+            currentParamsArray[0].traceDirections = 0;
+            currentParamsArray[0].traceSteps = 0;
+            currentParamsArray[0].traceLength = 0.0f;
+            currentParamsArray[0].coneSize = 0.0f;
+            currentParamsArray[0].occlusionStrength = 0.0f;
+            currentParamsArray[0].occlusionPower = 0.0f;
+            currentParamsArray[0].coneTraceBias = 0.0f;
+            currentParamsArray[0].giGain = 0.0f;
+            currentParamsArray[0].nearLightGain = 0.0f;
+            currentParamsArray[0].nearOcclusionStrength = 0.0f;
+
+            currentParamsArray[0].halfResolution = 0;
+            currentParamsArray[0].reflectionSteps = 0;
+            currentParamsArray[0].reflectionOcclusionPower = 0.0f;
+            currentParamsArray[0].skyReflectionIntensity = 0.0f;
+            currentParamsArray[0].farOcclusionStrength = 0.0f;
+            currentParamsArray[0].farthestOcclusionStrength = 0.0f;
+            currentParamsArray[0].blendWeight = 0.0f;
+
+            currentParamsArray[0].segiVoxelViewFront = Matrix4x4.zero;
+            currentParamsArray[0].segiVoxelViewLeft = Matrix4x4.zero;
+            currentParamsArray[0].segiVoxelViewTop = Matrix4x4.zero;
+            currentParamsArray[0].segiWorldToVoxel = Matrix4x4.zero;
+            currentParamsArray[0].segiVoxelProjection = Matrix4x4.zero;
+            currentParamsArray[0].segiVoxelProjectionInverse = Matrix4x4.zero;
+            currentParamsArray[0].segiVoxelResolution = 0;
+            currentParamsArray[0].segiVoxelToGIProjection = Matrix4x4.zero;
+            currentParamsArray[0].segiSunlightVector = Vector4.zero;
+
+            currentParamsArray[0].giSunColor = Vector4.zero;
+            currentParamsArray[0].segiSkyColor = Vector4.zero;
+            currentParamsArray[0].segiSecondaryBounceGain = 0.0f;
+            currentParamsArray[0].segiSoftSunlight = 0.0f;
+            currentParamsArray[0].segiSphericalSkylight = 0;
+            currentParamsArray[0].segiInnerOcclusionLayers = 0;
+
+            currentParamsArray[0].projectionPrev = Matrix4x4.zero;
+            currentParamsArray[0].projectionPrevInverse = Matrix4x4.zero;
+            currentParamsArray[0].worldToCameraPrev = Matrix4x4.zero;
+            currentParamsArray[0].cameraToWorldPrev = Matrix4x4.zero;
+            currentParamsArray[0].cameraPositionPrev = Vector4.zero;
+
+            SEGIshaderParamBuffer.SetData(currentParamsArray);
+            Shader.SetGlobalBuffer(ID.SEGIshaderParamBuffer, SEGIshaderParamBuffer);
         }
     }
 }
