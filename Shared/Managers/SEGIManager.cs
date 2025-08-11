@@ -46,7 +46,11 @@ namespace Graphics.SEGI
             if (settings == null)
                 settings = new SEGISettings();
             if (SEGIInstance != null)
+            {
                 settings.Load(SEGIInstance);
+                SEGIInstance.initChecker = false;
+            }
+                
 
             CopySettingsToOtherInstances();
         }
@@ -56,6 +60,7 @@ namespace Graphics.SEGI
             foreach (SEGI otherInstance in otherSEGIInstances)
             {
                 settings.Load(otherInstance);
+                otherInstance.initChecker = false;
             }
         }
 

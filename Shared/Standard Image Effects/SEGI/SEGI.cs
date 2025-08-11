@@ -111,7 +111,7 @@ namespace Graphics.SEGI
         #endregion
 
         #region InternalVariables
-        object initChecker;
+        public bool initChecker = false;
         private static Material material;
         Camera attachedCamera;
         Transform shadowCamTransform;
@@ -603,15 +603,15 @@ namespace Graphics.SEGI
         {
             //Force reinitialization to make sure that everything is working properly if one of the cameras was unexpectedly destroyed
             if (!voxelCamera || !shadowCam)
-                initChecker = null;
+                initChecker = false;
 
             /*TODO: When toggle Infinite Boundces, secondaryIrradianceVolume must be initialized.
              * I think this If statement should be in UI eventListener part.
              */
-            if (infiniteBounces == true && secondaryIrradianceVolume == null)
+            /*if (infiniteBounces == true && secondaryIrradianceVolume == null)
             {
                 initChecker = null;
-            }
+            }*/
 
             InitCheck();
 
@@ -802,7 +802,12 @@ namespace Graphics.SEGI
             //Refresh CommandBuffers
             RefreshCommandBuffers();
 
-            initChecker = new bool();
+        private void InitCheck()
+        {
+            if (initChecker == false)
+            {
+                Init();
+            }
         }
 
         private void CreateVolumeTextures()
@@ -963,7 +968,11 @@ namespace Graphics.SEGI
             return true;
         }
 
-        
+            //Refresh CommandBuffers
+            RefreshCommandBuffers();
+
+            initChecker = true;
+        }
 
         private void CheckSupport()
         {
@@ -1018,8 +1027,7 @@ namespace Graphics.SEGI
             DestroyImmediate(leftViewPoint);
             DestroyImmediate(topViewPoint);
             DestroyImmediate(shadowCamGameObject);
-            initChecker = null;
-
+            
             CleanupTextures();
 
             if (ComputeSEGI != null)
@@ -1040,6 +1048,8 @@ namespace Graphics.SEGI
                 DebugSEGI.Release();
                 DebugSEGI = null;
             }
+
+            initChecker = false;
         }
 
         private void ResizeRenderTextures()
