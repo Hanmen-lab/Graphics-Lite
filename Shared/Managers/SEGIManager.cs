@@ -48,7 +48,7 @@ namespace Graphics.SEGI
             if (SEGIInstance != null)
             {
                 settings.Load(SEGIInstance);
-                SEGIInstance.RefreshCommandBuffers();
+                //SEGIInstance.RefreshCommandBuffers();
             }
                 
 
@@ -60,7 +60,7 @@ namespace Graphics.SEGI
             foreach (SEGI otherInstance in otherSEGIInstances)
             {
                 settings.Load(otherInstance);
-                SEGIInstance.RefreshCommandBuffers();
+                //SEGIInstance.RefreshCommandBuffers();
             }
         }
 

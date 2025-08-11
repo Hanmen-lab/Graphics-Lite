@@ -460,9 +460,30 @@ namespace Graphics.SEGI
 
         void SetupCommandBuffers()
         {
-            ComputeSEGI = new CommandBuffer { name = "SEGI Compute Buffer" };
-            ApplySEGI = new CommandBuffer { name = "SEGI Apply Buffer" };
-            DebugSEGI = new CommandBuffer { name = "SEGI Debug Buffer" };
+            if (attachedCamera && ComputeSEGI == null)
+            {
+                ComputeSEGI = new CommandBuffer { name = "SEGI Compute Buffer" };
+            }
+            else
+            {
+                ComputeSEGI.Clear();
+            }
+            if (attachedCamera && ApplySEGI == null)
+            {
+                ApplySEGI = new CommandBuffer { name = "SEGI Apply Buffer" };
+            }
+            else
+            {
+                ApplySEGI.Clear();
+            }
+            if (attachedCamera && DebugSEGI == null)
+            {
+                DebugSEGI = new CommandBuffer { name = "SEGI Debug Buffer" };
+            }
+            else
+            {
+                DebugSEGI.Clear();
+            }
 
             //Get Scene Color
             ApplySEGI.GetTemporaryRT(ID.currentSceneColor, attachedCamera.pixelWidth, attachedCamera.pixelHeight, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);
@@ -628,24 +649,24 @@ namespace Graphics.SEGI
             {
                 //ComputeSEGI.Clear();
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeReflections, ComputeSEGI);
-                ComputeSEGI.Dispose();
-                ComputeSEGI = null;
+                //ComputeSEGI.Dispose();
+                //ComputeSEGI = null;
             }
                 
             if (attachedCamera && ApplySEGI != null)
             {
                 //ApplySEGI.Clear(); 
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeImageEffectsOpaque, ApplySEGI);
-                ApplySEGI.Dispose();
-                ApplySEGI = null;
+                //ApplySEGI.Dispose();
+                //ApplySEGI = null;
             }
 
             if (attachedCamera && DebugSEGI != null)
             {
                 //DebugSEGI.Clear(); 
                 attachedCamera.RemoveCommandBuffer(CameraEvent.AfterImageEffects, DebugSEGI);
-                DebugSEGI.Dispose();
-                DebugSEGI = null;
+                //DebugSEGI.Dispose();
+                //DebugSEGI = null;
             }
         }
 
@@ -654,7 +675,7 @@ namespace Graphics.SEGI
             //Shader.EnableKeyword("SS_SEGI");
             InitCheck();
             ResizeRenderTextures();
-            SetupCommandBuffers();
+            //SetupCommandBuffers();
             //CheckSupport();
 
             //RenderShadows renderShadows = attachedCamera.GetComponent<RenderShadows>();
