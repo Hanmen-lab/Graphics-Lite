@@ -1279,6 +1279,9 @@ namespace Graphics.SEGI
             //Create the volume textures
             CreateVolumeTextures();
 
+            //Refresh CommandBuffers
+            RefreshCommandBuffers();
+
             initChecker = new bool();
         }
 
@@ -1335,8 +1338,7 @@ namespace Graphics.SEGI
             DestroyImmediate(leftViewPoint);
             DestroyImmediate(topViewPoint);
             DestroyImmediate(shadowCamGameObject);
-            initChecker = null;
-
+            
             CleanupTextures();
 
             if (ComputeSEGI != null)
@@ -1354,6 +1356,8 @@ namespace Graphics.SEGI
                 DebugSEGI.Dispose();
                 DebugSEGI = null;
             }
+
+            initChecker = null;
         }
 
         private void ResizeRenderTextures()
