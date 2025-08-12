@@ -537,7 +537,7 @@ namespace Graphics
                     _probe.size = new Vector3(100, 100, 100);
                     _probe.nearClipPlane = 0.01f;
                     _probe.transform.position = new Vector3(0, 0, 0);
-                    _probe.refreshMode = ReflectionProbeRefreshMode.EveryFrame;
+                    _probe.refreshMode = ReflectionProbeRefreshMode.OnAwake;
                     _probe.timeSlicingMode = ReflectionProbeTimeSlicingMode.AllFacesAtOnce;
                     lights.DefaultReflectionProbeSettings = new ReflectionProbeSettings();
                     lights.DefaultReflectionProbeSettings.FillSettings(_probe);

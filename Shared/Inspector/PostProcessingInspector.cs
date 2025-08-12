@@ -411,6 +411,8 @@ namespace Graphics.Inspector
                             settings.agxColorLayer.active = false;
                             settings.agxColorLayer.enabled.value = false;
                             settings.agxColorPostLayer.external.value = false;
+                            settings.agxColorPostLayer.active = false;
+                            settings.agxColorPostLayer.enabled.value = false;
                         }
                         else
                         {
