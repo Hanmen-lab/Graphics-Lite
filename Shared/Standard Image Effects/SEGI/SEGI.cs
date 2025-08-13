@@ -1011,6 +1011,17 @@ namespace Graphics.SEGI
             RenderSEGI();
         }
 
+        [ImageEffectOpaque]
+        private void OnRenderImage()
+        {
+            //Set matrices/vectors for use during temporal reprojection
+            material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
+            material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
+            material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
+            material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
+            material.SetVector(ID.CameraPositionPrev, transform.position);
+        }
+
         private void OnDisable()
         {
             RemoveCommandBuffers();
@@ -1747,13 +1758,6 @@ namespace Graphics.SEGI
             material.SetFloat(ID.FarOcclusionStrength, farOcclusionStrength);
             material.SetFloat(ID.FarthestOcclusionStrength, farthestOcclusionStrength);
             material.SetFloat(ID.BlendWeight, temporalBlendWeight);
-
-            //Set matrices/vectors for use during temporal reprojection
-            material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
-            material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
-            material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
-            material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
-            material.SetVector(ID.CameraPositionPrev, transform.position);
 
             //Set the frame counter for the next frame	
             frameCounter = (frameCounter + 1) % (64);
