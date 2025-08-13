@@ -1303,6 +1303,9 @@ namespace Graphics.SEGI
             //Refresh CommandBuffers
             RefreshCommandBuffers();
 
+            //Set the render state value to Voxelize as the default value.
+            renderState = RenderState.Voxelize;
+
             initChecker = true;
         }
 
