@@ -85,10 +85,10 @@ namespace Graphics.Inspector
                 Text("Pixel Light Count", renderingSettings.PixelLightCount, count => renderingSettings.PixelLightCount = count);
                 Selection("Anisotropic Textures", renderingSettings.AnisotropicFiltering, filtering => renderingSettings.AnisotropicFiltering = filtering);
                 //Slider("MSAA Multiplier", renderingSettings.AntiAliasing, 0, 8, aa => renderingSettings.AntiAliasing = aa);
-                Toggle("Realtime Reflection Probes", renderingSettings.RealtimeReflectionProbes, false, realtime => renderingSettings.RealtimeReflectionProbes = realtime);
-                Toggle("Pulse Realtime Reflection Probes", renderingSettings.PulseReflectionProbes, false, pulse => renderingSettings.PulseReflectionProbes = pulse);
-                if (renderingSettings.PulseReflectionProbes)
-                    Slider("Pulse Timing (Secs)", renderingSettings.PulseReflectionTimer, .25f, 10f, "N1", prt => { renderingSettings.PulseReflectionTimer = prt; });
+                //Toggle("Realtime Reflection Probes", renderingSettings.RealtimeReflectionProbes, false, realtime => renderingSettings.RealtimeReflectionProbes = realtime);
+                //Toggle("Pulse Realtime Reflection Probes", renderingSettings.PulseReflectionProbes, false, pulse => renderingSettings.PulseReflectionProbes = pulse);
+                //if (renderingSettings.PulseReflectionProbes)
+                //    Slider("Pulse Timing (Secs)", renderingSettings.PulseReflectionTimer, .25f, 10f, "N1", prt => { renderingSettings.PulseReflectionTimer = prt; });
                 GUILayout.Space(25);
                 Label("SHADOWS", "", true);
                 GUILayout.Space(1);
@@ -132,36 +132,24 @@ namespace Graphics.Inspector
 
                 }
 
-                GUILayout.Space(25);
-
                 if (DecalsSystemManager.settings != null)
                 {
                     DeferredDecalsSettings decalsSettings = DecalsSystemManager.settings;
 
-                    ToggleAlt("DEFERRED DECALS", decalsSettings.enabled, true, enabled => { decalsSettings.enabled = enabled; DecalsSystemManager.UpdateSettings(); });
+                    GUILayout.Space(25);
+                    Label("DECAL SETTINGS", "", true);
+                    GUILayout.Space(10);
+                    ToggleAlt("Lock Rebuild", decalsSettings.LockRebuild.value, false, lockRebuild => { decalsSettings.LockRebuild.value = lockRebuild; DecalsSystemManager.UpdateSettings(); });
 
-                    if (decalsSettings.enabled)
-                    {
-                        GUILayout.Space(30);
-                        ToggleAlt("Lock Rebuild", decalsSettings.LockRebuild.value, false, lockRebuild => { decalsSettings.LockRebuild.value = lockRebuild; DecalsSystemManager.UpdateSettings(); });
-                        //Selection("Terrain Decals", decalsSettings.TerrainDecals, terrainDecals => { decalsSettings.TerrainDecals = terrainDecals; DecalsSystemManager.UpdateSettings(); });
-                        //if (decalsSettings.TerrainDecals != DeferredDecalsSettings.TerrainDecalsType.None)
-                        //{
-                        //    Slider("Terrain Height Map Size", decalsSettings.TerrainHeightMapSize.value, 256, 4096, size => { decalsSettings.TerrainHeightMapSize.value = size; DecalsSystemManager.UpdateSettings(); },
-                        //        decalsSettings.TerrainHeightMapSize.overrideState, overrideState => { decalsSettings.TerrainHeightMapSize.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
-                        //}
-                        ToggleAlt("Use Exclusion Mask", decalsSettings.UseExclusionMask.value, false, useExclusionMask => { decalsSettings.UseExclusionMask.value = useExclusionMask; DecalsSystemManager.UpdateSettings(); });
-                        if (decalsSettings.UseExclusionMask.value)
-                            SelectionMask("Exclusion Mask", decalsSettings.ExclusionMask, mask => { decalsSettings.ExclusionMask = mask; DecalsSystemManager.UpdateSettings(); });
-                        ToggleAlt("Frustum Culling", decalsSettings.FrustumCulling.value, false, frustumCulling => { decalsSettings.FrustumCulling.value = frustumCulling; DecalsSystemManager.UpdateSettings(); });
-                        ToggleAlt("Distance Culling", decalsSettings.DistanceCulling.value, false, distanceCulling => { decalsSettings.DistanceCulling.value = distanceCulling; DecalsSystemManager.UpdateSettings(); });
-                        Slider("Start Fade Distance", decalsSettings.StartFadeDistance.value, 0f, 1000f, "N0", startFadeDistance => { decalsSettings.StartFadeDistance.value = startFadeDistance; DecalsSystemManager.UpdateSettings(); },
-                            decalsSettings.StartFadeDistance.overrideState, overrideState => { decalsSettings.StartFadeDistance.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
-                        Slider("Fade Length", decalsSettings.FadeLength.value, 0f, 100f, "N0", fadeLength => { decalsSettings.FadeLength.value = fadeLength; DecalsSystemManager.UpdateSettings(); },
-                            decalsSettings.FadeLength.overrideState, overrideState => { decalsSettings.FadeLength.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
-
-                        //ToggleAlt("Draw Decal Gizmos", decalsSettings.DrawDecalGizmos.value, false, drawDecalGizmos => { decalsSettings.DrawDecalGizmos.value = drawDecalGizmos; DecalsSystemManager.UpdateSettings(); });
-                    }
+                    ToggleAlt("Use Exclusion Mask", decalsSettings.UseExclusionMask.value, false, useExclusionMask => { decalsSettings.UseExclusionMask.value = useExclusionMask; DecalsSystemManager.UpdateSettings(); });
+                    if (decalsSettings.UseExclusionMask.value)
+                        SelectionMask("Exclusion Mask", decalsSettings.ExclusionMask, mask => { decalsSettings.ExclusionMask = mask; DecalsSystemManager.UpdateSettings(); });
+                    ToggleAlt("Frustum Culling", decalsSettings.FrustumCulling.value, false, frustumCulling => { decalsSettings.FrustumCulling.value = frustumCulling; DecalsSystemManager.UpdateSettings(); });
+                    ToggleAlt("Distance Culling", decalsSettings.DistanceCulling.value, false, distanceCulling => { decalsSettings.DistanceCulling.value = distanceCulling; DecalsSystemManager.UpdateSettings(); });
+                    Slider("Start Fade Distance", decalsSettings.StartFadeDistance.value, 0f, 1000f, "N0", startFadeDistance => { decalsSettings.StartFadeDistance.value = startFadeDistance; DecalsSystemManager.UpdateSettings(); },
+                        decalsSettings.StartFadeDistance.overrideState, overrideState => { decalsSettings.StartFadeDistance.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
+                    Slider("Fade Length", decalsSettings.FadeLength.value, 0f, 100f, "N0", fadeLength => { decalsSettings.FadeLength.value = fadeLength; DecalsSystemManager.UpdateSettings(); },
+                        decalsSettings.FadeLength.overrideState, overrideState => { decalsSettings.FadeLength.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
                 }
 
                 GUILayout.Space(25);

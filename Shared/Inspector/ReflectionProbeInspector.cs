@@ -14,7 +14,7 @@ namespace Graphics.Inspector
         private static int selectedProbe = 0;
         private static bool inspectReflectionProbes = true;
 
-        internal static void Draw(LightingSettings lightingSettings, SkyboxManager skyboxManager, LightManager lightmanager, bool showAdvanced)
+        internal static void Draw(LightingSettings lightingSettings, SkyboxManager skyboxManager, GlobalSettings renderingSettings, bool showAdvanced)
         {
             GUIStyle SmallBox = new GUIStyle(GUIStyles.tabcontent);
             SmallBox.padding = new RectOffset(0, 0, 0, 0);
@@ -63,7 +63,18 @@ namespace Graphics.Inspector
                         Selection("Time Slicing Mode", rp.timeSlicingMode, mode => { rp.timeSlicingMode = mode; UpdateProbeNextFrame(rp); });
                         GUILayout.Space(25);
                     }
+
                     GUILayout.EndScrollView();
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical(SmallBox);
+                    GUILayout.Space(10);
+                    Label("UPDATE SETTINGS", "", true);
+                    GUILayout.Space(10);
+                    Toggle("Realtime Reflection Probes", renderingSettings.RealtimeReflectionProbes, false, realtime => renderingSettings.RealtimeReflectionProbes = realtime);
+                    Toggle("Pulse Realtime Reflection Probes", renderingSettings.PulseReflectionProbes, false, pulse => renderingSettings.PulseReflectionProbes = pulse);
+                    if (renderingSettings.PulseReflectionProbes)
+                        Slider("Pulse Timing (Secs)", renderingSettings.PulseReflectionTimer, .25f, 10f, "N1", prt => { renderingSettings.PulseReflectionTimer = prt; });
+                    GUILayout.Space(30);
                     GUILayout.EndVertical();
                 }
 
