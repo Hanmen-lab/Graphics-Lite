@@ -672,14 +672,6 @@ namespace Graphics.SEGI
             RenderSEGI();
         }
 
-        private void InitCheck()
-        {
-            if (initChecker == null)
-            {
-                Init();
-            }
-        }
-
         private void Init()
         {
             //Get the camera attached to this game object
@@ -801,6 +793,9 @@ namespace Graphics.SEGI
 
             //Refresh CommandBuffers
             RefreshCommandBuffers();
+
+            initChecker = true;
+        }
 
         private void InitCheck()
         {
@@ -966,12 +961,6 @@ namespace Graphics.SEGI
             assetBundle.Unload(false);
 
             return true;
-        }
-
-            //Refresh CommandBuffers
-            RefreshCommandBuffers();
-
-            initChecker = true;
         }
 
         private void CheckSupport()
