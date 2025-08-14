@@ -1011,8 +1011,18 @@ namespace Graphics.SEGI
             RenderSEGI();
         }
 
-        [ImageEffectOpaque]
+        /*[ImageEffectOpaque]
         private void OnRenderImage()
+        {
+            //Set matrices/vectors for use during temporal reprojection
+            material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
+            material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
+            material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
+            material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
+            material.SetVector(ID.CameraPositionPrev, transform.position);
+        }*/
+
+        private void OnPostRender()
         {
             //Set matrices/vectors for use during temporal reprojection
             material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
@@ -1517,7 +1527,7 @@ namespace Graphics.SEGI
             }
             else
             {
-                ComputeSEGI.Clear();
+                return;
             }
             if (attachedCamera && ApplySEGI == null)
             {
@@ -1525,7 +1535,7 @@ namespace Graphics.SEGI
             }
             else
             {
-                ApplySEGI.Clear();
+                return;
             }
             if (attachedCamera && DebugSEGI == null)
             {
@@ -1533,7 +1543,7 @@ namespace Graphics.SEGI
             }
             else
             {
-                DebugSEGI.Clear();
+                return;
             }
 
             //Get Scene Color
@@ -1700,24 +1710,24 @@ namespace Graphics.SEGI
             {
                 //ComputeSEGI.Clear();
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeReflections, ComputeSEGI);
-                //ComputeSEGI.Dispose();
-                //ComputeSEGI = null;
+                ComputeSEGI.Release();
+                ComputeSEGI = null;
             }
 
             if (attachedCamera && ApplySEGI != null)
             {
                 //ApplySEGI.Clear(); 
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeImageEffectsOpaque, ApplySEGI);
-                //ApplySEGI.Dispose();
-                //ApplySEGI = null;
+                ApplySEGI.Release();
+                ApplySEGI = null;
             }
 
             if (attachedCamera && DebugSEGI != null)
             {
                 //DebugSEGI.Clear(); 
                 attachedCamera.RemoveCommandBuffer(CameraEvent.AfterImageEffects, DebugSEGI);
-                //DebugSEGI.Dispose();
-                //DebugSEGI = null;
+                DebugSEGI.Release();
+                DebugSEGI = null;
             }
         }
 
@@ -1758,6 +1768,13 @@ namespace Graphics.SEGI
             material.SetFloat(ID.FarOcclusionStrength, farOcclusionStrength);
             material.SetFloat(ID.FarthestOcclusionStrength, farthestOcclusionStrength);
             material.SetFloat(ID.BlendWeight, temporalBlendWeight);
+
+            ////Set matrices/vectors for use during temporal reprojection
+            //material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
+            //material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
+            //material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
+            //material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
+            //material.SetVector(ID.CameraPositionPrev, transform.position);
 
             //Set the frame counter for the next frame	
             frameCounter = (frameCounter + 1) % (64);
