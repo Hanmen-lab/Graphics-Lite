@@ -14,37 +14,11 @@ namespace Graphics.SEGI
 
         #region Parameters
         //[Serializable]
-        public enum VoxelResolution
-        {
-            low = 128,
-            high = 256
-        }
-
+        
+        // Update GI
         public bool updateGI = true;
-        public LayerMask giCullingMask;
-        public float shadowSpaceSize = 100.0f;
-        public Light Sun
-        {
-            get => RenderSettings.sun;
-            set => RenderSettings.sun = value;
-        }
 
-        public Color skyColor = Color.grey;
-
-        public float voxelSpaceSize = 100.0f;
-
-        public bool useBilateralFiltering = true;
-
-        [Range(0, 2)]
-        public int innerOcclusionLayers = 1;
-
-
-        [Range(0.01f, 1.0f)]
-        public float temporalBlendWeight = 0.1f;
-
-
-        public VoxelResolution voxelResolution = VoxelResolution.high;
-
+        // DEBUG TOOLS
         [Flags]
         public enum DebugTools
         {
@@ -56,13 +30,30 @@ namespace Graphics.SEGI
         }
         public DebugTools debugTools = DebugTools.Off;
 
+        // MAIN CONFIGURATION
+        public enum VoxelResolution
+        {
+            low = 128,
+            high = 256
+        }
+        public VoxelResolution voxelResolution = VoxelResolution.high;
+        public bool voxelAA = false;
+        public bool infiniteBounces = false;
+        public bool gaussianMipFilter = false;
+        public float voxelSpaceSize = 100.0f;
+        public float shadowSpaceSize = 100.0f;
+        public LayerMask giCullingMask;
+
+        // TRACING PROPERTIES
+        [Range(0.01f, 1.0f)]
+        public float temporalBlendWeight = 0.1f;
+        public bool useBilateralFiltering = true;
         public bool halfResolution = true;
         public bool stochasticSampling = true;
-        public bool infiniteBounces = false;
-        public bool reflectionDownsampling = false;
-        public Transform followTransform;
         [Range(1, 128)]
         public int cones = 35;
+        [Range(3, 16)]
+        public int secondaryCones = 6;
         [Range(1, 32)]
         public int coneTraceSteps = 8;
         [Range(0.1f, 2.0f)]
@@ -70,25 +61,48 @@ namespace Graphics.SEGI
         [Range(0.5f, 6.0f)]
         public float coneWidth = 4.0f;
         [Range(0.0f, 4.0f)]
+        public float coneTraceBias = 1.0f;
+
+        // SUN PROPERTIES
+        [Range(0.0f, 16.0f)]
+        public float softSunlight = 0.1f;
+        public Light Sun
+        {
+            get => RenderSettings.sun;
+            set => RenderSettings.sun = value;
+        }
+
+        // SKY PROPERTIES
+        public Color skyColor = Color.grey;
+        [Range(0.0f, 8.0f)]
+        public float skyIntensity = 0.7f;
+        public bool sphericalSkylight = true;
+
+        // AMBIENT OCCLUSION
+        [Range(0, 2)]
+        public int innerOcclusionLayers = 1;
+        [Range(0.0f, 4.0f)]
         public float occlusionStrength = 0.5f;
         [Range(0.0f, 4.0f)]
         public float nearOcclusionStrength = 0.0f;
+        [Range(0.1f, 4.0f)]
+        public float farOcclusionStrength = 1.0f;
+        [Range(0.1f, 4.0f)]
+        public float farthestOcclusionStrength = 1.0f;
         [Range(0.001f, 4.0f)]
         public float occlusionPower = 0f;
-        [Range(0.0f, 4.0f)]
-        public float coneTraceBias = 1.0f;
+        [Range(0.1f, 4.0f)]
+        public float secondaryOcclusionStrength = 1.0f;
+
+        // GI PROPERTIES
         [Range(0.0f, 4.0f)]
         public float nearLightGain = 0.0f;
         [Range(0.0f, 4.0f)]
         public float giGain = 1.0f;
         [Range(0.0f, 4.0f)]
         public float secondaryBounceGain = 1.0f;
-        [Range(0.0f, 16.0f)]
-        public float softSunlight = 0.1f;
 
-        [Range(0.0f, 8.0f)]
-        public float skyIntensity = 0.7f;
-
+        // REFLECTIONS
         public bool doReflections = true;
         [Range(12, 128)]
         public int reflectionSteps = 32;
@@ -96,24 +110,11 @@ namespace Graphics.SEGI
         public float reflectionOcclusionPower = 0.2f;
         [Range(0.0f, 1.0f)]
         public float skyReflectionIntensity = 1.0f;
+        public bool reflectionDownsampling = false;
 
-        public bool voxelAA = false;
-
-        public bool gaussianMipFilter = false;
-
-
-        [Range(0.1f, 4.0f)]
-        public float farOcclusionStrength = 1.0f;
-        [Range(0.1f, 4.0f)]
-        public float farthestOcclusionStrength = 1.0f;
-
-        [Range(3, 16)]
-        public int secondaryCones = 6;
-        [Range(0.1f, 4.0f)]
-        public float secondaryOcclusionStrength = 1.0f;
-
-        public bool sphericalSkylight = true;
-
+        // UNLISTED
+        public Transform followTransform;
+        
         #endregion
 
         #region InternalVariables
@@ -208,6 +209,9 @@ namespace Graphics.SEGI
         }
 
         RenderState renderState = RenderState.Voxelize;
+
+        public ListForInitNeed listForInitNeed;
+
         #endregion
 
         #region SupportingObjectsAndProperties
@@ -329,6 +333,16 @@ namespace Graphics.SEGI
             {
                 return reflectionDownsampling ? 2 : 1;
             }
+        }
+
+        public struct ListForInitNeed
+        {
+            public bool previousEnabled;
+            public DebugTools previousDebugTools;
+            public VoxelResolution previousVoxelResolution;
+            public bool previousVoxelAA;
+            public bool previousInfiniteBounces;
+            public bool previousDoReflections;
         }
 
         #endregion
@@ -672,6 +686,7 @@ namespace Graphics.SEGI
 
         private void OnEnable()
         {
+            listForInitNeed.previousEnabled = true;
             //Shader.EnableKeyword("SS_SEGI");
             InitCheck();
             ResizeRenderTextures();
@@ -688,6 +703,7 @@ namespace Graphics.SEGI
 
         private void OnDisable()
         {
+            listForInitNeed.previousEnabled = false;
             RemoveCommandBuffers();
             Cleanup();
             //Shader.DisableKeyword("SS_SEGI");
@@ -697,6 +713,7 @@ namespace Graphics.SEGI
             //    renderShadows.enabled = false;
             //}
 
+
             Shader.SetGlobalInt(ID.DoReflections, 0);
         }
 
@@ -705,6 +722,22 @@ namespace Graphics.SEGI
             //if (notReadyToRender)
             //    return;
         }*/
+
+        private void OnPostRender()
+        {
+
+            RenderSEGI();
+        }
+
+        private void OnRenderImage(RenderTexture source, RenderTexture destination)
+        {
+            //Set matrices/vectors for use during temporal reprojection
+            material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
+            material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
+            material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
+            material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
+            material.SetVector(ID.CameraPositionPrev, transform.position);
+        }
 
         private void OnPreRender()
         {
@@ -966,7 +999,6 @@ namespace Graphics.SEGI
 
             RenderTexture.active = previousActive;
 
-            RenderSEGI();
         }
 
 
@@ -1009,11 +1041,11 @@ namespace Graphics.SEGI
             material.SetFloat(ID.BlendWeight, temporalBlendWeight);
 
             //Set matrices/vectors for use during temporal reprojection
-            material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
-            material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
-            material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
-            material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
-            material.SetVector(ID.CameraPositionPrev, transform.position);
+            //material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
+            //material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
+            //material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
+            //material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
+            //material.SetVector(ID.CameraPositionPrev, transform.position);
 
             //Set the frame counter for the next frame	
             frameCounter = (frameCounter + 1) % (64);
@@ -1023,7 +1055,14 @@ namespace Graphics.SEGI
         {
             if (initChecker == false)
             {
-                Init();
+                if (IsInitReallyNeeded())
+                {
+                    Init();
+                }
+                else
+                {
+                    initChecker = true;
+                }       
             }
         }
 
@@ -1462,5 +1501,43 @@ namespace Graphics.SEGI
             SetupCommandBuffers();
         }
 
+        private bool IsInitReallyNeeded()
+        {
+            bool isInitReallyNeeded = false;
+
+            if (listForInitNeed.previousEnabled == true)
+            {
+                isInitReallyNeeded = true;
+            }
+            if (listForInitNeed.previousDebugTools != debugTools)
+            {
+                isInitReallyNeeded = true;
+            }
+            if (listForInitNeed.previousVoxelResolution != voxelResolution)
+            {
+                isInitReallyNeeded = true;
+            }
+            if (listForInitNeed.previousVoxelAA != voxelAA)
+            {   
+                isInitReallyNeeded = true;
+            }
+            if (listForInitNeed.previousInfiniteBounces != infiniteBounces)
+            {
+                isInitReallyNeeded = true;
+            }
+            if (listForInitNeed.previousDoReflections != doReflections)
+            {
+                isInitReallyNeeded = true;
+            }
+
+            listForInitNeed.previousEnabled = false;
+            listForInitNeed.previousDebugTools = debugTools;
+            listForInitNeed.previousVoxelResolution = voxelResolution;
+            listForInitNeed.previousVoxelAA = voxelAA;
+            listForInitNeed.previousInfiniteBounces = infiniteBounces;
+            listForInitNeed.previousDoReflections = doReflections;
+
+            return isInitReallyNeeded;
+        }
     }
 }
