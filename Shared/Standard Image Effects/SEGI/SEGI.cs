@@ -727,6 +727,7 @@ namespace Graphics.SEGI
 
             if (!updateGI)
             {
+                RenderSEGI();
                 return;
             }
 
