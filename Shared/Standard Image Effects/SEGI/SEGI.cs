@@ -210,7 +210,7 @@ namespace Graphics.SEGI
 
         RenderState renderState = RenderState.Voxelize;
 
-        public ListForInitNeed listForInitNeed;
+        public ListForRefreshNeed listForRefreshNeed;
 
         #endregion
 
@@ -335,7 +335,7 @@ namespace Graphics.SEGI
             }
         }
 
-        public struct ListForInitNeed
+        public struct ListForRefreshNeed
         {
             public bool previousEnabled;
             public DebugTools previousDebugTools;
@@ -343,6 +343,8 @@ namespace Graphics.SEGI
             public bool previousVoxelAA;
             public bool previousInfiniteBounces;
             public bool previousDoReflections;
+            public bool previousUseBilateralFiltering;
+            public float previousTemporalBlendWeight;
         }
 
         #endregion
@@ -480,7 +482,7 @@ namespace Graphics.SEGI
             }
             else
             {
-                ComputeSEGI.Clear();
+                return;
             }
             if (attachedCamera && ApplySEGI == null)
             {
@@ -488,7 +490,7 @@ namespace Graphics.SEGI
             }
             else
             {
-                ApplySEGI.Clear();
+                return;
             }
             if (attachedCamera && DebugSEGI == null)
             {
@@ -496,7 +498,7 @@ namespace Graphics.SEGI
             }
             else
             {
-                DebugSEGI.Clear();
+                return;
             }
 
             //Get Scene Color
@@ -521,6 +523,15 @@ namespace Graphics.SEGI
                 DebugSEGI.Blit(sunDepthTexture, BuiltinRenderTextureType.CameraTarget);
                 //return;
             }
+            else if ((debugTools & DebugTools.Reflections) != 0)
+            {
+                if (doReflections)
+                {
+                    DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+                    DebugSEGI.Blit(ID.reflections, BuiltinRenderTextureType.CameraTarget);
+                    DebugSEGI.ReleaseTemporaryRT(ID.reflections);
+                }
+            }
 
             //Setup temporary textures
             ComputeSEGI.GetTemporaryRT(ID.gi1, attachedCamera.pixelWidth / GiRenderRes, attachedCamera.pixelHeight / GiRenderRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
@@ -529,8 +540,7 @@ namespace Graphics.SEGI
             //If reflections are enabled, create a temporary render buffer to hold them
             if (doReflections)
             {
-                ComputeSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
-                DebugSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);
+                ComputeSEGI.GetTemporaryRT(ID.reflections, attachedCamera.pixelWidth / ReflectionRes, attachedCamera.pixelHeight / ReflectionRes, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf);                
             }
 
             //Setup textures to hold the current camera depth and normal
@@ -554,11 +564,6 @@ namespace Graphics.SEGI
                 //Render GI reflections result
                 ComputeSEGI.Blit(BuiltinRenderTextureType.CameraTarget, ID.reflections, material, Pass.SpecularTrace);
                 ComputeSEGI.SetGlobalTexture(ID.SegiReflections, ID.reflections);
-
-                if ((debugTools & DebugTools.Reflections) != 0)
-                {
-                    DebugSEGI.Blit(ID.reflections, BuiltinRenderTextureType.CameraTarget);
-                }
             }
 
             //Perform bilateral filtering
@@ -649,7 +654,6 @@ namespace Graphics.SEGI
             if (doReflections)
             {
                 ComputeSEGI.ReleaseTemporaryRT(ID.reflections);
-                DebugSEGI.ReleaseTemporaryRT(ID.reflections);
             }
 
             attachedCamera.AddCommandBuffer(CameraEvent.BeforeReflections, ComputeSEGI);
@@ -663,30 +667,30 @@ namespace Graphics.SEGI
             {
                 //ComputeSEGI.Clear();
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeReflections, ComputeSEGI);
-                //ComputeSEGI.Dispose();
-                //ComputeSEGI = null;
+                ComputeSEGI.Release();
+                ComputeSEGI = null;
             }
-                
+
             if (attachedCamera && ApplySEGI != null)
             {
                 //ApplySEGI.Clear(); 
                 attachedCamera.RemoveCommandBuffer(CameraEvent.BeforeImageEffectsOpaque, ApplySEGI);
-                //ApplySEGI.Dispose();
-                //ApplySEGI = null;
+                ApplySEGI.Release();
+                ApplySEGI = null;
             }
 
             if (attachedCamera && DebugSEGI != null)
             {
                 //DebugSEGI.Clear(); 
                 attachedCamera.RemoveCommandBuffer(CameraEvent.AfterImageEffects, DebugSEGI);
-                //DebugSEGI.Dispose();
-                //DebugSEGI = null;
+                DebugSEGI.Release();
+                DebugSEGI = null;
             }
         }
 
         private void OnEnable()
         {
-            listForInitNeed.previousEnabled = true;
+            listForRefreshNeed.previousEnabled = true;
             //Shader.EnableKeyword("SS_SEGI");
             InitCheck();
             ResizeRenderTextures();
@@ -703,7 +707,7 @@ namespace Graphics.SEGI
 
         private void OnDisable()
         {
-            listForInitNeed.previousEnabled = false;
+            listForRefreshNeed.previousEnabled = false;
             RemoveCommandBuffers();
             Cleanup();
             //Shader.DisableKeyword("SS_SEGI");
@@ -723,13 +727,7 @@ namespace Graphics.SEGI
             //    return;
         }*/
 
-        private void OnPostRender()
-        {
-
-            RenderSEGI();
-        }
-
-        private void OnRenderImage(RenderTexture source, RenderTexture destination)
+        /*private void OnPostRender()
         {
             //Set matrices/vectors for use during temporal reprojection
             material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
@@ -737,7 +735,15 @@ namespace Graphics.SEGI
             material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
             material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
             material.SetVector(ID.CameraPositionPrev, transform.position);
-        }
+
+            //Set the frame counter for the next frame	
+            frameCounter = (frameCounter + 1) % (64);
+        }*/
+
+        /*private void OnRenderImage(RenderTexture source, RenderTexture destination)
+        {
+            //RenderSEGI();
+        }*/
 
         private void OnPreRender()
         {
@@ -748,18 +754,21 @@ namespace Graphics.SEGI
             /*TODO: When toggle Infinite Boundces, secondaryIrradianceVolume must be initialized.
              * I think this If statement should be in UI eventListener part.
              */
-            /*if (infiniteBounces == true && secondaryIrradianceVolume == null)
+            if (infiniteBounces == true && secondaryIrradianceVolume == null)
             {
-                initChecker = null;
-            }*/
+                initChecker = false;
+            }
 
             InitCheck();
+
+            RefreshCheck();
 
             /*if (notReadyToRender)
                 return;*/
 
             if (!updateGI)
             {
+                RenderSEGI();
                 return;
             }
 
@@ -999,6 +1008,7 @@ namespace Graphics.SEGI
 
             RenderTexture.active = previousActive;
 
+            RenderSEGI();
         }
 
 
@@ -1041,11 +1051,11 @@ namespace Graphics.SEGI
             material.SetFloat(ID.BlendWeight, temporalBlendWeight);
 
             //Set matrices/vectors for use during temporal reprojection
-            //material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
-            //material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
-            //material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
-            //material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
-            //material.SetVector(ID.CameraPositionPrev, transform.position);
+            material.SetMatrix(ID.ProjectionPrev, attachedCamera.projectionMatrix);
+            material.SetMatrix(ID.ProjectionPrevInverse, attachedCamera.projectionMatrix.inverse);
+            material.SetMatrix(ID.WorldToCameraPrev, attachedCamera.worldToCameraMatrix);
+            material.SetMatrix(ID.CameraToWorldPrev, attachedCamera.cameraToWorldMatrix);
+            material.SetVector(ID.CameraPositionPrev, transform.position);
 
             //Set the frame counter for the next frame	
             frameCounter = (frameCounter + 1) % (64);
@@ -1055,14 +1065,15 @@ namespace Graphics.SEGI
         {
             if (initChecker == false)
             {
-                if (IsInitReallyNeeded())
-                {
-                    Init();
-                }
-                else
-                {
-                    initChecker = true;
-                }       
+                 Init();
+            }
+        }
+
+        private void RefreshCheck()
+        {
+            if (IsRefreshNeeded())
+            {
+                RefreshCommandBuffers();
             }
         }
 
@@ -1231,7 +1242,8 @@ namespace Graphics.SEGI
             attachedCamera.depthTextureMode |= DepthTextureMode.Depth;
             attachedCamera.depthTextureMode |= DepthTextureMode.MotionVectors;
 
-            giCullingMask = attachedCamera.cullingMask;
+            //giCullingMask = attachedCamera.cullingMask;
+
 
             //Find the proxy shadow rendering camera if it exists
             GameObject scgo = GameObject.Find("SEGI_SHADOWCAM");
@@ -1286,6 +1298,7 @@ namespace Graphics.SEGI
                 voxelCamera.clearFlags = CameraClearFlags.Color;
                 voxelCamera.backgroundColor = Color.black;
                 voxelCamera.useOcclusionCulling = false;
+                voxelCamera.cullingMask = giCullingMask;
             }
             else
             {
@@ -1340,7 +1353,7 @@ namespace Graphics.SEGI
             CreateVolumeTextures();
 
             //Refresh CommandBuffers
-            RefreshCommandBuffers();
+            //RefreshCommandBuffers();
 
             //Set the render state value to Voxelize as the default value.
             renderState = RenderState.Voxelize;
@@ -1501,43 +1514,53 @@ namespace Graphics.SEGI
             SetupCommandBuffers();
         }
 
-        private bool IsInitReallyNeeded()
+        private bool IsRefreshNeeded()
         {
-            bool isInitReallyNeeded = false;
+            bool isRefreshNeeded = false;
 
-            if (listForInitNeed.previousEnabled == true)
+            if (listForRefreshNeed.previousEnabled == true)
             {
-                isInitReallyNeeded = true;
+                isRefreshNeeded = true;
             }
-            if (listForInitNeed.previousDebugTools != debugTools)
+            if (listForRefreshNeed.previousDebugTools != debugTools)
             {
-                isInitReallyNeeded = true;
+                isRefreshNeeded = true;
             }
-            if (listForInitNeed.previousVoxelResolution != voxelResolution)
+            if (listForRefreshNeed.previousVoxelResolution != voxelResolution)
             {
-                isInitReallyNeeded = true;
+                isRefreshNeeded = true;
             }
-            if (listForInitNeed.previousVoxelAA != voxelAA)
+            if (listForRefreshNeed.previousVoxelAA != voxelAA)
             {   
-                isInitReallyNeeded = true;
+                isRefreshNeeded = true;
             }
-            if (listForInitNeed.previousInfiniteBounces != infiniteBounces)
+            if (listForRefreshNeed.previousInfiniteBounces != infiniteBounces)
             {
-                isInitReallyNeeded = true;
+                isRefreshNeeded = true;
             }
-            if (listForInitNeed.previousDoReflections != doReflections)
+            if (listForRefreshNeed.previousDoReflections != doReflections)
             {
-                isInitReallyNeeded = true;
+                isRefreshNeeded = true;
+            }
+            if (listForRefreshNeed.previousUseBilateralFiltering != useBilateralFiltering)
+            {
+                isRefreshNeeded = true;
+            }
+            if (listForRefreshNeed.previousTemporalBlendWeight != temporalBlendWeight)
+            {
+                isRefreshNeeded = true;
             }
 
-            listForInitNeed.previousEnabled = false;
-            listForInitNeed.previousDebugTools = debugTools;
-            listForInitNeed.previousVoxelResolution = voxelResolution;
-            listForInitNeed.previousVoxelAA = voxelAA;
-            listForInitNeed.previousInfiniteBounces = infiniteBounces;
-            listForInitNeed.previousDoReflections = doReflections;
+            listForRefreshNeed.previousEnabled = false;
+            listForRefreshNeed.previousDebugTools = debugTools;
+            listForRefreshNeed.previousVoxelResolution = voxelResolution;
+            listForRefreshNeed.previousVoxelAA = voxelAA;
+            listForRefreshNeed.previousInfiniteBounces = infiniteBounces;
+            listForRefreshNeed.previousDoReflections = doReflections;
+            listForRefreshNeed.previousUseBilateralFiltering = useBilateralFiltering;
+            listForRefreshNeed.previousTemporalBlendWeight = temporalBlendWeight;
 
-            return isInitReallyNeeded;
+            return isRefreshNeeded;
         }
     }
 }
