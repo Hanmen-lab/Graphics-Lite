@@ -485,6 +485,13 @@ namespace Graphics.SEGI
         private ComputeBuffer SEGIshaderParamBuffer;
         private SEGIShaderParams[] currentParamsArray;
 
+        Matrix4x4 voxelToGIProjection;
+        Vector4 segiSunlightVector;
+
+        //private const float SEGICallInterval = 0.0333f;
+        private const float SEGICallInterval = 0.1f;
+        private float SEGITimer = 0.0f;
+
         #endregion
 
         private void Awake()
@@ -550,6 +557,7 @@ namespace Graphics.SEGI
 
             if (SEGIshaderParamBuffer != null)
             {
+                InitializeSEGIBuffer();
                 SEGIshaderParamBuffer.Release();
                 SEGIshaderParamBuffer = null;
             }
@@ -560,29 +568,82 @@ namespace Graphics.SEGI
 
         }*/
 
-        /*private void Update()
+        private void Update()
         {
-            if (visualizeSunDepthTexture != _previousVisualizeSunDepthTexture)
+            SEGITimer += Time.deltaTime;
+            if (SEGITimer >= SEGICallInterval)
             {
-                RefreshCommandBuffers();
+                //Force reinitialization to make sure that everything is working properly if one of the cameras was unexpectedly destroyed
+                if (!voxelCamera || !shadowCam)
+                    initChecker = false;
+
+                /*TODO: When toggle Infinite Boundces, secondaryIrradianceVolume must be initialized.
+                 * I think this If statement should be in UI eventListener part.
+                 */
+                /*if (infiniteBounces == true && secondaryIrradianceVolume == null)
+                {
+                    initChecker = null;
+                }*/
+
+                InitCheck();
+
+                /*if (notReadyToRender)
+                    return;*/
+
+                if (!updateGI)
+                {
+                    return;
+                }
+
+                int currentCameraWidth = attachedCamera.pixelWidth;
+                int currentCameraHeight = attachedCamera.pixelHeight;
+                int currentSunShadowResolution = (int)sunShadowResolution;
+
+                bool renderTexturesNeedResize = previousGIResult == null ||
+                                                 previousGIResult.width != currentCameraWidth ||
+                                                 previousGIResult.height != currentCameraHeight;
+
+                if (renderTexturesNeedResize)
+                {
+                    ResizeRenderTextures();
+                }
+
+                if (currentSunShadowResolution != prevSunShadowResolution)
+                {
+                    ResizeSunShadowBuffer();
+                    prevSunShadowResolution = currentSunShadowResolution;
+                }
+
+                if (volumeTextures[0].width != (int)voxelResolution)
+                {
+                    CreateVolumeTextures();
+                }
+
+                if (dummyVoxelTextureAAScaled.width != DummyVoxelResolution)
+                {
+                    ResizeDummyTexture();
+                }
+
+                //Cache the previous active render texture to avoid issues with other Unity rendering going on
+                RenderTexture previousActive = RenderTexture.active;
+
+                Shader.SetGlobalInt(ID.SEGIVoxelAA, voxelAA ? 1 : 0);
+
+                //Main voxelization work
+                if (renderState == RenderState.Voxelize)
+                {
+                    RenderVoxelize();
+                }
+                else if (renderState == RenderState.Bounce)
+                {
+                    RenderBounce();
+                }
+
+                RenderTexture.active = previousActive;
+
+                SEGITimer -= SEGICallInterval;
             }
-            if (visualizeGI != _previousVisualizeGI)
-            {
-                RefreshCommandBuffers();
-            }
-            if (visualizeVoxels != _previousVisualizeVoxels)
-            {
-                RefreshCommandBuffers();
-            }
-            if (visualizeReflections != _previousVisualizeReflections)
-            {
-                RefreshCommandBuffers();
-            }
-            _previousVisualizeSunDepthTexture = visualizeSunDepthTexture;
-            _previousVisualizeGI = visualizeGI;
-            _previousVisualizeVoxels = visualizeVoxels;
-            _previousVisualizeReflections = visualizeReflections;
-        }*/
+        }
 
         private void OnDrawGizmosSelected()
         {
@@ -601,83 +662,29 @@ namespace Graphics.SEGI
 
         private void OnPreRender()
         {
-            //Force reinitialization to make sure that everything is working properly if one of the cameras was unexpectedly destroyed
-            if (!voxelCamera || !shadowCam)
-                initChecker = false;
-
-            /*TODO: When toggle Infinite Boundces, secondaryIrradianceVolume must be initialized.
-             * I think this If statement should be in UI eventListener part.
-             */
-            /*if (infiniteBounces == true && secondaryIrradianceVolume == null)
-            {
-                initChecker = null;
-            }*/
-
-            InitCheck();
-
-            /*if (notReadyToRender)
-                return;*/
-
-            if (!updateGI)
-            {
-                return;
-            }
-
-            int currentCameraWidth = attachedCamera.pixelWidth;
-            int currentCameraHeight = attachedCamera.pixelHeight;
-            int currentSunShadowResolution = (int)sunShadowResolution;
-
-            bool renderTexturesNeedResize = previousGIResult == null ||
-                                             previousGIResult.width != currentCameraWidth ||
-                                             previousGIResult.height != currentCameraHeight;
-
-            if (renderTexturesNeedResize)
-            {
-                ResizeRenderTextures();
-            }
-
-            if (currentSunShadowResolution != prevSunShadowResolution)
-            {
-                ResizeSunShadowBuffer();
-                prevSunShadowResolution = currentSunShadowResolution;
-            }
-
-            if (volumeTextures[0].width != (int)voxelResolution)
-            {
-                CreateVolumeTextures();
-            }
-
-            if (dummyVoxelTextureAAScaled.width != DummyVoxelResolution)
-            {
-                ResizeDummyTexture();
-            }
-
-            //Cache the previous active render texture to avoid issues with other Unity rendering going on
-            RenderTexture previousActive = RenderTexture.active;
-
-            Shader.SetGlobalInt(ID.SEGIVoxelAA, voxelAA ? 1 : 0);
-
-            //Main voxelization work
-            if (renderState == RenderState.Voxelize)
-            {
-                RenderVoxelize();
-            }
-            else if (renderState == RenderState.Bounce)
-            {
-                RenderBounce();
-            }
-
-            RenderTexture.active = previousActive;
-
             RenderSEGI();
         }
+
+        /*[ImageEffectOpaque]
+        private void OnRenderImage()
+        {
+            //Set matrices/vectors for use during temporal reprojection
+            currentParamsArray[0].projectionPrev = attachedCamera.projectionMatrix;
+            currentParamsArray[0].projectionPrevInverse = attachedCamera.projectionMatrix.inverse;
+            currentParamsArray[0].worldToCameraPrev = attachedCamera.worldToCameraMatrix;
+            currentParamsArray[0].cameraToWorldPrev = attachedCamera.cameraToWorldMatrix;
+            currentParamsArray[0].cameraPositionPrev = transform.position;
+
+            SEGIshaderParamBuffer.SetData(currentParamsArray);
+            Shader.SetGlobalBuffer(ID.SEGIshaderParamBuffer, SEGIshaderParamBuffer);
+        }*/
 
         private void Init()
         {
             //Get the camera attached to this game object
             attachedCamera = this.GetComponent<Camera>();
             attachedCamera.depthTextureMode |= DepthTextureMode.Depth;
-            attachedCamera.depthTextureMode |= DepthTextureMode.MotionVectors;
+            //attachedCamera.depthTextureMode |= DepthTextureMode.MotionVectors;
 
             giCullingMask = attachedCamera.cullingMask;
 
@@ -793,6 +800,9 @@ namespace Graphics.SEGI
 
             //Refresh CommandBuffers
             RefreshCommandBuffers();
+
+            //Set RenderState to Voxelize
+            renderState = RenderState.Voxelize;
 
             initChecker = true;
         }
@@ -1370,8 +1380,8 @@ namespace Graphics.SEGI
             currentParamsArray[0].farthestOcclusionStrength = farthestOcclusionStrength;
             currentParamsArray[0].blendWeight = temporalBlendWeight;
 
-            SEGIshaderParamBuffer.SetData(currentParamsArray);
-            Shader.SetGlobalBuffer(ID.SEGIshaderParamBuffer, SEGIshaderParamBuffer);
+            //SEGIshaderParamBuffer.SetData(currentParamsArray);
+            //Shader.SetGlobalBuffer(ID.SEGIshaderParamBuffer, SEGIshaderParamBuffer);
             //material.SetBuffer("_SEGIShaderParamsBuffer", SEGIshaderParamBuffer);
         }
 
@@ -1387,9 +1397,10 @@ namespace Graphics.SEGI
             currentParamsArray[0].segiVoxelProjection = voxelCamera.projectionMatrix;
             currentParamsArray[0].segiVoxelProjectionInverse = voxelCamera.projectionMatrix.inverse;
             currentParamsArray[0].segiVoxelResolution = (int)voxelResolution;
-            Matrix4x4 voxelToGIProjection = (shadowCam.projectionMatrix) * (shadowCam.worldToCameraMatrix) * (voxelCamera.cameraToWorldMatrix);
+            //Matrix4x4 voxelToGIProjection = (shadowCam.projectionMatrix) * (shadowCam.worldToCameraMatrix) * (voxelCamera.cameraToWorldMatrix);
+            voxelToGIProjection = (shadowCam.projectionMatrix) * (shadowCam.worldToCameraMatrix) * (voxelCamera.cameraToWorldMatrix);
             currentParamsArray[0].segiVoxelToGIProjection = voxelToGIProjection;
-            Vector4 segiSunlightVector;
+            //Vector4 segiSunlightVector;
             if (Sun)
             {
                 Vector3 v3n = Vector3.Normalize(Sun.transform.forward);
