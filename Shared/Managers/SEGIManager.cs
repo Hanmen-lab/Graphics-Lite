@@ -49,7 +49,7 @@ namespace Graphics.SEGI
             {
                 settings.Load(SEGIInstance);
             }
-                
+
             CopySettingsToOtherInstances();
         }
 
