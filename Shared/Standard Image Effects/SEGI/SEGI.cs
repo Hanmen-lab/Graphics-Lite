@@ -350,6 +350,7 @@ namespace Graphics.SEGI
             public bool previousDoReflections;
             public bool previousUseBilateralFiltering;
             public float previousTemporalBlendWeight;
+            public bool previousHalfResolution;
         }
 
         #endregion
@@ -591,29 +592,20 @@ namespace Graphics.SEGI
             {
                 ResizeDummyTexture();
             }
-
-            //Cache the previous active render texture to avoid issues with other Unity rendering going on
-            RenderTexture previousActive = RenderTexture.active;
-
-            Shader.SetGlobalInt(ID.SEGIVoxelAA, voxelAA ? 1 : 0);
-
+            
             SEGITimer += Time.deltaTime;
-            if (SEGITimer >= updateGIRateFloat)
+            if (updateGIRateInt == 0)
             {
-                //Main voxelization work
-                if (renderState == RenderState.Voxelize)
-                {
-                    RenderVoxelize();
-                }
-                else if (renderState == RenderState.Bounce)
-                {
-                    RenderBounce();
-                }
+                RenderComputeShader();
+
+                SEGITimer = 0.0f;
+            }
+            else if (SEGITimer >= updateGIRateFloat)
+            {
+                RenderComputeShader();
 
                 SEGITimer -= updateGIRateFloat;
             }
-            
-            RenderTexture.active = previousActive;
 
             RenderSEGI();
         }
@@ -1340,37 +1332,23 @@ namespace Graphics.SEGI
             bool isRefreshNeeded = false;
 
             if (listForRefreshNeed.previousEnabled == true)
-            {
                 isRefreshNeeded = true;
-            }
             if (listForRefreshNeed.previousDebugTools != debugTools)
-            {
                 isRefreshNeeded = true;
-            }
             if (listForRefreshNeed.previousVoxelResolution != voxelResolution)
-            {
                 isRefreshNeeded = true;
-            }
             if (listForRefreshNeed.previousVoxelAA != voxelAA)
-            {
                 isRefreshNeeded = true;
-            }
             if (listForRefreshNeed.previousInfiniteBounces != infiniteBounces)
-            {
                 isRefreshNeeded = true;
-            }
             if (listForRefreshNeed.previousDoReflections != doReflections)
-            {
                 isRefreshNeeded = true;
-            }
             if (listForRefreshNeed.previousUseBilateralFiltering != useBilateralFiltering)
-            {
                 isRefreshNeeded = true;
-            }
             if (listForRefreshNeed.previousTemporalBlendWeight != temporalBlendWeight)
-            {
                 isRefreshNeeded = true;
-            }
+            if (listForRefreshNeed.previousHalfResolution != halfResolution)
+                isRefreshNeeded = true;
 
             listForRefreshNeed.previousEnabled = false;
             listForRefreshNeed.previousDebugTools = debugTools;
@@ -1380,6 +1358,7 @@ namespace Graphics.SEGI
             listForRefreshNeed.previousDoReflections = doReflections;
             listForRefreshNeed.previousUseBilateralFiltering = useBilateralFiltering;
             listForRefreshNeed.previousTemporalBlendWeight = temporalBlendWeight;
+            listForRefreshNeed.previousHalfResolution = halfResolution;
 
             return isRefreshNeeded;
         }
@@ -1581,6 +1560,26 @@ namespace Graphics.SEGI
             //Shader.SetGlobalTexture("SEGIVolumeTexture1", secondaryIrradianceVolume);                
             Shader.SetGlobalTexture(ID.SEGIVolumeTexture1, secondaryIrradianceVolume);
             renderState = RenderState.Voxelize;
+        }
+
+        private void RenderComputeShader()
+        {
+            //Cache the previous active render texture to avoid issues with other Unity rendering going on
+            RenderTexture previousActive = RenderTexture.active;
+
+            Shader.SetGlobalInt(ID.SEGIVoxelAA, voxelAA ? 1 : 0);
+
+            //Main voxelization work
+            if (renderState == RenderState.Voxelize)
+            {
+                RenderVoxelize();
+            }
+            else if (renderState == RenderState.Bounce)
+            {
+                RenderBounce();
+            }
+
+            RenderTexture.active = previousActive;
         }
     }
 }
