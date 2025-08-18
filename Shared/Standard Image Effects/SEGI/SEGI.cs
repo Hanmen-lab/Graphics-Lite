@@ -17,6 +17,8 @@ namespace Graphics.SEGI
 
         // Update GI
         public bool updateGI = true;
+        public int updateGIRateInt = 64;
+        public float updateGIRateFloat = 1.0f;
 
         // DEBUG TOOLS
         [Flags]
@@ -213,7 +215,6 @@ namespace Graphics.SEGI
         public ListForRefreshNeed listForRefreshNeed;
 
         //private const float SEGICallInterval = 0.0333f;
-        private const float SEGICallInterval = 0.1f;
         private float SEGITimer = 0.0f;
 
         #endregion
@@ -597,7 +598,7 @@ namespace Graphics.SEGI
             Shader.SetGlobalInt(ID.SEGIVoxelAA, voxelAA ? 1 : 0);
 
             SEGITimer += Time.deltaTime;
-            if (SEGITimer >= SEGICallInterval)
+            if (SEGITimer >= updateGIRateFloat)
             {
                 //Main voxelization work
                 if (renderState == RenderState.Voxelize)
@@ -609,7 +610,7 @@ namespace Graphics.SEGI
                     RenderBounce();
                 }
 
-                SEGITimer -= SEGICallInterval;
+                SEGITimer -= updateGIRateFloat;
             }
             
             RenderTexture.active = previousActive;

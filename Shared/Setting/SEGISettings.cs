@@ -19,6 +19,8 @@ namespace Graphics.Settings
         public int innerOcclusionLayers = 1;
         public bool infiniteBounces = false;
         public bool updateGI = true;
+        public int updateGIRateInt = 8;
+        public float updateGIRateFloat = 0.125f;
         public LayerMask giCullingMask = (1 << LayerMask.NameToLayer("Chara")) | (1 << LayerMask.NameToLayer("Map"));
 
         [Range(0.01f, 1.0f)]
@@ -93,6 +95,8 @@ namespace Graphics.Settings
             instance.voxelResolution = voxelResolution;
             instance.voxelAA = voxelAA;
             instance.updateGI = updateGI;
+            instance.updateGIRateInt = updateGIRateInt;
+            instance.updateGIRateFloat = updateGIRateFloat;
             instance.giCullingMask = giCullingMask;
             instance.innerOcclusionLayers = innerOcclusionLayers;
             instance.infiniteBounces = infiniteBounces;
@@ -137,6 +141,8 @@ namespace Graphics.Settings
             voxelResolution = instance.voxelResolution;
             voxelAA = instance.voxelAA;
             updateGI = instance.updateGI;
+            updateGIRateInt = instance.updateGIRateInt;
+            updateGIRateFloat = instance.updateGIRateFloat;
             giCullingMask = instance.giCullingMask;   
             innerOcclusionLayers = instance.innerOcclusionLayers;
             infiniteBounces = instance.infiniteBounces;
