@@ -46,7 +46,9 @@ namespace Graphics.SEGI
             if (settings == null)
                 settings = new SEGISettings();
             if (SEGIInstance != null)
+            {
                 settings.Load(SEGIInstance);
+            }
 
             CopySettingsToOtherInstances();
         }
