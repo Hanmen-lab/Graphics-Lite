@@ -48,9 +48,17 @@ namespace Graphics.Inspector
                 {
                     GUILayout.Space(30);
                     Toggle("Update GI", segiSettings.updateGI, true, update => { segiSettings.updateGI = update; SEGIManager.UpdateSettings(); });
-                    Label("You can disable 'Update GI' in the static scenes after the adjustements are done to boost performance.", "", false);
-                    Slider("Update GI per second", segiSettings.updateGIRateInt, 0, 64, updateGIRate => 
-                    { segiSettings.updateGIRateInt = updateGIRate; segiSettings.updateGIRateFloat = 1.0f / updateGIRate; SEGIManager.UpdateSettings(); });
+                    if (segiSettings.updateGI)
+                    {
+                        GUILayout.Space(5);
+                        Slider("Updates Per Second", segiSettings.updateGIRateInt, 0, 64, updateGIRate =>
+                        { segiSettings.updateGIRateInt = updateGIRate; segiSettings.updateGIRateFloat = 1.0f / updateGIRate; SEGIManager.UpdateSettings(); });
+                        if (segiSettings.updateGIRateInt == 0)
+                            Label("Update GI Rate: Every frame (Default)", "", false);
+                        else
+                            Label("Update GI Rate: " + segiSettings.updateGIRateInt + " per second", "", false);
+                    }
+
                     GUILayout.Space(10);
                     Label("DEBUG TOOLS", "", true);
                     GUILayout.Space(2);
