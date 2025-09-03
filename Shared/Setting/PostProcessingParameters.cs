@@ -895,4 +895,41 @@ namespace Graphics.Settings
             }
         }
     }
+
+    //Clipping
+    [MessagePackObject(keyAsPropertyName: true)]
+    public struct ColorClippingParams
+    {
+        public BoolValue enabled;
+        public FloatValue shadowThreshold;
+        public FloatValue highlightThreshold;
+        public BoolValue showShadows;
+        public BoolValue showHighlights;
+
+        public void Save(XPostProcessing.ColorClipping layer)
+        {
+            if (layer != null)
+            {
+                enabled = new BoolValue(layer.enabled);
+                shadowThreshold = new FloatValue(layer.shadowThreshold);
+                highlightThreshold = new FloatValue(layer.highlightThreshold);
+                showShadows = new BoolValue(layer.showShadows);
+                showHighlights = new BoolValue(layer.showHighlights);
+            }
+        }
+
+        public void Load(XPostProcessing.ColorClipping layer)
+        {
+            if (layer != null)
+            {
+                enabled.Fill(layer.enabled);
+                layer.active = layer.enabled.value;
+                shadowThreshold.Fill(layer.shadowThreshold);
+                highlightThreshold.Fill(layer.highlightThreshold);
+                showShadows.Fill(layer.showShadows);
+                showHighlights.Fill(layer.showHighlights);
+
+            }
+        }
+    }
 }

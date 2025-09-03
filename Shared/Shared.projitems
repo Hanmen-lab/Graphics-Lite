@@ -146,6 +146,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\WaterVolumeTriggerManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PostProcessingManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PostProcessingStack\AgXColorPost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PostProcessingStack\ClippingOverlayPPS.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PostProcessingStack\SunShaftsHDR.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\AuraSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\ConnectSunToUnderwaterSettings.cs" />
@@ -305,6 +306,7 @@
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\MAIN_GAME.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\decals-resources.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\clipping.unity3d" />
     <None Include="$(MSBuildThisFileDirectory)Resources\defaults\MAKER.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\STUDIO.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\TITLE.factory" />

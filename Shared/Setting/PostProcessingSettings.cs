@@ -3,6 +3,7 @@ using MessagePack;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 using static Graphics.DebugUtils;
+using Graphics.XPostProcessing;
 
 // TODO: Turn on Post Processing in main menu.
 // TODO: Messagepack clears out layer lists for a frame. Need to figure out to remove temporary solutions
@@ -25,6 +26,7 @@ namespace Graphics.Settings
         internal AmplifyOcclusionParams paramAmplifyOcclusion = new AmplifyOcclusionParams();
         internal AgxColorParams paramAgxColor = new AgxColorParams();
         internal SunShaftsHDRParams paramSunShaftsHDR = new SunShaftsHDRParams();
+        internal ColorClippingParams paramColorClipping = new ColorClippingParams();
 
         public bool PostVolumeMap = false;
 
@@ -75,11 +77,11 @@ namespace Graphics.Settings
         internal AgXColor agxColorLayer;
         internal AgXColorPost agxColorPostLayer;
         internal SunShaftsHDR sunShaftsHDRLayer;
+        internal ColorClipping colorClippingLayer;
 
+#if AI
 
-        #if AI
-
-                internal AmplifyOcclusionEffect amplifyOcclusionComponent;
+        internal AmplifyOcclusionEffect amplifyOcclusionComponent;
                 [IgnoreMember]
                 public AmplifyOcclusionEffect AmplifyOcclusionComponent
                 {
@@ -227,6 +229,12 @@ namespace Graphics.Settings
                 sunShaftsHDRLayer.enabled.value = false;
                 sunShaftsHDRLayer.priority.value = 4;
             }
+
+            if (!SettingValues.profile.TryGetSettings(out colorClippingLayer))
+            {
+                colorClippingLayer = SettingValues.profile.AddSettings<ColorClipping>();
+                colorClippingLayer.enabled.value = false;
+            }
         }
 
         internal void ResetVolume()
@@ -303,6 +311,11 @@ namespace Graphics.Settings
             if (Volume.profile.TryGetSettings(out SunShaftsHDR sunShaftsHDRLayer))
             {
                 paramSunShaftsHDR.Save(sunShaftsHDRLayer);
+            }
+
+            if (Volume.profile.TryGetSettings(out ColorClipping colorClippingLayer))
+            {
+                paramColorClipping.Save(colorClippingLayer);
             }
         }
 
@@ -399,6 +412,12 @@ namespace Graphics.Settings
             {
                 paramSunShaftsHDR.Load(sunShaftsHDRLayer);
                 LogWithDots("[PPS] Sun Shafts HDR", "OK");
+            }
+
+            if (Volume.profile.TryGetSettings(out ColorClipping colorClippingLayer))
+            {
+                paramColorClipping.Load(colorClippingLayer);
+                LogWithDots("[PPS] Color Clipping", "OK");
             }
 
             //if (Volume.profile.TryGetSettings(out CRTTube crtTubeLayer))
@@ -659,6 +678,12 @@ namespace Graphics.Settings
         {
             get => paramSunShaftsHDR;
             set => paramSunShaftsHDR = value;
+        }
+
+        public ColorClippingParams ColorClipping
+        {
+            get => paramColorClipping;
+            set => paramColorClipping = value;
         }
 
         public void UpdateFilterDithering()

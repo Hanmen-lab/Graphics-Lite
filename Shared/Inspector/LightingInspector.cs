@@ -21,10 +21,10 @@ namespace Graphics.Inspector
         private static Vector2 dynSkyScrollView;
         //private static float scrollViewHeight = Inspector.Height * 0.6f;
 
-        internal static void Draw(LightingSettings lightingSettings, SkyboxManager skyboxManager, LightManager lightmanager, bool showAdvanced)
+        internal static void Draw(LightingSettings lightingSettings, SkyboxManager skyboxManager, LightManager lightmanager, GlobalSettings renderSettings, bool showAdvanced)
         {
             GUIStyle BoxPadding = new GUIStyle(GUIStyles.tabcontent);
-            BoxPadding.padding = new RectOffset(25, 25, 0, 0);
+            BoxPadding.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2.9f), Mathf.RoundToInt(renderSettings.FontSize * 2f), 0);
             BoxPadding.margin = new RectOffset(0, 0, 0, 5);
             //BoxPadding.normal.background = null;
 
@@ -33,26 +33,11 @@ namespace Graphics.Inspector
             EmptyBox.margin = new RectOffset(0, 0, 0, 0);
             EmptyBox.normal.background = null;
 
-            GUIStyle EmptyBox2 = new GUIStyle(GUIStyles.tabcontent);
-            EmptyBox2.padding = new RectOffset(0, 0, 0, 0);
-            EmptyBox2.margin = new RectOffset(0, 0, 0, 0);
-            //EmptyBox.normal.background = null;
-
-            GUIStyle EmptyBox3 = new GUIStyle(GUIStyles.tabcontent);
-            EmptyBox3.padding = new RectOffset(25, 25, 0, 0);
-            EmptyBox3.margin = new RectOffset(0, 0, 0, 0);
-            EmptyBox3.normal.background = null;
-
             GUIStyle SelBox = new GUIStyle(GUI.skin.box);
             SelBox.padding = new RectOffset(0, 0, 0, 0);
             SelBox.margin = new RectOffset(2, 2, 2, 2);
             SelBox.normal.background = null;
             //SelBox.fixedHeight = 350;
-
-            GUIStyle SmallBox = new GUIStyle(GUIStyles.tabcontent);
-            SmallBox.padding = new RectOffset(25, 25, 0, 0);
-            SmallBox.margin = new RectOffset(0, 0, 0, 0);
-            SmallBox.normal.background = null;
 
             string assetPath = skyboxManager.AssetPath;
             string cubemapname = "";
@@ -63,7 +48,6 @@ namespace Graphics.Inspector
             {
                 GUILayout.BeginVertical(BoxPadding);
                 {
-                    GUILayout.Space(35);
                     Label("CUBEMAP SKYBOX:", cubemapname, true);
                     GUILayout.Space(10);
                 }
@@ -92,9 +76,9 @@ namespace Graphics.Inspector
             {
                 //GUILayout.Space(10);
                 //Label("CUBEMAP:", text, true);
-                GUILayout.Space(15);
+                //GUILayout.Space(30);
                 Label("ENVIRONMENT LIGHTING", "", true);
-                GUILayout.Space(1);
+                GUILayout.Space(10);
                 Selection("Source", lightingSettings.AmbientModeSetting, mode =>
                 {
                     lightingSettings.AmbientModeSetting = mode;
@@ -397,22 +381,9 @@ namespace Graphics.Inspector
                 Slider("Horizon", groundProjectionSkyboxSettings.horizon, -1, 1, "N2", horizon => { groundProjectionSkyboxSettings.horizon = horizon; SkyboxManager.UpdateGroundProjectionSkySettings(); });
                 Slider("Scale", groundProjectionSkyboxSettings.scale, -50f, 50f, "N0", scale => { groundProjectionSkyboxSettings.scale = scale; SkyboxManager.UpdateGroundProjectionSkySettings(); });
                 GUI.enabled = true;
-                //Add Sliders for rotationZ, etc..
-                //SliderColor("Tint Color", groundProjectionSkyboxSettings.colorFilter, color => { groundProjectionSkyboxSettings.colorFilter = color; SkyboxManager.UpdateGroundProjectionSkySettings(); }, true);
             }
         }
-        //Toggle("Ground Projection", mat.IsKeywordEnabled("_GROUNDPROJECTION_ON"), false, isOn =>
-        //{
-        //    if (isOn)
-        //    {
-        //        mat.EnableKeyword("_GROUNDPROJECTION_ON");
-        //    }
-        //    else
-        //    {
-        //        mat.DisableKeyword("_GROUNDPROJECTION_ON");
-        //    }
-        //    skyboxManager.Update = true;
-        //});
+
     }
 
 }

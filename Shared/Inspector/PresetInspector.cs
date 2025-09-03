@@ -1,8 +1,7 @@
-﻿using JetBrains.Annotations;
-using KKAPI.Utilities;
-using System;
+﻿using System;
 using System.Linq;
 using UnityEngine;
+using Graphics.Settings;
 using static Graphics.Inspector.Util;
 
 namespace Graphics.Inspector
@@ -22,23 +21,14 @@ namespace Graphics.Inspector
         private static Vector2 presetScrollView;
 
 
-        internal static void Draw(PresetManager presetManager, bool showAdvanced)
+        internal static void Draw(PresetManager presetManager, GlobalSettings renderSettings, bool showAdvanced)
         {
-            GUIStyle BoxPadding = new GUIStyle(GUI.skin.box);
-            BoxPadding.padding = new RectOffset(20, 20, 3, 13);
-            BoxPadding.normal.background = null;
-
             GUIStyle PresetBox = new GUIStyle(GUI.skin.textField);
-            PresetBox.padding = new RectOffset(5, 5, 10, 10);
+            PresetBox.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 0.3f), Mathf.RoundToInt(renderSettings.FontSize * 0.3f), Mathf.RoundToInt(renderSettings.FontSize * 0.5f), Mathf.RoundToInt(renderSettings.FontSize * 0.5f));
             PresetBox.normal.background = null;
 
-            GUIStyle EmptyBoxR = new GUIStyle(GUI.skin.box);
-            EmptyBoxR.padding = new RectOffset(0, 0, 3, 3);
-            EmptyBoxR.normal.background = null;
-
-            GUIStyle SmallBox = new GUIStyle(GUI.skin.box);
-            SmallBox.normal.background = null;
-            SmallBox.fixedWidth = 60;
+            GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);
+            TabContent.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f));
 
 
             GUILayout.BeginVertical(GUIStyles.tabcontent);

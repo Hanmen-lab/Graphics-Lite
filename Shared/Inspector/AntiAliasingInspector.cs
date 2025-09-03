@@ -10,7 +10,7 @@ namespace Graphics.Inspector
         internal static void Draw(GlobalSettings renderSettings, CameraSettings cameraSettings, PostProcessingSettings postProcessingSettings, PostProcessingManager postprocessingManager, bool showAdvanced)
         {
             GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);
-            TabContent.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2.9f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f));
+            TabContent.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f));
 
             GUILayout.BeginVertical(TabContent);
             {
@@ -87,24 +87,24 @@ namespace Graphics.Inspector
                             Label("UPSCALING", "", true);
                             GUILayout.Space(2);
                             Selection("Upscale Mode", ctaaSettings.SupersampleMode, mode => { ctaaSettings.SupersampleMode = mode; CTAAManager.UpdateSettings(); });
-                            if (ctaaSettings.SupersampleMode != CTAASettings.CTAA_MODE.STANDARD)
-                            {
-                                GUILayout.Space(10);
-                                Label("Warning!", "CINA SOFT & CINA ULTRA not working with rendered screenshots F11, use normal screenshots F9 instead.", false);
-                            }
-                            else
-                            {
-                                GUILayout.Space(10);
-                                Label("Warning!", "Rendered Screenshots F11 with Upsampling or Custom res may be blurry than usual. Use F9 instead if possible.", false);
-                            }
-                            GUILayout.Space(20);
-                            Label("EXPERIMENTAL FEATURE", "", true);
-                            GUILayout.Space(2);
-                            Toggle("Anti Shimmer", ctaaSettings.AntiShimmerMode.value, false, antiShimmer => { ctaaSettings.AntiShimmerMode.value = antiShimmer; CTAAManager.UpdateSettings(); });
-                            //GUILayout.Space(10);
-                            Label("Warning!", "Suitable only for static visualisation, CAD or non-animated objects. Camera can be moved.", false);
-                            Label("", "Will reduce micro shimmer, but cause heavy ghosting if used with animated objects.", false);
-                            Label("", "Can compeletely reduce flickering with Advanced Depth of Field.", false);
+                            //if (ctaaSettings.SupersampleMode != CTAASettings.CTAA_MODE.STANDARD)
+                            //{
+                            //    GUILayout.Space(10);
+                            //    Label("Warning!", "CINA SOFT & CINA ULTRA not working with rendered screenshots F11, use normal screenshots F9 instead.", false);
+                            //}
+                            //else
+                            //{
+                            //    GUILayout.Space(10);
+                            //    Label("Warning!", "Rendered Screenshots F11 with Upsampling or Custom res may be blurry than usual. Use F9 instead if possible.", false);
+                            //}
+                            //GUILayout.Space(20);
+                            //Label("EXPERIMENTAL FEATURE", "", true);
+                            //GUILayout.Space(2);
+                            //Toggle("Anti Shimmer", ctaaSettings.AntiShimmerMode.value, false, antiShimmer => { ctaaSettings.AntiShimmerMode.value = antiShimmer; CTAAManager.UpdateSettings(); });
+                            ////GUILayout.Space(10);
+                            //Label("Warning!", "Suitable only for static visualisation, CAD or non-animated objects. Camera can be moved.", false);
+                            //Label("", "Will reduce micro shimmer, but cause heavy ghosting if used with animated objects.", false);
+                            //Label("", "Can compeletely reduce flickering with Advanced Depth of Field.", false);
                         }
                     }
                 }

@@ -18,18 +18,18 @@ namespace Graphics.Inspector
         private static int customLightIndex = 0;
         //private static SEGI.SEGI segi;
         private static float lightbox = Inspector.Height * 0.25f;
-        internal static void Draw(GlobalSettings renderingSettings, LightManager lightManager, LightingSettings lightingSettings, bool showAdvanced)
+        internal static void Draw(GlobalSettings renderingSettings, LightManager lightManager, LightingSettings lightingSettings, bool showAdvanced/*, VolumetricLight volumetricLight*/)
         {
             float lightbuttonwidth = Inspector.Width * 0.32f;
 
             GUIStyle Tab = new GUIStyle(GUIStyles.tabcontent);
-            Tab.padding = new RectOffset(25, 25, 15, 15);
+            Tab.padding = new RectOffset(Mathf.RoundToInt(renderingSettings.FontSize * 2f), Mathf.RoundToInt(renderingSettings.FontSize * 2f), Mathf.RoundToInt(renderingSettings.FontSize * 1.5f), Mathf.RoundToInt(renderingSettings.FontSize * 1.5f));
             Tab.margin = new RectOffset(0, 0, 0, 5);
             Tab.normal.background = null;
 
             GUIStyle LightList = new GUIStyle(GUIStyles.tabsmall);
-            LightList.margin = new RectOffset(0, 0, 0, 10);
-            LightList.padding = new RectOffset(10, 10, 10, 4);
+            LightList.margin = new RectOffset(0, 0, 0, Mathf.RoundToInt(renderingSettings.FontSize));
+            LightList.padding = new RectOffset(Mathf.RoundToInt(renderingSettings.FontSize), Mathf.RoundToInt(renderingSettings.FontSize), Mathf.RoundToInt(renderingSettings.FontSize), 4);
 
             GUIStyle LightButton = new GUIStyle(GUIStyles.tabsmall);
             LightButton.margin = new RectOffset(0, 0, 0, 0);
@@ -40,7 +40,7 @@ namespace Graphics.Inspector
 
             GUIStyle LightListBox = new GUIStyle(GUIStyles.tabcontent);
             LightListBox.margin = new RectOffset(0, 0, 0, 0);
-            LightListBox.padding = new RectOffset(0, 0, 0, 0);
+            LightListBox.padding = new RectOffset(0, 0, Mathf.RoundToInt(renderingSettings.FontSize * 1.5f), 0);
             LightListBox.normal.background = null;
             LightListBox.fixedWidth = lightbuttonwidth;
             //LightListBox.fixedHeight = 400;
@@ -314,15 +314,15 @@ namespace Graphics.Inspector
         private static void DrawLightSettings(LightManager lightManager, GlobalSettings renderingSettings)
         {
             GUIStyle TabHeader = new GUIStyle(GUIStyles.tabcontent);
-            TabHeader.padding = new RectOffset(25, 25, 0, 0);
-            TabHeader.margin = new RectOffset(0, 0, 15, 0);
+            TabHeader.padding = new RectOffset(Mathf.RoundToInt(renderingSettings.FontSize * 2f), Mathf.RoundToInt(renderingSettings.FontSize * 2f), 0, 0);
+            TabHeader.margin = new RectOffset(0, 0, Mathf.RoundToInt(renderingSettings.FontSize * 2f), 0);
             TabHeader.normal.background = null;
             TabHeader.fixedHeight = 61;
             //TabHeader.fixedWidth = 200;
 
 
             GUIStyle Tab = new GUIStyle(GUIStyles.tabcontent);
-            Tab.padding = new RectOffset(25, 25, 15, 15);
+            Tab.padding = new RectOffset(Mathf.RoundToInt(renderingSettings.FontSize * 2f), Mathf.RoundToInt(renderingSettings.FontSize * 2f), Mathf.RoundToInt(renderingSettings.FontSize * 1.5f), Mathf.RoundToInt(renderingSettings.FontSize * 1.5f));
             Tab.margin = new RectOffset(0, 0, 0, 5);
             Tab.normal.background = null;
 
@@ -431,18 +431,17 @@ namespace Graphics.Inspector
             //Alloy
             //DrawAlloySettings(lightManager, alloyLight);
         }
-
         private static void DrawBasicSettings(LightManager lightManager, GlobalSettings renderingSettings)
         {
-            Label("COLOR", "", true);
-            GUILayout.Space(10);
-            SliderColor("Color", lightManager.SelectedLight.Color, c => lightManager.SelectedLight.Color = c);
-            GUILayout.Space(20);
-            Label("INTENSITY", "", true);
+            //Label("COLOR", "", true);
+            //GUILayout.Space(10);
+            SliderColor("Light Color", lightManager.SelectedLight.Color, c => lightManager.SelectedLight.Color = c);
+            //GUILayout.Space(20);
+            //Label("INTENSITY", "", true);
             GUILayout.Space(10);
             Slider("Intensity", lightManager.SelectedLight.Intensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N2", i => lightManager.SelectedLight.Intensity = i);
             //Slider("Indirect Multiplier", lightManager.SelectedLight.Light.bounceIntensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N0", bi => lightManager.SelectedLight.Light.bounceIntensity = bi);
-            ToggleAlt("Linear Intensity", renderingSettings.LightsUseLinearIntensity, false, useLinear => renderingSettings.LightsUseLinearIntensity = useLinear);
+            Toggle("Linear Intensity", renderingSettings.LightsUseLinearIntensity, false, useLinear => renderingSettings.LightsUseLinearIntensity = useLinear);
             GUILayout.Space(10);
             Slider("Indirect Multiplier", lightManager.SelectedLight.Light.bounceIntensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N0", bi => lightManager.SelectedLight.Light.bounceIntensity = bi);
         }

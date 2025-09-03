@@ -64,7 +64,7 @@ namespace Graphics.Inspector
             GUILayout.EndVertical();
             postScrollView = GUILayout.BeginScrollView(postScrollView);
             GUILayout.BeginVertical(SmallTab);
-            Selection2("AMBIENT OCCLUSION", settings.AOList, aol => settings.AOList = aol);
+            SelectionAO("AMBIENT OCCLUSION", settings.AOList, aol => settings.AOList = aol, 5);
             if (PostProcessingSettings.AmbientOcclusionList.Legacy == settings.AOList)
             {
                 if (settings.ambientOcclusionLayer != null)
@@ -517,30 +517,21 @@ namespace Graphics.Inspector
                             settings.colorGradingLayer.gain.overrideState, overrideSate => settings.colorGradingLayer.gain.overrideState = overrideSate, "Value", -1.5f, 3f);
 
                         GUILayout.Space(30);
-                        //Toggle("POST-TRANSFORM (LDR)", settings.agxColorPostLayer.enabled, true, enabled => { settings.agxColorPostLayer.active = enabled; settings.agxColorPostLayer.enabled.Override(enabled); settings.agxColorPostLayer.external.Override(false); });
-                        //if (!settings.agxColorPostLayer.external.value)
-                        //{
-                        //GUILayout.Space(30);
-                        //Label("BACKGROUND", "", true);
-                        //GUILayout.Space(10);
-                        //ToggleAlt("External", settings.agxColorLayer.external, false, external => settings.agxColorLayer.external.Override(external));
+                        if (settings.colorClippingLayer != null)
+                        {
+                            ToggleAlt("Debug Clipping", settings.colorClippingLayer.enabled, false, enabled => { settings.colorClippingLayer.active = enabled; settings.colorClippingLayer.enabled.Override(enabled); });
+                            if (settings.colorClippingLayer.enabled.value)
+                            {
+                                GUILayout.Space(10);
+                                Slider("Shadow Threshold", settings.colorClippingLayer.shadowThreshold.value, 0.001f, 0.1f, "N3", shadowThreshold => settings.colorClippingLayer.shadowThreshold.value = shadowThreshold,
+                                    settings.colorClippingLayer.shadowThreshold.overrideState, overrideState => settings.colorClippingLayer.shadowThreshold.overrideState = overrideState);
+                                Slider("Highlight Threshold", settings.colorClippingLayer.highlightThreshold.value, 0.9f, 1f, "N3", highlightThreshold => settings.colorClippingLayer.highlightThreshold.value = highlightThreshold,
+                                    settings.colorClippingLayer.highlightThreshold.overrideState, overrideState => settings.colorClippingLayer.highlightThreshold.overrideState = overrideState);
+                                ToggleAlt("Show Shadows", settings.colorClippingLayer.showShadows, false, showShadows => settings.colorClippingLayer.showShadows.Override(showShadows));
+                                ToggleAlt("Show Highlights", settings.colorClippingLayer.showHighlights, false, showHighlights => settings.colorClippingLayer.showHighlights.Override(showHighlights));
 
-                        //ToggleAlt("Use Background LUT", settings.agxColorPostLayer.useBackgroundLut, false, useBackgroundLut => settings.agxColorPostLayer.useBackgroundLut.Override(useBackgroundLut));
-                        //if (settings.agxColorPostLayer.useBackgroundLut)
-                        //{
-                        //    GUILayout.Space(10);
-                        //    Selection("Background LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
-                        //        lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.agxColorPostLayer.backgroundLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
-                        //        settings.agxColorPostLayer.backgroundLut.overrideState, overrideState => settings.agxColorPostLayer.backgroundLut.overrideState = overrideState);
-                        //    GUILayout.Space(10);
-                        //    Slider("LUT Start", settings.agxColorPostLayer.backgroundBlendStart.value, 0, 1000, "N0", blend => settings.agxColorPostLayer.backgroundBlendStart.value = blend,
-                        //        settings.agxColorPostLayer.backgroundBlendStart.overrideState, overrideState => settings.agxColorPostLayer.backgroundBlendStart.overrideState = overrideState);
-                        //    Slider("LUT End", settings.agxColorPostLayer.backgroundBlendRange.value, 0, 1000, "N0", blend => settings.agxColorPostLayer.backgroundBlendRange.value = blend,
-                        //        settings.agxColorPostLayer.backgroundBlendRange.overrideState, overrideState => settings.agxColorPostLayer.backgroundBlendRange.overrideState = overrideState);
-                        //    Slider("Intensity", settings.agxColorPostLayer.blend.value, 0f, 1f, "N2", intensity => settings.agxColorPostLayer.blend.value = intensity,
-                        //        settings.agxColorPostLayer.blend.overrideState, overrideState => settings.agxColorPostLayer.blend.overrideState = overrideState);
-                        //}
-                        //}
+                            }
+                        }
                     }
                     else
                     {
@@ -653,25 +644,23 @@ namespace Graphics.Inspector
                                     settings.agxColorPostLayer.gamma.overrideState, overrideSate => settings.agxColorPostLayer.gamma.overrideState = overrideSate, "Value", -1.5f, 3f);
                                 SliderColor("Gain", settings.agxColorPostLayer.gain.value, colour => settings.agxColorPostLayer.gain.value = colour, false,
                                     settings.agxColorPostLayer.gain.overrideState, overrideSate => settings.agxColorPostLayer.gain.overrideState = overrideSate, "Value", -1.5f, 3f);
+                                
+                                GUILayout.Space(30);
+                                if (settings.colorClippingLayer != null)
+                                {
+                                    ToggleAlt("Debug Clipping", settings.colorClippingLayer.enabled, false, enabled => { settings.colorClippingLayer.active = enabled; settings.colorClippingLayer.enabled.Override(enabled); });
+                                    if (settings.colorClippingLayer.enabled.value)
+                                    {
+                                        GUILayout.Space(10);
+                                        Slider("Shadow Threshold", settings.colorClippingLayer.shadowThreshold.value, 0.001f, 0.1f, "N3", shadowThreshold => settings.colorClippingLayer.shadowThreshold.value = shadowThreshold,
+                                            settings.colorClippingLayer.shadowThreshold.overrideState, overrideState => settings.colorClippingLayer.shadowThreshold.overrideState = overrideState);
+                                        Slider("Highlight Threshold", settings.colorClippingLayer.highlightThreshold.value, 0.9f, 1f, "N3", highlightThreshold => settings.colorClippingLayer.highlightThreshold.value = highlightThreshold,
+                                            settings.colorClippingLayer.highlightThreshold.overrideState, overrideState => settings.colorClippingLayer.highlightThreshold.overrideState = overrideState);
+                                        ToggleAlt("Show Shadows", settings.colorClippingLayer.showShadows, false, showShadows => settings.colorClippingLayer.showShadows.Override(showShadows));
+                                        ToggleAlt("Show Highlights", settings.colorClippingLayer.showHighlights, false, showHighlights => settings.colorClippingLayer.showHighlights.Override(showHighlights));
 
-                                //GUILayout.Space(30);
-                                //Label("BACKGROUND", "", true);
-                                //GUILayout.Space(10);
-                                //ToggleAlt("Use Background LUT", settings.agxColorPostLayer.useBackgroundLut, false, useBackgroundLut => settings.agxColorPostLayer.useBackgroundLut.Override(useBackgroundLut));
-                                //if (settings.agxColorPostLayer.useBackgroundLut)
-                                //{
-                                //    GUILayout.Space(10);
-                                //    Selection("Background LUT", postprocessingManager.CurrentLUTName, postprocessingManager.LUTNames,
-                                //        lut => { if (lut != postprocessingManager.CurrentLUTName) { settings.agxColorPostLayer.backgroundLut.value = postprocessingManager.LoadLUT(lut); } }, 3,
-                                //        settings.agxColorPostLayer.backgroundLut.overrideState, overrideState => settings.agxColorPostLayer.backgroundLut.overrideState = overrideState);
-                                //    GUILayout.Space(10);
-                                //    Slider("LUT Start", settings.agxColorPostLayer.backgroundBlendStart.value, 0, 1000, "N0", blend => settings.agxColorPostLayer.backgroundBlendStart.value = blend,
-                                //        settings.agxColorPostLayer.backgroundBlendStart.overrideState, overrideState => settings.agxColorPostLayer.backgroundBlendStart.overrideState = overrideState);
-                                //    Slider("LUT End", settings.agxColorPostLayer.backgroundBlendRange.value, 0, 1000, "N0", blend => settings.agxColorPostLayer.backgroundBlendRange.value = blend,
-                                //        settings.agxColorPostLayer.backgroundBlendRange.overrideState, overrideState => settings.agxColorPostLayer.backgroundBlendRange.overrideState = overrideState);
-                                //    Slider("Intensity", settings.agxColorPostLayer.blend.value, 0f, 1f, "N2", intensity => settings.agxColorPostLayer.blend.value = intensity,
-                                //        settings.agxColorPostLayer.blend.overrideState, overrideState => settings.agxColorPostLayer.blend.overrideState = overrideState);
-                                //}
+                                    }
+                                }
                             }
                         }
                     }

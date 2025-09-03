@@ -900,6 +900,128 @@ namespace Graphics.Inspector
             return selected;
         }
 
+        internal static TEnum SelectionSSR<TEnum>(string label, TEnum selected, Action<TEnum> onChanged = null, int columns = -1, bool enable = true, Action<bool> onChangedEnable = null) where TEnum : Enum
+        {
+            GUILayout.BeginHorizontal();
+
+            int spacing = 0;
+            label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
+            GUILayout.Label(label, GUIStyles.boldlabel, GUILayout.ExpandWidth(false));
+            GUILayout.Label("", GUILayout.Width(GUIStyles.labelWidth - GUI.skin.label.CalcSize(new GUIContent(label)).x - spacing));
+            //EnableToggle(label, ref spacing, ref enable, onChangedEnable);
+
+            GUI.enabled = enable;
+            string[] selection = Enum.GetNames(typeof(TEnum));
+            string[] localizedSelection = LocalizationManager.HasLocalization() ? selection.Select(text => LocalizationManager.Localized(text)).ToArray() : selection;
+
+            int currentIndex = Array.IndexOf(selection, selected.ToString());
+            if (columns == -1)
+            {
+                columns = localizedSelection.Length;
+            }
+
+            bool isDeferredRendering = Graphics.Instance.CameraSettings.RenderingPath == CameraSettings.AIRenderingPath.Deferred;
+
+            GUILayout.BeginVertical();
+            for (int i = 0; i < localizedSelection.Length; i += columns)
+            {
+                GUILayout.BeginHorizontal();
+                for (int j = 0; j < columns && i + j < localizedSelection.Length; j++)
+                {
+                    int index = i + j;
+                    bool disableButton;
+
+                    if (isDeferredRendering)
+                    {
+                        disableButton = false;
+                    }
+                    else
+                    {
+                        disableButton = (selection[index] == "StochasticSSR");
+                    }
+
+                    GUI.enabled = !disableButton && enable;
+
+                    bool isSelected = currentIndex == index;
+                    bool newSelected = GUILayout.Toggle(isSelected, localizedSelection[index], "Button");
+
+                    if (newSelected && !isSelected)
+                    {
+                        selected = (TEnum)Enum.Parse(typeof(TEnum), selection[index]);
+                        onChanged?.Invoke(selected);
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndVertical();
+            GUI.enabled = true;
+
+            GUILayout.EndHorizontal();
+
+            return selected;
+        }
+
+        internal static TEnum SelectionAO<TEnum>(string label, TEnum selected, Action<TEnum> onChanged = null, int columns = -1, bool enable = true, Action<bool> onChangedEnable = null) where TEnum : Enum
+        {
+            GUILayout.BeginHorizontal();
+
+            int spacing = 0;
+            label = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(label) : label;
+            GUILayout.Label(label, GUIStyles.boldlabel, GUILayout.ExpandWidth(false));
+            GUILayout.Label("", GUILayout.Width(GUIStyles.labelWidth - GUI.skin.label.CalcSize(new GUIContent(label)).x - spacing));
+            //EnableToggle(label, ref spacing, ref enable, onChangedEnable);
+
+            GUI.enabled = enable;
+            string[] selection = Enum.GetNames(typeof(TEnum));
+            string[] localizedSelection = LocalizationManager.HasLocalization() ? selection.Select(text => LocalizationManager.Localized(text)).ToArray() : selection;
+
+            int currentIndex = Array.IndexOf(selection, selected.ToString());
+            if (columns == -1)
+            {
+                columns = localizedSelection.Length;
+            }
+
+            bool isDeferredRendering = Graphics.Instance.CameraSettings.RenderingPath == CameraSettings.AIRenderingPath.Deferred;
+
+            GUILayout.BeginVertical();
+            for (int i = 0; i < localizedSelection.Length; i += columns)
+            {
+                GUILayout.BeginHorizontal();
+                for (int j = 0; j < columns && i + j < localizedSelection.Length; j++)
+                {
+                    int index = i + j;
+                    bool disableButton;
+
+                    if (isDeferredRendering)
+                    {
+                        disableButton = false;
+                    }
+                    else
+                    {
+                        disableButton = (selection[index] == "GTAO");
+                    }
+
+                    GUI.enabled = !disableButton && enable;
+
+                    bool isSelected = currentIndex == index;
+                    bool newSelected = GUILayout.Toggle(isSelected, localizedSelection[index], "Button");
+
+                    if (newSelected && !isSelected)
+                    {
+                        selected = (TEnum)Enum.Parse(typeof(TEnum), selection[index]);
+                        onChanged?.Invoke(selected);
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndVertical();
+            GUI.enabled = true;
+
+            GUILayout.EndHorizontal();
+
+            return selected;
+        }
+
         internal static int SelectionTexture(string label, int currentIndex, Texture[] selection, int columns = -1, bool enable = true, Action<bool> onChangedEnable = null, GUIStyle style = null)
         {
             GUILayout.BeginHorizontal();

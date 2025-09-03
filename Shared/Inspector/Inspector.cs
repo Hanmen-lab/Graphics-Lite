@@ -25,6 +25,8 @@ namespace Graphics.Inspector
             { Inspector.Tab.Presets, "Presets" },
             { Inspector.Tab.Settings, "Settings" }
         };
+
+
         private Tab SelectedTab { get; set; }
         internal Graphics Parent { get; set; }
 
@@ -110,7 +112,7 @@ namespace Graphics.Inspector
             switch (tabSelected)
             {
                 case Tab.Environmental:
-                    LightingInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.LightManager, Parent.Settings.ShowAdvancedSettings);
+                    LightingInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.LightManager, Parent.Settings, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.Lights:
                     LightInspector.Draw(Parent.Settings, Parent.LightManager, Parent.LightingSettings, Parent.Settings.ShowAdvancedSettings);
@@ -131,7 +133,7 @@ namespace Graphics.Inspector
                     SSSInspector.Draw(Parent.Settings);
                     break;
                 case Tab.Presets:
-                    PresetInspector.Draw(Parent.PresetManager, Parent.Settings.ShowAdvancedSettings);
+                    PresetInspector.Draw(Parent.PresetManager, Parent.Settings, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.Settings:
                     SettingsInspector.Draw(Parent.CameraSettings, Parent.Settings, Parent.Settings.ShowAdvancedSettings);

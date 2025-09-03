@@ -17,7 +17,7 @@ namespace Graphics.Inspector
             BoxPadding.normal.background = null;
 
             GUIStyle EmptyBox = new GUIStyle(GUI.skin.box);
-            EmptyBox.padding = new RectOffset(25, 20, 0, 0);
+            EmptyBox.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f), 0, 0);
             EmptyBox.normal.background = null;
 
             GUIStyle SmallBox = new GUIStyle(GUI.skin.box);
@@ -52,7 +52,7 @@ namespace Graphics.Inspector
                     {
                         GUILayout.Space(5);
                         Slider("Updates Per Second", segiSettings.updateGIRateInt, 0, 64, updateGIRate =>
-                        { segiSettings.updateGIRateInt = updateGIRate; segiSettings.updateGIRateFloat = 1.0f / updateGIRate; SEGIManager.UpdateSettings(); });
+                            { segiSettings.updateGIRateInt = updateGIRate; segiSettings.updateGIRateFloat = 1.0f / updateGIRate; SEGIManager.UpdateSettings(); });
                         if (segiSettings.updateGIRateInt == 0)
                             Label("Update GI Rate: Every frame (Default)", "", false);
                         else
@@ -146,7 +146,7 @@ namespace Graphics.Inspector
                         Label("Accessories: Hanmen/Item Cutoff", "", false);
                         Label("Studio Items: Hanmen/Item Cutoff or Standard.", "", false);
                         GUILayout.Space(10);
-                        LabelColorRed("Not Supported: AIT/Clothes True, AIT/Item, AIT/Skin True Face, ShaderForge/hair08, all Alpha Shaders... etc.", "", false);
+                        LabelColorRed("Not Supported: Transparent (all), AIT (all), Hair shaders (all), Anisotropic shaders (all)", "", false);
                         GUILayout.Space(10);
                     }
 
