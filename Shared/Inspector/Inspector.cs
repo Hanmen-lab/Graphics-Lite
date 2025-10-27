@@ -1,4 +1,5 @@
 ﻿using ADV.Commands.Base;
+using Graphics.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,10 @@ namespace Graphics.Inspector
     {
         private static Rect _windowRect;
         private readonly int _windowID = 53157126;
+        public static int adaptiveColumns;
+        public static int adaptivePreviewColumns;
+        private static int cachedWindowWidth = -1;
+        public static int maxTextWidth;
         public enum Tab { Environmental, Probes, Lights, GI, PostProcessing, AntiAliasing, SSS, Presets, Settings };
         public static readonly Dictionary<Inspector.Tab, string> DisplayNames = new Dictionary<Inspector.Tab, string>
         {
@@ -82,6 +87,16 @@ namespace Graphics.Inspector
             get => Graphics.ConfigWindowOffsetY.Value;
             set => Graphics.ConfigWindowOffsetY.Value = value;
         }
+        static void UpdateColumns(GlobalSettings renderSettings)
+        {
+            if (cachedWindowWidth == Inspector.Width)
+                return;
+            maxTextWidth = Inspector.Width - 200;
+            cachedWindowWidth = Inspector.Width;
+            int availableWidth = Inspector.Width - 330; // Padding
+            adaptiveColumns = Mathf.Max(1, Mathf.FloorToInt(availableWidth / 150f));
+            adaptivePreviewColumns = Mathf.Max(1, Mathf.FloorToInt(availableWidth / 74f));
+        }
 
         internal void DrawWindow()
         {
@@ -89,6 +104,9 @@ namespace Graphics.Inspector
             EatInputInRect(_windowRect);
             StartOffsetX = (int)_windowRect.x;
             StartOffsetY = (int)_windowRect.y;
+
+            GlobalSettings renderSettings = Parent.Settings;
+            UpdateColumns(renderSettings);
         }
 
         private void WindowFunction(int thisWindowID)
@@ -136,7 +154,7 @@ namespace Graphics.Inspector
                     PresetInspector.Draw(Parent.PresetManager, Parent.Settings, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.Settings:
-                    SettingsInspector.Draw(Parent.CameraSettings, Parent.Settings, Parent.Settings.ShowAdvancedSettings);
+                    SettingsInspector.Draw(Parent.CameraSettings, Parent.Settings, Parent.LightManager, Parent.Settings.ShowAdvancedSettings);
                     break;
             }
         }

@@ -42,7 +42,7 @@ namespace Graphics.Inspector
 
         }
 
-        internal static void Draw(CameraSettings cameraSettings, GlobalSettings renderingSettings, bool showAdvanced)
+        internal static void Draw(CameraSettings cameraSettings, GlobalSettings renderingSettings, LightManager lightManager, bool showAdvanced)
         {
 
             settingstScrollView = GUILayout.BeginScrollView(settingstScrollView);

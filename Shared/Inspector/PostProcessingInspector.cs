@@ -357,7 +357,7 @@ namespace Graphics.Inspector
             if (settings.bloomLayer != null)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "BLOOM", settings.bloomLayer.enabled.value, true, enabled => settings.bloomLayer.active = settings.bloomLayer.enabled.value = enabled);
+                Switch( "BLOOM", settings.bloomLayer.enabled.value, true, enabled => settings.bloomLayer.active = settings.bloomLayer.enabled.value = enabled);
                 if (settings.bloomLayer.enabled.value)
                 {
                     GUILayout.Space(30);
@@ -394,7 +394,7 @@ namespace Graphics.Inspector
             if (settings.colorGradingLayer)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "COLOR GRADING", settings.colorGradingLayer.enabled.value, true, enabled =>
+                Switch( "COLOR GRADING", settings.colorGradingLayer.enabled.value, true, enabled =>
                 {
                     settings.colorGradingLayer.active = settings.colorGradingLayer.enabled.value = enabled;
                     settings.agxColorLayer.active = settings.colorGradingLayer.enabled.value = enabled;
@@ -671,7 +671,7 @@ namespace Graphics.Inspector
             if (settings.autoExposureLayer != null)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "AUTO EXPOSURE", settings.autoExposureLayer.enabled.value, true, enabled => settings.autoExposureLayer.active = settings.autoExposureLayer.enabled.value = enabled);
+                Switch( "AUTO EXPOSURE", settings.autoExposureLayer.enabled.value, true, enabled => settings.autoExposureLayer.active = settings.autoExposureLayer.enabled.value = enabled);
                 if (settings.autoExposureLayer.enabled.value)
                 {
                     GUILayout.Space(30);
@@ -703,7 +703,7 @@ namespace Graphics.Inspector
             if (settings.chromaticAberrationLayer)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "CHROMATIC ABERRATION", settings.chromaticAberrationLayer.enabled.value, true, enabled => settings.chromaticAberrationLayer.active = settings.chromaticAberrationLayer.enabled.value = enabled);
+                Switch( "CHROMATIC ABERRATION", settings.chromaticAberrationLayer.enabled.value, true, enabled => settings.chromaticAberrationLayer.active = settings.chromaticAberrationLayer.enabled.value = enabled);
                 if (settings.chromaticAberrationLayer.enabled.value)
                 {
                     GUILayout.Space(30);
@@ -720,7 +720,7 @@ namespace Graphics.Inspector
             if (settings.depthOfFieldLayer)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "DEPTH OF FIELD", settings.depthOfFieldLayer.enabled.value, true, enabled => settings.depthOfFieldLayer.active = settings.depthOfFieldLayer.enabled.value = enabled);
+                Switch( "DEPTH OF FIELD", settings.depthOfFieldLayer.enabled.value, true, enabled => settings.depthOfFieldLayer.active = settings.depthOfFieldLayer.enabled.value = enabled);
                 if (settings.depthOfFieldLayer.enabled.value)
                 {
                     FocusSettings focusSettings = FocusManager.settings;
@@ -796,7 +796,7 @@ namespace Graphics.Inspector
             //if (settings.grainLayer != null)
             //{
             //    GUILayout.BeginVertical(SmallTab);
-            //    Switch(renderSettings.FontSize, "GRAIN", settings.grainLayer.enabled.value, true, enabled => settings.grainLayer.active = settings.grainLayer.enabled.value = enabled);
+            //    Switch( "GRAIN", settings.grainLayer.enabled.value, true, enabled => settings.grainLayer.active = settings.grainLayer.enabled.value = enabled);
             //    if (settings.grainLayer.enabled.value)
             //    {
             //        GUILayout.Space(10);
@@ -817,7 +817,7 @@ namespace Graphics.Inspector
                 FilmGrainSettings grainLayer = FilmGrainManager.settings;
 
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "GRAIN", grainLayer.enabled, true, enabled => { grainLayer.enabled = enabled; FilmGrainManager.UpdateSettings(); });
+                Switch( "GRAIN", grainLayer.enabled, true, enabled => { grainLayer.enabled = enabled; FilmGrainManager.UpdateSettings(); });
 
                 if (grainLayer.enabled)
                 {
@@ -840,7 +840,7 @@ namespace Graphics.Inspector
             if (settings.screenSpaceReflectionsLayer != null)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "SSR", settings.screenSpaceReflectionsLayer.enabled.value, true, enabled => settings.screenSpaceReflectionsLayer.active = settings.screenSpaceReflectionsLayer.enabled.value = enabled);
+                Switch( "SSR", settings.screenSpaceReflectionsLayer.enabled.value, true, enabled => settings.screenSpaceReflectionsLayer.active = settings.screenSpaceReflectionsLayer.enabled.value = enabled);
                 if (settings.screenSpaceReflectionsLayer.enabled.value)
                 {
                     GUILayout.Space(30);
@@ -872,7 +872,7 @@ namespace Graphics.Inspector
             if (settings.vignetteLayer != null)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "VIGNETTE", settings.vignetteLayer.enabled.value, true, enabled => settings.vignetteLayer.active = settings.vignetteLayer.enabled.value = enabled);
+                Switch( "VIGNETTE", settings.vignetteLayer.enabled.value, true, enabled => settings.vignetteLayer.active = settings.vignetteLayer.enabled.value = enabled);
                 if (settings.vignetteLayer.enabled.value)
                 {
                     GUILayout.Space(30);
@@ -894,7 +894,7 @@ namespace Graphics.Inspector
             if (settings.motionBlurLayer != null)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "MOTION BLUR", settings.motionBlurLayer.enabled.value, true, enabled => settings.motionBlurLayer.active = settings.motionBlurLayer.enabled.value = enabled);
+                Switch( "MOTION BLUR", settings.motionBlurLayer.enabled.value, true, enabled => settings.motionBlurLayer.active = settings.motionBlurLayer.enabled.value = enabled);
                 if (settings.motionBlurLayer.enabled.value)
                 {
                     GUILayout.Space(30);
@@ -910,7 +910,7 @@ namespace Graphics.Inspector
             {
                 GlobalFogSettings globalfogSettings = GlobalFogManager.settings;
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "GLOBAL FOG", globalfogSettings.Enabled, true, enabled => { globalfogSettings.Enabled = enabled; GlobalFogManager.UpdateSettings(); });
+                Switch( "GLOBAL FOG", globalfogSettings.Enabled, true, enabled => { globalfogSettings.Enabled = enabled; GlobalFogManager.UpdateSettings(); });
                 if (globalfogSettings.Enabled)
                 {
                     GUILayout.Space(30);
@@ -937,7 +937,7 @@ namespace Graphics.Inspector
                 UnderWaterBlurSettings blurSettings = LuxWater_UnderwaterBlurManager.settings;
                 GUILayout.BeginVertical(SmallTab);
 
-                Switch(renderSettings.FontSize, "UNDERWATER RENDERING", underwaterSettings.Enabled, true, enabled =>
+                Switch( "UNDERWATER RENDERING", underwaterSettings.Enabled, true, enabled =>
                 {
                     underwaterSettings.Enabled = enabled;
                     triggerSettings.Enabled = enabled;
@@ -976,7 +976,7 @@ namespace Graphics.Inspector
                 AuraSettings auralayer = AuraManager.settings;
 
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "AURA 2 Volumetric Lighting & Fog", auralayer.Enabled, true, enabled => { auralayer.Enabled = enabled; AuraManager.UpdateSettings(); });
+                Switch( "AURA 2 Volumetric Lighting & Fog", auralayer.Enabled, true, enabled => { auralayer.Enabled = enabled; AuraManager.UpdateSettings(); });
 
                 if (auralayer.Enabled)
                 {
@@ -1062,7 +1062,7 @@ namespace Graphics.Inspector
             if (settings.sunShaftsHDRLayer != null)
             {
                 GUILayout.BeginVertical(SmallTab);
-                Switch(renderSettings.FontSize, "SUN SHAFTS HDR", settings.sunShaftsHDRLayer.enabled, true, enabled => { settings.sunShaftsHDRLayer.active = enabled; settings.sunShaftsHDRLayer.enabled.Override(enabled); });
+                Switch( "SUN SHAFTS HDR", settings.sunShaftsHDRLayer.enabled, true, enabled => { settings.sunShaftsHDRLayer.active = enabled; settings.sunShaftsHDRLayer.enabled.Override(enabled); });
                 if (settings.sunShaftsHDRLayer.enabled.value)
                 {
                     GUILayout.Space(30);
