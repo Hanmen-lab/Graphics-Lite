@@ -3,9 +3,6 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Graphics.Settings;
-using static Graphics.Settings.GlobalSettings;
-using UnityEngine.UI;
-using Housing;
 
 namespace Graphics.Inspector
 {
@@ -987,8 +984,8 @@ namespace Graphics.Inspector
             fswitch.contentOffset = new Vector2(0, 0);
             fswitch.fixedWidth = 78;
             fswitch.fixedHeight = 40;
-            fswitch.stretchWidth = true;
-            fswitch.stretchHeight = true;
+            fswitch.stretchWidth = false;
+            fswitch.stretchHeight = false;
 
             switchlabel = new GUIStyle
             {

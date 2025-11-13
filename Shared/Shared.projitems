@@ -10,6 +10,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Resources\blueNoiseSSR64.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\bordertex.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\warningboxbg.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\warningbg.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\preview_norm.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\preview_hover.png" />
     <Content Include="$(MSBuildThisFileDirectory)Resources\X-Noise256.png" />
     <Content Include="$(MSBuildThisFileDirectory)Standard Image Effects\Alloy\AreaLight\Defaults\DefaultSpotCookie.tif" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\slider_a.png" />
@@ -119,6 +124,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Hooks\CreatePngScreenController.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Inspector\ReflectionProbeInspector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\AmplifyOcclusionManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\AuraManager.cs" />
@@ -136,6 +142,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SEGIManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SkyboxManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SSSManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\TemporalScreenshotManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\Texture\EmbeddedTextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\Texture\ExternalTextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\Texture\InternalTextureManager.cs" />
@@ -227,8 +234,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Setting\PostProcessingValues.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\SSSSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\ColorUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\CustomShadowResolutionHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\DebugUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\LoadingAnimation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\PathUtil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\TemporalScreenshotTool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PostProcessingStack\AgxColor.cs" />
   </ItemGroup>
@@ -280,9 +290,6 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\sss" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\ctaa.unity3d" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\vao.unity3d" />
   </ItemGroup>
   <ItemGroup>
@@ -307,6 +314,7 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\MAIN_GAME.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\decals-resources.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\clipping.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\ctaav3.unity3d" />
     <None Include="$(MSBuildThisFileDirectory)Resources\defaults\MAKER.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\STUDIO.factory" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defaults\TITLE.factory" />
@@ -315,6 +323,8 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\segi.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\grain.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defref.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\loading.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\temporalscreen.unity3d" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\spectral_luts.unity3d" />

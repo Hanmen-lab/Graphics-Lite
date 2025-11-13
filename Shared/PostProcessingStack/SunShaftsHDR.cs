@@ -70,16 +70,22 @@ namespace Graphics
         }
 
 
-        RenderTexture lrColorB;
-        RenderTexture lrDepthBuffer;
-
+        //RenderTexture lrColorB;
+        //RenderTexture lrDepthBuffer;
+        internal static readonly int _lrColorB_ID = Shader.PropertyToID("SSHDR_lrColorB");
+        internal static readonly int _lrDepthBuffer_ID = Shader.PropertyToID("SSHDR_lrDepthBuffer");
+        internal static readonly int _tmpBuffer_ID = Shader.PropertyToID("SSHDR_tmpBuffer");
+        internal static readonly int _skybox_ID = Shader.PropertyToID("_Skybox");
+        internal static readonly int _colorBuffer_ID = Shader.PropertyToID("_ColorBuffer");
 
         public override void Render(PostProcessRenderContext context)
         {
             var sheetSHAFTS = context.propertySheets.Get(shader);
             sheetSHAFTS.properties.SetFloat("_Blend", settings.blend);
 
-            Camera camera = Camera.main;
+            //Camera camera = Camera.main;
+            Camera camera = context.camera;
+
             // we actually need to check this every frame
             if (settings.useDepthTexture)
             {
@@ -96,9 +102,11 @@ namespace Graphics
                 v = camera.WorldToViewportPoint(camera.transform.position - UnityEngine.RenderSettings.sun.transform.forward * camera.nearClipPlane * 2);
 
             int rtW = context.width; //source.width / divider;
-            int rtH = context.width; //source.height / divider;
+            //int rtH = context.width; //source.height / divider;
+            int rtH = context.height; //source.height / divider;
 
-            lrDepthBuffer = RenderTexture.GetTemporary(rtW, rtH, 0);
+            //lrDepthBuffer = RenderTexture.GetTemporary(rtW, rtH, 0);
+            context.command.GetTemporaryRT(_lrDepthBuffer_ID, rtW, rtH, 0, FilterMode.Bilinear);
 
             //mask out everything except the skybox
             //we have 2 methods, one of which requires depth buffer support, the other one is just comparing images
@@ -109,18 +117,23 @@ namespace Graphics
             if (!settings.useDepthTexture)
             {
                 var format = camera.allowHDR ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default; //v3.4.9
-                RenderTexture tmpBuffer = RenderTexture.GetTemporary(context.width, context.height, 0, format);
-                RenderTexture.active = tmpBuffer;
+                //RenderTexture tmpBuffer = RenderTexture.GetTemporary(context.width, context.height, 0, format);
+                //RenderTexture.active = tmpBuffer;
+                context.command.GetTemporaryRT(_tmpBuffer_ID, rtW, rtH, 0, FilterMode.Bilinear, format);
+                context.command.SetRenderTarget(_tmpBuffer_ID);
                 GL.ClearWithSkybox(false, camera);
 
-                sheetSHAFTS.properties.SetTexture("_Skybox", tmpBuffer);
-                context.command.BlitFullscreenTriangle(context.source, lrDepthBuffer, sheetSHAFTS, 3);
-                RenderTexture.ReleaseTemporary(tmpBuffer);
+                //sheetSHAFTS.properties.SetTexture("_Skybox", tmpBuffer);
+                //context.command.BlitFullscreenTriangle(context.source, lrDepthBuffer, sheetSHAFTS, 3);
+                //RenderTexture.ReleaseTemporary(tmpBuffer);
+                context.command.SetGlobalTexture(_skybox_ID, _tmpBuffer_ID);
+                context.command.BlitFullscreenTriangle(context.source, _lrDepthBuffer_ID, sheetSHAFTS, 3);
+                context.command.ReleaseTemporaryRT(_tmpBuffer_ID);
             }
             else
             {
-                context.command.BlitFullscreenTriangle(context.source, lrDepthBuffer, sheetSHAFTS, 2);
-
+                //context.command.BlitFullscreenTriangle(context.source, lrDepthBuffer, sheetSHAFTS, 2);
+                context.command.BlitFullscreenTriangle(context.source, _lrDepthBuffer_ID, sheetSHAFTS, 2);
             }
 
             int radialBlurIterations = Mathf.Clamp(settings.radialBlurIterations, 1, 4);
@@ -135,18 +148,24 @@ namespace Graphics
                 // each iteration takes 2 * 6 samples
                 // we update _BlurRadius each time to cheaply get a very smooth look
 
-                lrColorB = RenderTexture.GetTemporary(rtW, rtH, 0);
+                //lrColorB = RenderTexture.GetTemporary(rtW, rtH, 0);
+                context.command.GetTemporaryRT(_lrColorB_ID, rtW, rtH, 0, FilterMode.Bilinear);
 
-                context.command.BlitFullscreenTriangle(lrDepthBuffer, lrColorB, sheetSHAFTS, 1);
-                RenderTexture.ReleaseTemporary(lrDepthBuffer);
+                //context.command.BlitFullscreenTriangle(lrDepthBuffer, lrColorB, sheetSHAFTS, 1);
+                //RenderTexture.ReleaseTemporary(lrDepthBuffer);
+                context.command.BlitFullscreenTriangle(_lrDepthBuffer_ID, _lrColorB_ID, sheetSHAFTS, 1);
+                context.command.ReleaseTemporaryRT(_lrDepthBuffer_ID);
                 ofs = settings.sunShaftBlurRadius * (((it2 * 2.0f + 1.0f) * 6.0f)) / 768.0f;
 
                 sheetSHAFTS.properties.SetVector("_BlurRadius4", new Vector4(ofs, ofs, 0.0f, 0.0f));
 
-                lrDepthBuffer = RenderTexture.GetTemporary(rtW, rtH, 0);
+                //lrDepthBuffer = RenderTexture.GetTemporary(rtW, rtH, 0);
+                context.command.GetTemporaryRT(_lrDepthBuffer_ID, rtW, rtH, 0, FilterMode.Bilinear);
 
-                context.command.BlitFullscreenTriangle(lrColorB, lrDepthBuffer, sheetSHAFTS, 1);
-                RenderTexture.ReleaseTemporary(lrColorB);
+                //context.command.BlitFullscreenTriangle(lrColorB, lrDepthBuffer, sheetSHAFTS, 1);
+                //RenderTexture.ReleaseTemporary(lrColorB);
+                context.command.BlitFullscreenTriangle(_lrColorB_ID, _lrDepthBuffer_ID, sheetSHAFTS, 1);
+                context.command.ReleaseTemporaryRT(_lrColorB_ID);
                 ofs = settings.sunShaftBlurRadius * (((it2 * 2.0f + 2.0f) * 6.0f)) / 768.0f;
 
                 sheetSHAFTS.properties.SetVector("_BlurRadius4", new Vector4(ofs, ofs, 0.0f, 0.0f));
@@ -163,10 +182,12 @@ namespace Graphics
                 sheetSHAFTS.properties.SetVector("_SunColor", Vector4.zero); // no backprojection !
             }
 
-            sheetSHAFTS.properties.SetTexture("_ColorBuffer", lrDepthBuffer);
+            //sheetSHAFTS.properties.SetTexture("_ColorBuffer", lrDepthBuffer);
+            context.command.SetGlobalTexture(_colorBuffer_ID, _lrDepthBuffer_ID);
             context.command.BlitFullscreenTriangle(context.source, context.destination, sheetSHAFTS, (settings.screenBlendMode == SunShaftsHDR.ShaftsScreenBlendMode.Add) ? 0 : 4);
 
-            RenderTexture.ReleaseTemporary(lrDepthBuffer);
+            //RenderTexture.ReleaseTemporary(lrDepthBuffer);
+            context.command.ReleaseTemporaryRT(_lrDepthBuffer_ID);
 
         }
     }

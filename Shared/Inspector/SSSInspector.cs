@@ -8,18 +8,36 @@ namespace Graphics.Inspector
 {
     internal static class SSSInspector
     {
-        //private static GlobalSettings renderSettings;
+
         private static Vector2 sssScrollView;
+
+
+        private static int cachedFontSize = -1;
+        private static int paddingL, paddingR;
+        private static GUIStyle TabContent;
+
+        static void UpdateCachedValues(GlobalSettings renderSettings)
+        {
+            if (cachedFontSize == renderSettings.FontSize) return;
+
+            cachedFontSize = renderSettings.FontSize;
+
+            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2f);
+            paddingR = Mathf.RoundToInt(renderSettings.FontSize * 2.9f);
+
+            TabContent = new GUIStyle(GUIStyles.tabcontent);
+            TabContent.padding = new RectOffset(paddingL, paddingR, paddingL, paddingL);
+        }
+
         internal static void Draw(GlobalSettings renderSettings)
         {
+            UpdateCachedValues(renderSettings);
+
             sssScrollView = GUILayout.BeginScrollView(sssScrollView);
             if (Graphics.Instance.CameraSettings.MainCamera is null)
             {
                 return;
             }
-
-            GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);
-            TabContent.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2.9f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f));
 
             if (SSSManager.settings != null)
             {
@@ -27,7 +45,7 @@ namespace Graphics.Inspector
                 SSS sssinstance = SSSManager.SSSInstance;
                 GUILayout.BeginVertical(TabContent);
                 {
-                    Switch(renderSettings.FontSize, "SCREEN SPACE SSS", sss.Enabled, true, enabled =>
+                    Switch("SCREEN SPACE SSS", sss.Enabled, true, enabled =>
                     {
                         sss.Enabled = enabled;
                         SSSManager.UpdateSettings();
@@ -36,8 +54,9 @@ namespace Graphics.Inspector
                     if (sss.Enabled)
                     {
                         GUILayout.Space(20);
-                        Label("BLUR", "", true);
+                        Label("COLOR", "", true);
                         GUILayout.Space(5);
+                        Slider("Blur size", sss.BlurSize, 0f, 10f, "N1", radius => { sss.BlurSize = radius; SSSManager.UpdateSettings(); });
                         Toggle("Profile per object", sss.ProfilePerObject, false, perObj => { sss.ProfilePerObject = perObj; SSSManager.UpdateSettings(); });
                         if (!sss.ProfilePerObject)
                         {
@@ -45,21 +64,25 @@ namespace Graphics.Inspector
                             SliderColor("Scattering colour", sss.sssColor, colour => { sss.sssColor = colour; SSSManager.UpdateSettings(); });
                         }
 
-                        Slider("Blur size", sss.BlurSize, 0f, 10f, "N1", radius => { sss.BlurSize = radius; SSSManager.UpdateSettings(); });
+                        GUILayout.Space(20);
+                        Label("RENDERING SETTINGS", "", true);
+                        GUILayout.Space(5);
                         Slider("Postprocess iterations", sss.ProcessIterations, 0, 10, iterations => { sss.ProcessIterations = iterations; SSSManager.UpdateSettings(); });
                         Slider("Shader iterations per pass", sss.ShaderIterations, 1, 20, iterations => { sss.ShaderIterations = iterations; SSSManager.UpdateSettings(); });
                         Slider("Downscale factor", sss.DownscaleFactor, 1f, 4f, "N1", sampling => { sss.DownscaleFactor = sampling; SSSManager.UpdateSettings(); });
                         Slider("Max Distance", sss.MaxDistance, 0, 9999, distance => { sss.MaxDistance = distance; SSSManager.UpdateSettings(); });
-                        SelectionMask("Layers", sss.LayerBitMask, layer => { sss.LayerBitMask = layer; SSSManager.UpdateSettings(); });
-                        GUILayout.Space(10);
+                        SelectionMask("Layers", sss.LayerBitMask, layer => { sss.LayerBitMask = layer; SSSManager.UpdateSettings(); }, 4);
+
+                        GUILayout.Space(20);
                         Label("DITHERING", "", true);
                         GUILayout.Space(5);
                         Toggle("Dither", sss.Dither, false, dither => { sss.Dither = dither; SSSManager.UpdateSettings(); });
                         if (sss.Dither)
                         {
-                            Slider("Dither intensity", sss.DitherIntensity, 0f, 5f, "N1", intensity => { sss.DitherIntensity = intensity; SSSManager.UpdateSettings(); });
+                            Slider("Dither intensity", sss.DitherIntensity, 0f, 5f, "N2", intensity => { sss.DitherIntensity = intensity; SSSManager.UpdateSettings(); });
                             Slider("Dither scale", sss.DitherScale, 1f, 100f, "N1", scale => { sss.DitherScale = scale; SSSManager.UpdateSettings(); });
                         }
+
                         GUILayout.Space(20);
                         Label("DEBUG", "", true);
                         GUILayout.Space(5);
@@ -67,7 +90,7 @@ namespace Graphics.Inspector
                         if (sssinstance.LightingTex)
                             Label("Buffer size", sssinstance.LightingTex.width + " x " + sssinstance.LightingTex.height);
                         Label("Light pass shader", sssinstance.LightingPassShader is null ? "NULL" : sssinstance.LightingPassShader.name);
-                        Selection("View Buffer", sss.ViewBuffer, texture => { sss.ViewBuffer = texture; SSSManager.UpdateSettings(); });
+                        Selection("View Buffer", sss.ViewBuffer, texture => { sss.ViewBuffer = texture; SSSManager.UpdateSettings(); }, 2);
                         Toggle("Debug distance", sss.DebugDistance, false, debug => { sss.DebugDistance = debug; SSSManager.UpdateSettings(); });
 
                         GUILayout.Space(20);
@@ -81,12 +104,15 @@ namespace Graphics.Inspector
                         {
                             Slider("Normal test", sss.FixPixelLeaksNormal, 1f, 1.2f, "N2", offset => { sss.FixPixelLeaksNormal = offset; SSSManager.UpdateSettings(); });
                         }
+
                         Toggle("Profile Test (per obj)", sss.ProfileTest, false, profileTest => { sss.ProfileTest = profileTest; SSSManager.UpdateSettings(); });
                         if (sss.ProfilePerObject && sss.ProfileTest)
                         {
                             Slider("Profile Colour Test", sss.ProfileColorTest, 0f, 1f, "N2", test => { sss.ProfileColorTest = test; SSSManager.UpdateSettings(); });
                             Slider("Profile Radius Test", sss.ProfileRadiusTest, 0f, 1f, "N2", test => { sss.ProfileRadiusTest = test; SSSManager.UpdateSettings(); });
                         }
+
+
                     }
                     //Graphics.Instance.SSSManager.CopySettingsToOtherInstances();
 

@@ -16,28 +16,43 @@ namespace Graphics.Inspector
         private const float RotationMax = 360f;
 
         private static Vector2 cubeMapScrollView;
-        //private static int selectedCubeMapIdx = -1;
 
         private static Vector2 dynSkyScrollView;
-        //private static float scrollViewHeight = Inspector.Height * 0.6f;
 
-        internal static void Draw(LightingSettings lightingSettings, SkyboxManager skyboxManager, LightManager lightmanager, GlobalSettings renderSettings, bool showAdvanced)
+        private static int cachedFontSize = -1;
+        private static int paddingL, paddingR;
+        private static GUIStyle BoxPadding, SelBox, EmptyBox;
+
+        static void UpdateCachedValues(GlobalSettings renderSettings)
         {
-            GUIStyle BoxPadding = new GUIStyle(GUIStyles.tabcontent);
-            BoxPadding.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2.9f), Mathf.RoundToInt(renderSettings.FontSize * 2f), 0);
+            if (cachedFontSize == renderSettings.FontSize) return;
+
+            cachedFontSize = renderSettings.FontSize;
+
+            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2f);
+            paddingR = Mathf.RoundToInt(renderSettings.FontSize * 2.9f);
+
+            BoxPadding = new GUIStyle(GUIStyles.tabcontent);
+            BoxPadding.padding = new RectOffset(paddingL, paddingR, paddingL, 0);
             BoxPadding.margin = new RectOffset(0, 0, 0, 5);
             //BoxPadding.normal.background = null;
 
-            GUIStyle EmptyBox = new GUIStyle(GUIStyles.tabcontent);
+            EmptyBox = new GUIStyle(GUIStyles.tabcontent);
             EmptyBox.padding = new RectOffset(0, 0, 0, 0);
             EmptyBox.margin = new RectOffset(0, 0, 0, 0);
             EmptyBox.normal.background = null;
 
-            GUIStyle SelBox = new GUIStyle(GUI.skin.box);
+            SelBox = new GUIStyle(GUI.skin.box);
             SelBox.padding = new RectOffset(0, 0, 0, 0);
             SelBox.margin = new RectOffset(2, 2, 2, 2);
             SelBox.normal.background = null;
             //SelBox.fixedHeight = 350;
+
+        }
+
+        internal static void Draw(LightingSettings lightingSettings, SkyboxManager skyboxManager, LightManager lightmanager, GlobalSettings renderSettings, bool showAdvanced)
+        {
+            UpdateCachedValues(renderSettings);
 
             string assetPath = skyboxManager.AssetPath;
             string cubemapname = "";

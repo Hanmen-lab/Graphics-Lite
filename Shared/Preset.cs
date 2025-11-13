@@ -220,8 +220,8 @@ namespace Graphics
             LogWithDotsWarning("LOADING USER PRESET", name);
             PresetManager presetManager = Graphics.Instance.PresetManager;
             Deserialize(bytes);
-            ApplyParameters(presetManager.loadSkybox, presetManager.loadSEGI, presetManager.loadSSS, presetManager.loadShadows,
-                presetManager.loadLoadAura, presetManager.loadVolumetrics, presetManager.loadLuxwater, presetManager.loadHeightFog, presetManager.loadDoF, presetManager.loadRain, name);
+            ApplyParameters(Graphics.loadSkybox.Value, Graphics.loadSEGI.Value, Graphics.loadSSS.Value, Graphics.loadShadows.Value,
+                Graphics.loadAura.Value, Graphics.loadVolumetrics.Value, Graphics.loadLuxwater.Value, Graphics.loadHeightFog.Value, Graphics.loadDoF.Value, Graphics.loadRain.Value, name);
             LogWithDotsMessage("USER PRESET", name);
             //Graphics.Instance.Log.LogMessage($"Preset: {name}");
         }

@@ -16,19 +16,6 @@ namespace Graphics
         private Dictionary<string, (string Path, string Folder)> _presetNameToPath;
         private readonly Graphics _parent;
 
-        internal bool loadSkybox { get; set; }
-        internal bool loadSEGI { get; set; }
-        internal bool loadSSS { get; set; } = true;
-        internal bool loadShadows { get; set; }
-        internal bool loadLoadAura { get; set; }
-        internal bool loadVolumetrics { get; set; }
-        internal bool loadLuxwater { get; set; }
-        internal bool loadHeightFog { get; set; } = true;
-        internal bool loadDoF { get; set; }
-        internal bool loadRain { get; set; } = true;
-
-
-
         internal PresetManager(string presetPath, Graphics parent)
         {
             _path = presetPath;

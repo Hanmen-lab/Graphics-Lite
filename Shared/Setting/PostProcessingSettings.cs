@@ -13,6 +13,7 @@ namespace Graphics.Settings
     public class PostProcessingSettings
     {
         // Parameters for Messagepack Save
+        internal AACTAAParams paramAACTAA = new AACTAAParams();
         internal AmbientOcclusionParams paramAmbientOcclusion = new AmbientOcclusionParams();
         internal AutoExposureParams paramAutoExposure = new AutoExposureParams();
         internal BloomParams paramBloom = new BloomParams();
@@ -49,6 +50,7 @@ namespace Graphics.Settings
 
         public enum AmbientOcclusionList
         {
+            None,
             Legacy,
             VAO,
             GTAO,
@@ -63,6 +65,7 @@ namespace Graphics.Settings
         }
         
         private readonly PostProcessLayer _postProcessLayer;
+        internal AACTAA aACTAALayer;
         internal AmbientOcclusion ambientOcclusionLayer;
         internal AutoExposure autoExposureLayer;
         internal Bloom bloomLayer;
@@ -156,7 +159,14 @@ namespace Graphics.Settings
         }
         internal void InitializeProfiles()
         {
-            
+            //BeforeStack
+            if (!SettingValues.profile.TryGetSettings(out aACTAALayer))
+            {
+                aACTAALayer = SettingValues.profile.AddSettings<AACTAA>();
+                aACTAALayer.enabled.value = false;
+                //aACTAALayer.priority.value = 0;
+            }
+
             if (!SettingValues.profile.TryGetSettings(out chromaticAberrationLayer))
             {
                 chromaticAberrationLayer = SettingValues.profile.AddSettings<ChromaticAberration>();
@@ -248,6 +258,11 @@ namespace Graphics.Settings
 
         public void SaveParameters()
         {
+            if (Volume.profile.TryGetSettings(out AACTAA aACTAALayer))
+            {
+                paramAACTAA.Save(aACTAALayer);
+            }
+
             if (Volume.profile.TryGetSettings(out AutoExposure autoExposureLayer))
             {
                 paramAutoExposure.Save(autoExposureLayer);
@@ -334,6 +349,15 @@ namespace Graphics.Settings
             //    }
 
             //}
+            if (Volume.profile.TryGetSettings(out AACTAA aACTAALayer))
+            {
+                paramAACTAA.Load(aACTAALayer);
+                LogWithDots("[PPS] CTAA", "OK");
+            }
+            else
+            {
+                LogWithDots("[PPS] CTAA", "SKIP");
+            }
 
             if (Volume.profile.TryGetSettings(out AutoExposure autoExposureLayer))
             {
@@ -584,13 +608,13 @@ namespace Graphics.Settings
                     return Antialiasing.CTAA;
                 else
                     return (Antialiasing)PostProcessLayer.antialiasingMode;
-            }            
+            }
             set
             {
                 if (value == Antialiasing.CTAA)
                 {
-                    CTAAManager.settings.Enabled = true;
                     PostProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.None;
+                    CTAAManager.settings.Enabled = true;
                     CTAAManager.UpdateSettings();
                 }
                 else
@@ -615,6 +639,12 @@ namespace Graphics.Settings
                     depthOfFieldLayer.focusDistance.value = value;
                 }
             }
+        }
+
+        public AACTAAParams AACTAA
+        {
+            get => paramAACTAA;
+            set => paramAACTAA = value;
         }
 
         public AmbientOcclusionParams AmbientOcclusion

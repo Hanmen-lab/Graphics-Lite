@@ -44,6 +44,7 @@ namespace Graphics
             _ditheredshadowsManager?.CheckInstance();
             _focusManager?.CheckInstance();
             _segiManager?.CheckInstance();
+            _temporalScreenshotManager?.CheckInstance();
 
             if (CameraSettings.MainCamera.stereoEnabled) // VR...use VR
             {

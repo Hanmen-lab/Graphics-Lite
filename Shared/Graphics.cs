@@ -25,7 +25,7 @@ using UnityEngine.Rendering;
 
 namespace Graphics
 {
-    [BepInIncompatibility("dhhai4mod")]
+    [BepInIncompatibility("dhhai4mod"), BepInIncompatibility("HS2_HDSaveCard"), BepInIncompatibility("8484093f-f32f-47ab-857d-484370c226b7")]
     [BepInPlugin(GUID, PluginName, Version)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
     [BepInDependency(ExtensibleSaveFormat.ExtendedSave.GUID)]
@@ -33,7 +33,24 @@ namespace Graphics
     {
         public const string GUID = "ore.graphics";
         public const string PluginName = "Graphics";
-        public const string Version = "2.0.1";
+        public const string Version = "2.2.0";
+
+        public enum ShadowResolutionOverride
+        {
+            NoOverride = 0,
+            _4096 = 4096,
+            _8192 = 8192,
+            _16K = 16384,
+            _32K = 32768
+        }
+
+        public enum ShadowCascadesOverride
+        {
+            NoOverride = 5,
+            NoCascades = 0,
+            TwoCascades = 2,
+            FourCascades = 4
+        }
 
         public static ConfigEntry<KeyCode> ConfigShortcut { get; private set; }
         public static ConfigEntry<string> ConfigCubeMapPath { get; private set; }
@@ -47,6 +64,20 @@ namespace Graphics
         public static ConfigEntry<int> ConfigWindowHeight { get; internal set; }
         public static ConfigEntry<int> ConfigWindowOffsetX { get; internal set; }
         public static ConfigEntry<int> ConfigWindowOffsetY { get; internal set; }
+        public static ConfigEntry<bool> ScreenshotOverride { get; internal set; }
+        public static ConfigEntry<ShadowResolutionOverride> customShadowResolutionOverride { get; internal set; }
+        public static ConfigEntry<ShadowCascadesOverride> customShadowCascadesOverride { get; internal set; }
+
+        public static ConfigEntry<bool> loadSkybox { get; internal set; }
+        public static ConfigEntry<bool> loadSEGI { get; internal set; }
+        public static ConfigEntry<bool> loadSSS { get; internal set; }
+        public static ConfigEntry<bool> loadShadows { get; internal set; }
+        public static ConfigEntry<bool> loadAura { get; internal set; }
+        public static ConfigEntry<bool> loadVolumetrics { get; internal set; }
+        public static ConfigEntry<bool> loadLuxwater { get; internal set; }
+        public static ConfigEntry<bool> loadHeightFog { get; internal set; }
+        public static ConfigEntry<bool> loadDoF { get; internal set; }
+        public static ConfigEntry<bool> loadRain { get; internal set; }
 
         public Preset preset;
 
@@ -77,6 +108,7 @@ namespace Graphics
         private AuraManager _auraManager;
         private FilmGrainManager _filmGrainManager;
         private DecalsSystemManager _decalsSystemManager;
+        private TemporalScreenshotManager _temporalScreenshotManager;
 
         private Inspector.Inspector _inspector;
 
@@ -105,23 +137,37 @@ namespace Graphics
 
             Instance = this;
             string rootFolder = BepInEx.Paths.GameRootPath;
-            ConfigShortcut = Config.Bind("Config", "Keyboard Shortcut", KeyCode.F5, new ConfigDescription("Keyboard Shortcut"));
-            ConfigPresetPath = Config.Bind("Config", "Preset Location", rootFolder + @"\presets\", new ConfigDescription("Where presets are stored"));
-            ConfigCubeMapPath = Config.Bind("Config", "Cubemap path", rootFolder + @"\cubemaps\", new ConfigDescription("Where cubemaps are stored"));
-            ConfigLensDirtPath = Config.Bind("Config", "Lens dirt texture path", rootFolder + @"\lensdirts\", new ConfigDescription("Where lens dirt textures are stored"));
-            //ConfigStarburstPath = Config.Bind("Config", "Starburst texture path", rootFolder + @"\starbursts\", new ConfigDescription("Where Starburst textures are stored"));
-            ConfigLocalizationPath = Config.Bind("Config", "Localization path", rootFolder + @"\BepInEx\plugins\Graphics\Resources\", new ConfigDescription("Where localizations are stored"));
-            ConfigLanguage = Config.Bind("Config", "Language", LocalizationManager.DefaultLanguage(), new ConfigDescription("Default Language"));
-            ConfigFontSize = Config.Bind("Config", "Font Size", 12, new ConfigDescription("Font Size"));
+            ConfigShortcut = Config.Bind("Keybind", "Keyboard Shortcut", KeyCode.F5, new ConfigDescription("Keyboard Shortcut"));
+            ConfigPresetPath = Config.Bind("Folders Config", "Preset Location", rootFolder + @"\presets\", new ConfigDescription("Where presets are stored"));
+            ConfigCubeMapPath = Config.Bind("Folders Config", "Cubemap path", rootFolder + @"\cubemaps\", new ConfigDescription("Where cubemaps are stored"));
+            ConfigLensDirtPath = Config.Bind("Folders Config", "Lens dirt texture path", rootFolder + @"\lensdirts\", new ConfigDescription("Where lens dirt textures are stored"));
+            //ConfigFrostTexPath = Config.Bind("Folders Config", "FrostFX texture path", rootFolder + @"\frostFX\", new ConfigDescription("Where frostFX textures are stored"));
+            ConfigLocalizationPath = Config.Bind("Folders Config", "Localization path", rootFolder + @"\BepInEx\plugins\Graphics\Resources\", new ConfigDescription("Where localizations are stored"));
+            ConfigLanguage = Config.Bind("UI", "Language", LocalizationManager.DefaultLanguage(), new ConfigDescription("Default Language"));
+            ConfigFontSize = Config.Bind("UI", "Font Size", 12, new ConfigDescription("Font Size"));
             GUIStyles.FontSize = ConfigFontSize.Value;
-            ConfigWindowWidth = Config.Bind("Config", "Window Width", 750, new ConfigDescription("Window Width"));
+            ConfigWindowWidth = Config.Bind("UI", "Window Width", 750, new ConfigDescription("Window Width"));
             Inspector.Inspector.Width = ConfigWindowWidth.Value;
-            ConfigWindowHeight = Config.Bind("Config", "Window Height", 1024, new ConfigDescription("Window Height"));
+            ConfigWindowHeight = Config.Bind("UI", "Window Height", 1024, new ConfigDescription("Window Height"));
             Inspector.Inspector.Height = ConfigWindowHeight.Value;
-            ConfigWindowOffsetX = Config.Bind("Config", "Window Position Offset X", (Screen.width - ConfigWindowWidth.Value) / 2, new ConfigDescription("Window Position Offset X"));
+            ConfigWindowOffsetX = Config.Bind("UI", "Window Position Offset X", (Screen.width - ConfigWindowWidth.Value) / 2, new ConfigDescription("Window Position Offset X"));
             Inspector.Inspector.StartOffsetX = ConfigWindowOffsetX.Value;
-            ConfigWindowOffsetY = Config.Bind("Config", "Window Position Offset Y", (Screen.height - ConfigWindowHeight.Value) / 2, new ConfigDescription("Window Position Offset Y"));
+            ConfigWindowOffsetY = Config.Bind("UI", "Window Position Offset Y", (Screen.height - ConfigWindowHeight.Value) / 2, new ConfigDescription("Window Position Offset Y"));
             Inspector.Inspector.StartOffsetY = ConfigWindowOffsetY.Value;
+            ScreenshotOverride = Config.Bind("Screenshot Settings", "Enable New Screenshot Engine.", true, new ConfigDescription("Override Screenshot Manager Render function with Temporal Screenshot for CTAA compatibility. (Must disable Alpha in Screenshot Manager)"));
+            customShadowResolutionOverride = Config.Bind("Screenshot Settings", "ShadowResolutionOverride", ShadowResolutionOverride.NoOverride, "Override shadow resolution (0 = no override)");
+            customShadowCascadesOverride = Config.Bind("Screenshot Settings", "ShadowCascadesOverride", ShadowCascadesOverride.NoOverride, "Override shadow cascades (5 = no override)");
+
+            loadSkybox = Config.Bind("Preset Filters", "Load Preset Skybox", false, new ConfigDescription("Load Preset Skybox"));
+            loadSEGI = Config.Bind("Preset Filters", "Load Preset SEGI", false, new ConfigDescription("Load Preset SEGI"));
+            loadSSS = Config.Bind("Preset Filters", "Load Preset SSS", true, new ConfigDescription("Load Preset SSS"));
+            loadShadows = Config.Bind("Preset Filters", "Load Preset Shadows", false, new ConfigDescription("Load Preset Shadows"));
+            loadAura = Config.Bind("Preset Filters", "Load Preset Aura", false, new ConfigDescription("Load Preset Aura"));
+            loadVolumetrics = Config.Bind("Preset Filters", "Load Preset Volumetrics", false, new ConfigDescription("Load Preset Volumetrics"));
+            loadLuxwater = Config.Bind("Preset Filters", "Load Preset LuxWater", false, new ConfigDescription("Load Preset LuxWater"));
+            loadHeightFog = Config.Bind("Preset Filters", "Load Preset Height Fog", true, new ConfigDescription("Load Preset Height Fog"));
+            loadDoF = Config.Bind("Preset Filters", "Load Preset Depth of Field", false, new ConfigDescription("Load Preset Depth of Field"));
+            loadRain = Config.Bind("Preset Filters", "Load Preset Rain", true, new ConfigDescription("Load Preset Rain"));
         }
 
         private void Awake()
@@ -130,6 +176,12 @@ namespace Graphics
             StudioSaveLoadApi.RegisterExtraBehaviour<SceneController>(GUID);
             SceneManager.sceneLoaded += OnSceneLoaded;
             StudioHooks.Map_OnLoadAfter();
+
+            TemporalScreenshotManager.Hooks.PatchScreenshotManager();
+            if (KKAPI.Studio.StudioAPI.InsideStudio)
+                CreatePngScreenController.Hooks.PatchCreatePngScreenController();
+
+            CreatePngScreenController.Hooks.PatchCreatePngController();
         }
 
         private IEnumerator Start()
@@ -140,6 +192,20 @@ namespace Graphics
             Settings = new GlobalSettings();
             CameraSettings = new CameraSettings();
             LightingSettings = new LightingSettings();
+            PostProcessingSettings = new PostProcessingSettings(Graphics.Instance.CameraSettings.MainCamera);
+
+            _postProcessingManager = Instance.GetOrAddComponent<PostProcessingManager>();
+            _postProcessingManager.Parent = this;
+            _postProcessingManager.LensDirtTexturesPath = ConfigLensDirtPath.Value;
+           
+            DontDestroyOnLoad(_postProcessingManager);
+
+#if AI
+            //do nothing
+#else
+            _decalsSystemManager = new DecalsSystemManager();
+            _decalsSystemManager.Initialize();
+#endif
 
             _ctaaManager = new CTAAManager();
             _ctaaManager.Initialize();
@@ -181,18 +247,11 @@ namespace Graphics
             _focusManager = new FocusManager();
             _focusManager.Initialize();
 
-            PostProcessingSettings = new PostProcessingSettings(CameraSettings.MainCamera);
-            _postProcessingManager = Instance.GetOrAddComponent<PostProcessingManager>();
-            _postProcessingManager.Parent = this;
-            _postProcessingManager.LensDirtTexturesPath = ConfigLensDirtPath.Value;
-            PostProcessingSettings.UpdateFilterDithering();
-            DontDestroyOnLoad(_postProcessingManager);
-
             _ditheredshadowsManager = new DitheredShadowsManager();
             _ditheredshadowsManager.Initialize();
 
-            _decalsSystemManager = new DecalsSystemManager();
-            _decalsSystemManager.Initialize();
+            _temporalScreenshotManager = new TemporalScreenshotManager();
+            _temporalScreenshotManager.Initialize();
 
             if (KKAPI.Studio.StudioAPI.InsideStudio)
                 smartphoneScanner = this.gameObject.AddComponent<HoohSmartphoneScanner>();
@@ -201,6 +260,8 @@ namespace Graphics
 
             if (KKAPI.Studio.StudioAPI.InsideStudio)
                 StudioReset.InitializeStudioHooks();
+
+            RemoveDeprecatedEffects();
 
             //NVIDIA.Ansel ansel = Graphics.Instance.CameraSettings.MainCamera.GetOrAddComponent<Ansel>();
             //Destroy(ansel);
@@ -221,6 +282,7 @@ namespace Graphics
             LocalizationManager.CurrentLanguage = ConfigLanguage.Value;
 
             _lightManager = new LightManager(this);
+            _lightManager.Light();
             _presetManager = new PresetManager(ConfigPresetPath.Value, this);
 
             // Load PCSS Assets
@@ -236,6 +298,9 @@ namespace Graphics
             _presetManager.LoadDefaultForCurrentGameMode();
             CameraSettings.Fov = (float)_fov; // put it back
             CameraSettings.MainCamera.fieldOfView = _fov;
+
+            PostProcessingSettings.UpdateFilterDithering();
+
             LogWithDots("Graphics", "ONLINE");
 
             if (KKAPI.Studio.StudioAPI.InsideStudio)
@@ -292,6 +357,23 @@ namespace Graphics
             {
                 ToggleGUI();
             }
+        }
+
+        private void RemoveDeprecatedEffects()
+        {
+            UnityStandardAssets.ImageEffects.DepthOfField old_depthOfField = Graphics.Instance.CameraSettings.MainCamera.GetComponent<UnityStandardAssets.ImageEffects.DepthOfField>();
+            if (old_depthOfField != null)
+            {
+                DestroyImmediate(old_depthOfField);
+            }
+
+            UnityStandardAssets.ImageEffects.SunShafts old_sunShafts = Graphics.Instance.CameraSettings.MainCamera.GetComponent<UnityStandardAssets.ImageEffects.SunShafts>();
+            if (old_sunShafts != null)
+            {
+                DestroyImmediate(old_sunShafts);
+            }
+
+            Graphics.Instance.Log.LogInfo("Removed old image effects from Main Camera");
         }
 
         internal void Update()
@@ -372,10 +454,11 @@ namespace Graphics
             if (studioToolbarToggle == null)
                 Show = !Show;
             else
-                studioToolbarToggle.Value = !Show;
+                //studioToolbarToggle.Toggled.OnNext(!studioToolbarToggle.Toggled.Value);
+                Show = !Show;
         }
 
-        private bool Show
+        public bool Show
         {
             get => _showGUI;
             set

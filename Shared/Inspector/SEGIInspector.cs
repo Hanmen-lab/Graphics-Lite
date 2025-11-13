@@ -10,21 +10,29 @@ namespace Graphics.Inspector
         private static Vector2 segiScrollView;
         private static SEGI.SEGI segi = SEGIManager.SEGIInstance;
 
-        internal static void Draw(LightManager lightManager, GlobalSettings renderSettings)
-        {
-            GUIStyle BoxPadding = new GUIStyle(GUI.skin.box);
-            BoxPadding.padding = new RectOffset(0, 0, 0, 0);
-            BoxPadding.normal.background = null;
+        private static int cachedFontSize = -1;
+        private static int paddingL;
+        private static GUIStyle EmptyBox, TabContent;
 
-            GUIStyle EmptyBox = new GUIStyle(GUI.skin.box);
-            EmptyBox.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f), 0, 0);
+        static void UpdateCachedValues(GlobalSettings renderSettings)
+        {
+            if (cachedFontSize == renderSettings.FontSize) return;
+
+            cachedFontSize = renderSettings.FontSize;
+
+            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2f);
+
+            EmptyBox = new GUIStyle(GUI.skin.box);
+            EmptyBox.padding = new RectOffset(paddingL, paddingL, 0, 0);
             EmptyBox.normal.background = null;
 
-            GUIStyle SmallBox = new GUIStyle(GUI.skin.box);
-            SmallBox.normal.background = null;
-
-            GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);
+            TabContent = new GUIStyle(GUIStyles.tabcontent);
             TabContent.padding = new RectOffset(0, 0, 0, 0);
+        }
+
+        internal static void Draw(LightManager lightManager, GlobalSettings renderSettings)
+        {
+            UpdateCachedValues(renderSettings);
 
             if (SEGIManager.settings != null)
             {
@@ -38,7 +46,7 @@ namespace Graphics.Inspector
                     GUI.enabled = false;
                 }
                 GUILayout.Space(35);
-                Switch(renderSettings.FontSize, "SEGI (Deferred Only)", segiSettings.enabled, true, enabled =>
+                Switch("SEGI (Deferred Only)", segiSettings.enabled, true, enabled =>
                 {
                     segiSettings.enabled = enabled;
                     SEGIManager.UpdateSettings();
@@ -52,7 +60,7 @@ namespace Graphics.Inspector
                     {
                         GUILayout.Space(5);
                         Slider("Updates Per Second", segiSettings.updateGIRateInt, 0, 64, updateGIRate =>
-                            { segiSettings.updateGIRateInt = updateGIRate; segiSettings.updateGIRateFloat = 1.0f / updateGIRate; SEGIManager.UpdateSettings(); });
+                        { segiSettings.updateGIRateInt = updateGIRate; segiSettings.updateGIRateFloat = 1.0f / updateGIRate; SEGIManager.UpdateSettings(); });
                         if (segiSettings.updateGIRateInt == 0)
                             Label("Update GI Rate: Every frame (Default)", "", false);
                         else
@@ -146,7 +154,7 @@ namespace Graphics.Inspector
                         Label("Accessories: Hanmen/Item Cutoff", "", false);
                         Label("Studio Items: Hanmen/Item Cutoff or Standard.", "", false);
                         GUILayout.Space(10);
-                        LabelColorRed("Not Supported: Transparent (all), AIT (all), Hair shaders (all), Anisotropic shaders (all)", "", false);
+                        LabelColorRed("Not Supported: AIT/Clothes True, AIT/Item, AIT/Skin True Face, ShaderForge/hair08, all Alpha Shaders... etc.", "", false);
                         GUILayout.Space(10);
                     }
 

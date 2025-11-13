@@ -13,23 +13,35 @@ namespace Graphics.Inspector
         private static int _presetIndexOld = -1;
         private static int _presetIndexCurrent = -1;
         private static string searchQuery = string.Empty;
-
-        //public static PresetSettings presetSettings;
-
-        //private static bool ShouldUpdate => _presetIndexCurrent != -1 && _presetIndexCurrent != _presetIndexOld;
-
         private static Vector2 presetScrollView;
 
+        private static int cachedFontSize = -1;
+        private static int paddingL, paddingR, paddingT;
+        private static GUIStyle PresetBox, TabContent;
+
+        static void UpdateCachedValues(GlobalSettings renderSettings)
+        {
+            if (cachedFontSize == renderSettings.FontSize) return;
+
+            cachedFontSize = renderSettings.FontSize;
+
+            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2f);
+            paddingR = Mathf.RoundToInt(renderSettings.FontSize * 0.3f);
+            paddingT = Mathf.RoundToInt(renderSettings.FontSize * 0.5f);
+
+            PresetBox = new GUIStyle(GUI.skin.textField);
+            PresetBox.padding = new RectOffset(paddingR, paddingR, paddingT, paddingT);
+            PresetBox.normal.background = null;
+
+            TabContent = new GUIStyle(GUIStyles.tabcontent);
+            TabContent.padding = new RectOffset(paddingL, paddingL, paddingL, paddingL);
+
+        }
 
         internal static void Draw(PresetManager presetManager, GlobalSettings renderSettings, bool showAdvanced)
         {
-            GUIStyle PresetBox = new GUIStyle(GUI.skin.textField);
-            PresetBox.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 0.3f), Mathf.RoundToInt(renderSettings.FontSize * 0.3f), Mathf.RoundToInt(renderSettings.FontSize * 0.5f), Mathf.RoundToInt(renderSettings.FontSize * 0.5f));
-            PresetBox.normal.background = null;
 
-            GUIStyle TabContent = new GUIStyle(GUIStyles.tabcontent);
-            TabContent.padding = new RectOffset(Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f), Mathf.RoundToInt(renderSettings.FontSize * 2f));
-
+            UpdateCachedValues(renderSettings);
 
             GUILayout.BeginVertical(GUIStyles.tabcontent);
             {
@@ -48,24 +60,24 @@ namespace Graphics.Inspector
                 Label("Filter settings:", "", false);
                 GUILayout.EndVertical();
                 GUILayout.BeginVertical();
-                ToggleAlt("Skybox", presetManager.loadSkybox, false, loadskybox => presetManager.loadSkybox = loadskybox);
-                //ToggleAlt("RainDrop", presetManager.loadRain, false, loadrain => presetManager.loadRain = loadrain);
+                ToggleAlt("Skybox", Graphics.loadSkybox.Value, false, loadskybox => Graphics.loadSkybox.Value = loadskybox);
+                //ToggleAlt("RainDrop", Graphics.loadRain.Value, false, loadrain => Graphics.loadRain.Value = loadrain);
                 GUILayout.EndVertical();
                 GUILayout.BeginVertical();
-                ToggleAlt("Aura 2", presetManager.loadLoadAura, false, loadAura => presetManager.loadLoadAura = loadAura);
-                //ToggleAlt("Volumetrics", presetManager.loadVolumetrics, false, loadVolumetrics => presetManager.loadVolumetrics = loadVolumetrics);
+                ToggleAlt("Aura 2", Graphics.loadAura.Value, false, loadAura => Graphics.loadAura.Value = loadAura);
+                //ToggleAlt("Volumetrics", Graphics.loadVolumetrics.Value, false, loadVolumetrics => Graphics.loadVolumetrics.Value = loadVolumetrics);
                 GUILayout.EndVertical();
                 GUILayout.BeginVertical();
-                //ToggleAlt("NGS-Shadows", presetManager.loadShadows, false, loadShadows => presetManager.loadShadows = loadShadows);
-                ToggleAlt("LuxWater", presetManager.loadLuxwater, false, loadLuxwater => presetManager.loadLuxwater = loadLuxwater);
+                //ToggleAlt("NGS-Shadows", Graphics.loadShadows.Value, false, loadShadows => Graphics.loadShadows.Value = loadShadows);
+                ToggleAlt("LuxWater", Graphics.loadLuxwater.Value, false, loadLuxwater => Graphics.loadLuxwater.Value = loadLuxwater);
                 GUILayout.EndVertical();
                 GUILayout.BeginVertical();
-                ToggleAlt("Fog", presetManager.loadHeightFog, false, fog => presetManager.loadHeightFog = fog);
-                ToggleAlt("DoF", presetManager.loadDoF, false, dof => presetManager.loadDoF = dof);
+                ToggleAlt("Fog", Graphics.loadHeightFog.Value, false, fog => Graphics.loadHeightFog.Value = fog);
+                ToggleAlt("DoF", Graphics.loadDoF.Value, false, dof => Graphics.loadDoF.Value = dof);
                 GUILayout.EndVertical();
                 GUILayout.BeginVertical();
-                ToggleAlt("SSS", presetManager.loadSSS, false, sss => presetManager.loadSSS = sss);
-                ToggleAlt("SEGI", presetManager.loadSEGI, false, loadSEGI => presetManager.loadSEGI = loadSEGI);
+                ToggleAlt("SSS", Graphics.loadSSS.Value, false, sss => Graphics.loadSSS.Value = sss);
+                ToggleAlt("SEGI", Graphics.loadSEGI.Value, false, loadSEGI => Graphics.loadSEGI.Value = loadSEGI);
                 GUILayout.EndVertical();
                 GUILayout.EndHorizontal();
 

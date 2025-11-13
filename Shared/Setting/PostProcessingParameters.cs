@@ -932,4 +932,27 @@ namespace Graphics.Settings
             }
         }
     }
+
+    [MessagePackObject(keyAsPropertyName: true)]
+    public struct AACTAAParams
+    {
+        public BoolValue enabled;
+
+        public void Save(AACTAA layer)
+        {
+            if (layer != null)
+            {
+                enabled = new BoolValue(layer.enabled);
+            }
+        }
+
+        public void Load(AACTAA layer)
+        {
+            if (layer != null)
+            {
+                enabled.Fill(layer.enabled);
+                layer.active = layer.enabled.value;
+            }
+        }
+    }
 }

@@ -1,3 +1,4 @@
+using AIProject;
 using Shared;
 using Studio;
 using System;
@@ -34,44 +35,48 @@ namespace Graphics
             DirectionalLights.Clear();
             PointLights.Clear();
             SpotLights.Clear();
+
             for (int i = 0; i < allLights.Count; i++)
             {
-                if (allLights[i].Type == LightType.Spot)
-                {
-                    //if (l.cookie == null)
-                    //    l.cookie = DefaultSpotCookie;
-                    SpotLights.Add(allLights[i]);
-                }
-                else if (allLights[i].Type == LightType.Point)
-                {
-                    PointLights.Add(allLights[i]);
-                }
-                else if (allLights[i].Type == LightType.Directional)
-                {
-                    if (Graphics.Instance.Settings.UsePCSS)
-                    {
-                        if (null == pcss)
-                            pcss = allLights[i].Light.GetOrAddComponent<PCSSLight>();
-                        if (null != pcss)
-                            pcss.enabled = true;
-                    }
-                    else
-                    {
-                        if (null == pcss)
-                            pcss = allLights[i].Light.GetComponent<PCSSLight>();
-                        if (null != pcss)
-                            pcss.enabled = false;
-                    }
+                LightObject lights = allLights[i];
 
-                    DirectionalLights.Add(allLights[i]);
-                }
-                if (UseAlloyLight)
+                switch (lights.Type)
                 {
-                    allLights[i].Light.GetOrAddComponent<AlloyAreaLight>().UpdateBinding();
+                    case LightType.Spot:
+                        SpotLights.Add(lights);
+                        if (UseAlloyLight)
+                            lights.Light.GetOrAddComponent<AlloyAreaLight>().UpdateBinding();
+                        break;
+
+                    case LightType.Point:
+                        PointLights.Add(lights);
+                        if (UseAlloyLight)
+                            lights.Light.GetOrAddComponent<AlloyAreaLight>().UpdateBinding();
+                        break;
+
+                    case LightType.Directional:
+                        DirectionalLights.Add(lights);
+                        if (Graphics.Instance.Settings.UsePCSS)
+                        {
+                            if (null == pcss)
+                                pcss = allLights[i].Light.GetOrAddComponent<PCSSLight>();
+                            if (null != pcss)
+                                pcss.enabled = true;
+                        }
+                        else
+                        {
+                            if (null == pcss)
+                                pcss = allLights[i].Light.GetComponent<PCSSLight>();
+                            if (null != pcss)
+                                pcss.enabled = false;
+                        }
+                        break;
                 }
+
+                //CustomResolutionHandler
+                lights.Light.GetOrAddComponent<CustomShadowResolutionHandler>();
+
             }
-
-
         }
 
         internal class LightObject
