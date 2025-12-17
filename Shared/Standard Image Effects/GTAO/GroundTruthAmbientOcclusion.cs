@@ -210,38 +210,38 @@ namespace Graphics.GTAO
         {
             if (GTAOBufferCompute != null)
             {
-                GTAOBufferCompute.Dispose();
-                //GTAOBufferCompute = null;
+                GTAOBufferCompute.Release();
+                GTAOBufferCompute = null;
             }
 
             if (GTAOBufferApply != null)
             {
-                GTAOBufferApply.Dispose();
-                //GTAOBufferApply = null;
+                GTAOBufferApply.Release();
+                GTAOBufferApply = null;
             }
 
             if (GTAOBufferDebug != null)
             {
-                GTAOBufferDebug.Dispose();
-                //GTAOBufferDebug = null;
+                GTAOBufferDebug.Release();
+                GTAOBufferDebug = null;
             }
 
             if (AO_BentNormal_RT[0] != null)
             {
                 AO_BentNormal_RT[0].Release();
-                //AO_BentNormal_RT[0] = null;
+                AO_BentNormal_RT[0] = null;
             }
 
             if (AO_BentNormal_RT[1] != null)
             {
                 AO_BentNormal_RT[1].Release();
-                //AO_BentNormal_RT[1] = null;
+                AO_BentNormal_RT[1] = null;
             }
 
             if (Prev_RT != null)
             {
                 Prev_RT.Release();
-                //Prev_RT = null;
+                Prev_RT = null;
             }
         }
 
@@ -293,34 +293,37 @@ namespace Graphics.GTAO
             GTAOMaterial.SetFloat(_AO_TemporalOffsets_ID, temporalOffset);
             m_sampleStep++;
 
-            //----------------------------------------------------------------------------------
-            if (AO_BentNormal_RT[0] != null)
-            {
-                AO_BentNormal_RT[0].Release();
-            }
-            if (AO_BentNormal_RT[1] != null)
-            {
-                AO_BentNormal_RT[1].Release();
-            }
-            AO_BentNormal_RT[0] = new RenderTexture((int)RenderResolution.x, (int)RenderResolution.y, 0, RenderTextureFormat.RGHalf);
-            AO_BentNormal_RT[1] = new RenderTexture((int)RenderResolution.x, (int)RenderResolution.y, 0, RenderTextureFormat.ARGBHalf);
-            AO_BentNormal_ID[0] = AO_BentNormal_RT[0].colorBuffer;
-            AO_BentNormal_ID[1] = AO_BentNormal_RT[1].colorBuffer;
-
-            //----------------------------------------------------------------------------------
             Vector2 currentCameraSize = RenderResolution;
+            //----------------------------------------------------------------------------------
             if (CameraSize != currentCameraSize)
             {
-                CameraSize = currentCameraSize;
+                if (AO_BentNormal_RT[0] != null)
+                {
+                    AO_BentNormal_RT[0].Release();
+                    DestroyImmediate(AO_BentNormal_RT[0]);
+                }
+                if (AO_BentNormal_RT[1] != null)
+                {
+                    AO_BentNormal_RT[1].Release();
+                    DestroyImmediate(AO_BentNormal_RT[1]);
+                }
+                AO_BentNormal_RT[0] = new RenderTexture((int)RenderResolution.x, (int)RenderResolution.y, 0, RenderTextureFormat.RGHalf);
+                AO_BentNormal_RT[1] = new RenderTexture((int)RenderResolution.x, (int)RenderResolution.y, 0, RenderTextureFormat.ARGBHalf);
+                AO_BentNormal_ID[0] = AO_BentNormal_RT[0].colorBuffer;
+                AO_BentNormal_ID[1] = AO_BentNormal_RT[1].colorBuffer;
 
                 //----------------------------------------------------------------------------------
                 if (Prev_RT != null)
                 {
                     Prev_RT.Release();
+                    DestroyImmediate(Prev_RT);
                 }
                 Prev_RT = new RenderTexture((int)RenderResolution.x, (int)RenderResolution.y, 0, RenderTextureFormat.RGHalf);
                 Prev_RT.filterMode = FilterMode.Point;
+
             }
+
+            //----------------------------------------------------------------------------------
         }
 
         private void RenderSSAO()

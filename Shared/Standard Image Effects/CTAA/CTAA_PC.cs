@@ -31,6 +31,8 @@ namespace Graphics
 
     public class AACTAA_Renderer : PostProcessEffectRenderer<AACTAA>
     {
+        private Vector4 controlParams = Vector4.zero;
+
         public override void Render(PostProcessRenderContext ctx)
         {
             var cmd = ctx.command;
@@ -67,8 +69,8 @@ namespace Graphics
                 }
 
                 ctaa.ctaaMat.SetFloat(CTAA_PC.CTAA_ShaderIDs._AdaptiveResolve, CTAA_PC.AdaptiveResolve);
-                ctaa.ctaaMat.SetVector(CTAA_PC.CTAA_ShaderIDs._ControlParams,
-                    new Vector4(1.0f, (float)ctaa.TemporalStability, ctaa.HdrResponse, ctaa.EdgeResponse));
+                controlParams.Set(1.0f, (float)ctaa.TemporalStability, ctaa.HdrResponse, ctaa.EdgeResponse);
+                ctaa.ctaaMat.SetVector(CTAA_PC.CTAA_ShaderIDs._ControlParams, controlParams);
 
                 if (ctaa.swap)
                 {
@@ -357,16 +359,32 @@ namespace Graphics
             ClearResources();
             ClearRT();
             ClearCTAA_Cameras();
+
+            if (assetBundle != null)
+            {
+                assetBundle.Unload(false);
+                assetBundle = null;
+            }
         }
+
+        private float cachedAdaptiveSharpness = -1f;
+        private float cachedTemporalJitterScale = -1f;
 
         public void SetCTAA_Parameters()
         {
-            PreEnhanceEnabled = AdaptiveSharpness > 0.01 ? true : false;
+            if (Mathf.Approximately(cachedAdaptiveSharpness, AdaptiveSharpness) &&
+                Mathf.Approximately(cachedTemporalJitterScale, TemporalJitterScale))
+                return;
+
+            cachedAdaptiveSharpness = AdaptiveSharpness;
+            cachedTemporalJitterScale = TemporalJitterScale;
+
+            PreEnhanceEnabled = AdaptiveSharpness > 0.01f;
             preEnhanceStrength = Mathf.Lerp(0.2f, 2.0f, AdaptiveSharpness);
             preEnhanceClamp = Mathf.Lerp(0.005f, 0.12f, AdaptiveSharpness);
             jitterScale = TemporalJitterScale;
-            //It's not a function for gaming. Don't use it.
-            ctaaMat.SetFloat(CTAA_ShaderIDs._AntiShimmer, (AntiShimmerMode ? 1.0f : 0.0f));
+
+            ctaaMat.SetFloat(CTAA_ShaderIDs._AntiShimmer, AntiShimmerMode ? 1.0f : 0.0f);
             ctaaMat.SetVector(CTAA_ShaderIDs._delValues, delValues);
         }
 
@@ -406,21 +424,34 @@ namespace Graphics
             }
         }
 
-        private static void UpdateRT(ref RenderTexture rt, string rtName, int screenParamsX, int screenParamsY, int depth,
-                                     RenderTextureFormat renderTextureFormat, RenderTextureReadWrite renderTextureReadWrite,
-                                     FilterMode filterMode, TextureWrapMode wrapMode, bool preCreateRT = true)
+        private static void UpdateRT(ref RenderTexture rt, string rtName,
+            int width, int height, int depth, RenderTextureFormat format,
+            RenderTextureReadWrite readWrite, FilterMode filterMode,
+            TextureWrapMode wrapMode, bool preCreate = true)
         {
+            // Проверяем, можем ли переиспользовать существующий RT
+            if (rt != null && rt.width == width && rt.height == height &&
+                rt.format == format && rt.depth == depth)
+            {
+                rt.DiscardContents();
+                return;
+            }
+
+            // Только если размер/формат изменились
             if (rt != null)
             {
-                RenderTexture.active = null;
                 rt.Release();
-                rt = null;
+                Object.DestroyImmediate(rt);
             }
-            rt = new RenderTexture(screenParamsX, screenParamsY, depth, renderTextureFormat, renderTextureReadWrite);
-            rt.name = rtName;
-            rt.filterMode = filterMode;
-            rt.wrapMode = wrapMode;
-            if (preCreateRT)
+
+            rt = new RenderTexture(width, height, depth, format, readWrite)
+            {
+                name = rtName,
+                filterMode = filterMode,
+                wrapMode = wrapMode
+            };
+
+            if (preCreate)
                 rt.Create();
         }
 
@@ -467,16 +498,16 @@ namespace Graphics
                 (SupersampleMode > CTAA_MODE.STANDARD) ? orig_ScreenXY.y << 1 : orig_ScreenXY.y,
                 depth, RenderTextureFormat.DefaultHDR, RenderTextureReadWrite.Default, FilterMode.Bilinear, TextureWrapMode.Clamp, preCreate);
 
-            if (SupersampleMode > CTAA_MODE.STANDARD)
-            {
-                Graphics.Instance.Log.LogDebug($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
-                          $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y} => Upscaled Size: {orig_ScreenXY.x << 1}x{orig_ScreenXY.y << 1}");
-            }
-            else
-            {
-                Graphics.Instance.Log.LogDebug($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
-                          $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y}");
-            }
+            //if (SupersampleMode > CTAA_MODE.STANDARD)
+            //{
+            //    Graphics.Instance.Log.LogInfo($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
+            //              $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y} => Upscaled Size: {orig_ScreenXY.x << 1}x{orig_ScreenXY.y << 1}");
+            //}
+            //else
+            //{
+            //    Graphics.Instance.Log.LogInfo($"CTAA updated. Supersample Mode: {prev_SupersampleMode} => {SupersampleMode} " +
+            //              $"Source Size: {orig_ScreenXY.x}x{orig_ScreenXY.y}");
+            //}
         }
 
         private void ClearRT()
