@@ -113,6 +113,7 @@ namespace Graphics.Inspector
                 Selection("Shadow Projection", renderingSettings.ShadowProjectionSetting, projection => renderingSettings.ShadowProjectionSetting = projection);
                 Text("Shadow Distance", renderingSettings.ShadowDistance, "N0", distance => renderingSettings.ShadowDistance = distance);
                 Text("Shadow Near Plane Offset", renderingSettings.ShadowNearPlaneOffset, "N0", offset => renderingSettings.ShadowNearPlaneOffset = offset);
+                Selection("Shadow Cascades", renderingSettings.ShadowCascadesNumber, cascades => { renderingSettings.ShadowCascadesNumber = cascades; renderingSettings.ShadowCascades = (int)cascades; });
                 GUILayout.Space(10);
                 Toggle("Use PCSS (Experimental)", renderingSettings.UsePCSS, false, pcss => renderingSettings.UsePCSS = pcss);
                 if (renderingSettings.UsePCSS)

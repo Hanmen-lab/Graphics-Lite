@@ -18,7 +18,7 @@ namespace Graphics
             _16K = 16384
         }
 
-        public CustomShadowResolution shadowResolutionCustomSelector = CustomShadowResolution.Default;
+        public CustomShadowResolution shadowResolutionCustomSelector = CustomShadowResolution._2048;
 
         private int _targetResolution;
         public int targetResolution

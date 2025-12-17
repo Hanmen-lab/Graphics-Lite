@@ -10,6 +10,15 @@ namespace Graphics.Settings
     {
         private int _pixelLightCount;
 
+        public enum ShadowCascadesSetting
+        {
+            NoCascades = 0,
+            TwoCascades = 2,
+            FourCascades = 4
+        }
+
+        public ShadowCascadesSetting ShadowCascadesNumber = ShadowCascadesSetting.FourCascades;
+
         public int PixelLightCount
         {
             get => QualitySettings.pixelLightCount;
@@ -100,6 +109,12 @@ namespace Graphics.Settings
 
                 GraphicsSettings.lightsUseColorTemperature = value;
             }
+        }
+
+        public int ShadowCascades
+        {
+            get => QualitySettings.shadowCascades;
+            set => QualitySettings.shadowCascades = (int)ShadowCascadesNumber;
         }
 
         public bool UsePCSS
