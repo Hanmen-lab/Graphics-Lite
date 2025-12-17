@@ -33,7 +33,7 @@ namespace Graphics
     {
         public const string GUID = "ore.graphics";
         public const string PluginName = "Graphics";
-        public const string Version = "2.2.0";
+        public const string Version = "2.2.2";
 
         public enum ShadowResolutionOverride
         {
