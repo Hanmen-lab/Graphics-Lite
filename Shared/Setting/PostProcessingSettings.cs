@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 using static Graphics.DebugUtils;
 using Graphics.XPostProcessing;
+using Graphics.FSR3;
 
 // TODO: Turn on Post Processing in main menu.
 // TODO: Messagepack clears out layer lists for a frame. Need to figure out to remove temporary solutions
@@ -45,6 +46,7 @@ namespace Graphics.Settings
             FXAA = PostProcessLayer.Antialiasing.FastApproximateAntialiasing,
             SMAA = PostProcessLayer.Antialiasing.SubpixelMorphologicalAntialiasing,
             TAA = PostProcessLayer.Antialiasing.TemporalAntialiasing,
+            FSR3 = 998,
             CTAA = 999,
         };
 
@@ -606,6 +608,8 @@ namespace Graphics.Settings
             {
                 if (CTAAManager.settings.Enabled)
                     return Antialiasing.CTAA;
+                else if (FSR3Manager.Settings.Enabled)
+                    return Antialiasing.FSR3;
                 else
                     return (Antialiasing)PostProcessLayer.antialiasingMode;
             }
@@ -613,9 +617,20 @@ namespace Graphics.Settings
             {
                 if (value == Antialiasing.CTAA)
                 {
+                    FSR3Manager.Settings.Enabled = false;
+                    FSR3Manager.UpdateSettings();
                     PostProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.None;
                     CTAAManager.settings.Enabled = true;
                     CTAAManager.UpdateSettings();
+                }
+                else if (value == Antialiasing.FSR3)
+                {
+                    CTAAManager.settings.Enabled = false;
+                    CTAAManager.UpdateSettings();
+                    PostProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.None;
+                    CTAAManager.UpdateSettings();
+                    FSR3Manager.Settings.Enabled = true;
+                    FSR3Manager.UpdateSettings();
                 }
                 else
                 {
@@ -623,6 +638,11 @@ namespace Graphics.Settings
                     {
                         CTAAManager.settings.Enabled = false;
                         CTAAManager.UpdateSettings();
+                    }
+                    if (FSR3Manager.Settings.Enabled)
+                    {
+                        FSR3Manager.Settings.Enabled = false;
+                        FSR3Manager.UpdateSettings();
                     }
                     PostProcessLayer.antialiasingMode = (PostProcessLayer.Antialiasing)value;
                 }
@@ -718,15 +738,19 @@ namespace Graphics.Settings
 
         public void UpdateFilterDithering()
         {
-            if (PostProcessLayer.antialiasingMode == PostProcessLayer.Antialiasing.TemporalAntialiasing || AntialiasingMode == Antialiasing.CTAA)
+            if (PostProcessLayer.antialiasingMode == PostProcessLayer.Antialiasing.TemporalAntialiasing
+                || AntialiasingMode == Antialiasing.CTAA
+                || AntialiasingMode == Antialiasing.FSR3)
             {
                 if (filterDithering && !Shader.IsKeywordEnabled(temporalKeyword))
                 {
+                    Graphics.Instance.Log.LogInfo("Global temporal filtering has been enabled. Switching to the animated version of IGN dithering.");
                     LogWithDots("Dithering", "IGN ANIMATED");
                     Shader.EnableKeyword(temporalKeyword);
                 }
                 else if (!filterDithering && Shader.IsKeywordEnabled(temporalKeyword))
                 {
+                    Graphics.Instance.Log.LogInfo("Global temporal filtering has been disabled. Switching to the static version of IGN dithering.");
                     LogWithDots("Dithering", "IGN STATIC");
                     Shader.DisableKeyword(temporalKeyword);
                 }

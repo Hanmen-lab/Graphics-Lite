@@ -162,7 +162,7 @@ namespace Graphics.Settings
                 {
                     if (InsideStudio)
                     {
-                        
+
                         Studio.CameraControl control = (Studio.CameraControl)MainCamera.GetComponent<CinemachineBrain>()?.ActiveVirtualCamera;
                         if (control?.State.Lens.NearClipPlane == null)
                             return MainCamera.nearClipPlane;
@@ -193,7 +193,7 @@ namespace Graphics.Settings
                         CameraState cameraState = control.GetFieldValue<CameraState>("cameraState");
                         cameraState.Lens = lensSettings;
                         control.SetFieldValue<CameraState>("cameraState", cameraState);
-                    } 
+                    }
                     else
                     {
                         MainCamera.nearClipPlane = value;
@@ -219,7 +219,7 @@ namespace Graphics.Settings
                         if (control?.State.Lens.FarClipPlane == null)
                             return MainCamera.farClipPlane;
                         else
-                            return control.State.Lens.FarClipPlane; 
+                            return control.State.Lens.FarClipPlane;
                     }
                     else
                     {
@@ -231,7 +231,7 @@ namespace Graphics.Settings
             set
             {
                 if (InsideStudio)
-                {                    
+                {
                     Studio.CameraControl control = (Studio.CameraControl)MainCamera.GetComponent<CinemachineBrain>()?.ActiveVirtualCamera;
                     if (control != null)
                     {
@@ -265,7 +265,8 @@ namespace Graphics.Settings
                     foreach (Camera c in Camera.allCameras)
                     {
                         Graphics.Instance.Log.LogDebug("Checking Camera: " + c.name);
-                        if (c.name.Equals("VRGIN_Camera (eye)")) {
+                        if (c.name.Equals("VRGIN_Camera (eye)"))
+                        {
                             _camera = c;
                         }
                     }

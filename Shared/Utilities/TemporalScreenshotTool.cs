@@ -1,8 +1,8 @@
 ﻿using BepInEx;
 using CharaCustom;
-//using FidelityFX.FSR3;
+using FidelityFX.FSR3;
 using Graphics.CTAA;
-//using Graphics.FSR3;
+using Graphics.FSR3;
 using Graphics.SEGI;
 using Graphics.Settings;
 using HarmonyLib;
@@ -72,7 +72,7 @@ namespace Graphics
         private Texture2D cpuTarget;
         private ComputeBuffer textureDataBuffer;
         private CommandBuffer cmd;
-        
+
         // UI componentss
         private GameObject loadingOverlay;
         private Canvas loadingCanvas;
@@ -99,14 +99,14 @@ namespace Graphics
         private bool enableSegIresolution;
         private bool origAxis;
         private bool origWindowState;
-        //private bool raindropEnabled;
+        private bool raindropEnabled;
         //private ShadowMapResolution origNGSS_SHADOWS_RESOLUTION;
         //private int origNGSS_SAMPLING_TEST;
         //private int origNGSS_SAMPLING_FILTER;
         //private float origNGSS_SAMPLING_DISTANCE;
-        //private ShadowResolution origShadowResolution;
+        private ShadowResolution origShadowResolution;
         private Dictionary<ReflectionProbe, int> originalResolutions = new Dictionary<ReflectionProbe, int>();
-        //private Fsr3Upscaler.QualityMode origFSRquality;
+        private Fsr3Upscaler.QualityMode origFSRquality;
 
         private ScreenSpaceReflectionPreset origSSRPreset;
 
@@ -150,6 +150,69 @@ namespace Graphics
                 CaptureRenderDoc();
 
             StartCoroutine(MakeScreenshotRoutine());
+        }
+
+        public void MakeScreenRenderPre(int limit = 0)
+        {
+            ShowLoadingScreen();
+
+            SaveSettings();
+            SetSettings();
+            SetRenderTextures();
+            CreateCommandBuffer();
+            StartCoroutine(WarmupAndSave(limit));
+
+        }
+
+        public void MakeScreenRender(RenderTexture rt)
+        {
+            //_camera.Render();
+            UnityEngine.Graphics.Blit(cameraRenderTarget, rt);
+        }
+        public void MakeScreenRenderPost()
+        {
+            _camera.RemoveCommandBuffer(CameraEvent.AfterImageEffects, cmd);
+            cmd.Release();
+            cmd = null;
+
+            Destroy(cameraRenderTarget);
+            cameraRenderTarget = null;
+            Destroy(cpuTarget);
+            cpuTarget = null;
+
+            if (downsizedTarget)
+            {
+                Destroy(downsizedTarget);
+                downsizedTarget = null;
+            }
+
+            textureDataBuffer.Dispose();
+            textureDataBuffer = null;
+
+            RestoreSettings();
+
+            HideLoadingScreen();
+        }
+        private IEnumerator WarmupAndSave(int limit = 0)
+        {
+            //loadingAnimation.SetText("Capturing frames...");
+            yield return StartCoroutine(Warmup(limit));
+            SaveScreenToRT(cmd);
+        }
+        IEnumerator Warmup(int limit = 0)
+        {
+            //Time.timeScale = 0f;
+            for (int i = 0; i < limit; i++)
+            {
+
+                loadingAnimation.UpdateProgress(i + 1, limit, "Capturing frames");
+
+                yield return null;
+            }
+
+            //Time.timeScale = 1f;
+
+            yield return new WaitForEndOfFrame();
         }
 
         IEnumerator MakeScreenshotRoutine()
@@ -246,6 +309,11 @@ namespace Graphics
 
             foreach (Canvas canvas in allCanvases)
             {
+                // Пропускаем Canvas с модифицированным CanvasScaler
+                CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+                if (scaler != null && scaler.scaleFactor != 1f)
+                    continue;
+
                 if (canvas.gameObject != loadingCanvas && canvas.enabled)
                 {
                     canvas.enabled = false;
@@ -256,7 +324,7 @@ namespace Graphics
             // Disable Axis gizmo
             if (KKAPI.KoikatuAPI.GetCurrentGameMode() == GameMode.Studio)
             {
-                origAxis = Singleton<Studio.Studio>.Instance.workInfo.visibleAxis;        
+                origAxis = Singleton<Studio.Studio>.Instance.workInfo.visibleAxis;
                 Singleton<StudioScene>.Instance.cameraInfo.axis = false;
             }
 
@@ -292,7 +360,7 @@ namespace Graphics
             TemporalScreenshotManager.Hooks.GetDimensions(out Vector2Int _screenshotResolution, out int _supersampling);
 
             //Disable supersampling for CTAA as it has its own mode for that
-            if (postProcessingSettings.AntialiasingMode == PostProcessingSettings.Antialiasing.CTAA /*|| (postProcessingSettings.AntialiasingMode == PostProcessingSettings.Antialiasing.FSR3)*/)
+            if (postProcessingSettings.AntialiasingMode == PostProcessingSettings.Antialiasing.CTAA || (postProcessingSettings.AntialiasingMode == PostProcessingSettings.Antialiasing.FSR3))
             {
                 _supersampling = 1;
             }
@@ -321,9 +389,9 @@ namespace Graphics
             _camera.targetTexture = cameraRenderTarget;
             switch (origAAMode)
             {
-                //case PostProcessingSettings.Antialiasing.FSR3:
-                //    FSR3Manager.Instance.IsScreenshotFired = true;
-                //    break;
+                case PostProcessingSettings.Antialiasing.FSR3:
+                    FSR3Manager.Instance.IsScreenshotFired = true;
+                    break;
                 default:
                     // nothing to do yet...
                     break;
@@ -405,12 +473,27 @@ namespace Graphics
             _camera.AddCommandBuffer(CameraEvent.AfterImageEffects, cmd);
         }
 
+        void SaveScreenToRT(CommandBuffer cmd)
+        {
+            RenderTexture finalTarget = enableSupersampling ? downsizedTarget : cameraRenderTarget;
+
+            if (enableSupersampling)
+            {
+                cmd.Blit(cameraRenderTarget, downsizedTarget);
+            }
+
+            if (origAAMode == PostProcessingSettings.Antialiasing.CTAA)
+                cmd.Blit(BuiltinRenderTextureType.CameraTarget, finalTarget);
+
+            _camera.AddCommandBuffer(CameraEvent.AfterImageEffects, cmd);
+        }
+
         void SaveSettings()
         {
             oldTarget = _camera.targetTexture;
             origTimeScale = Time.timeScale;
 
-            //origShadowResolution = QualitySettings.shadowResolution;
+            origShadowResolution = QualitySettings.shadowResolution;
 
             switch (postProcessingSettings.AntialiasingMode)
             {
@@ -429,9 +512,9 @@ namespace Graphics
                     origSharpness = postProcessingSettings.Sharpness;
                     break;
 
-                //case PostProcessingSettings.Antialiasing.FSR3:
-                //    origFSRquality = FSR3Manager.Settings.QualityMode;
-                //    break;
+                case PostProcessingSettings.Antialiasing.FSR3:
+                    origFSRquality = FSR3Manager.Settings.QualityMode;
+                    break;
             }
 
             //if (highQualityNGSS)
@@ -533,21 +616,23 @@ namespace Graphics
                         ctaaSettings.SupersampleMode = CTAASettings.CTAA_MODE.CINA_ULTRA;
                         LogWithDotsLight("CTAA Supersample Mode", CTAASettings.CTAA_MODE.CINA_ULTRA.ToString());
                     }
+
+
                     CTAAManager.UpdateSettings();
                     break;
 
-                //case PostProcessingSettings.Antialiasing.FSR3:
-                //    hasTemporal = true;
-                //    _captureFrames = warmupFrames;
+                case PostProcessingSettings.Antialiasing.FSR3:
+                    hasTemporal = true;
+                    _captureFrames = warmupFrames;
 
-                //    var fsr3Settings = FSR3Manager.Settings;
-                //    if (fsr3Settings.QualityMode != Fsr3Upscaler.QualityMode.NativeAA)
-                //    {
-                //        fsr3Settings.QualityMode = Fsr3Upscaler.QualityMode.NativeAA;
-                //        FSR3Manager.UpdateSettings();
-                //        LogWithDotsLight("FSR3 Quality Mode", Fsr3Upscaler.QualityMode.NativeAA.ToString());
-                //    }
-                //    break;
+                    var fsr3Settings = FSR3Manager.Settings;
+                    if (fsr3Settings.QualityMode != Fsr3Upscaler.QualityMode.NativeAA)
+                    {
+                        fsr3Settings.QualityMode = Fsr3Upscaler.QualityMode.NativeAA;
+                        FSR3Manager.UpdateSettings();
+                        LogWithDotsLight("FSR3 Quality Mode", Fsr3Upscaler.QualityMode.NativeAA.ToString());
+                    }
+                    break;
 
                 default:
                     hasTemporal = false;
@@ -606,6 +691,7 @@ namespace Graphics
                 //    LogWithDotsLight("Stochastic SSR Use MipMap", "DISABLED");
                 //    StochasticSSRManager.UpdateSettings();
                 //}
+
             }
 
             //if (highQualityVolumetrics && VolumetricLightManager.settings.Enabled)
@@ -624,7 +710,7 @@ namespace Graphics
             //        {
             //            volumetricLight.SampleCount = 32;
             //            //Graphics.Instance.Log.LogInfo("Setting 32 Samples to: "+ light.name);
-            //            LogWithDotsLight(light.name+" Volumetric Sample Count","32");
+            //            LogWithDotsLight(light.name + " Volumetric Sample Count", "32");
             //        }
             //    }
             //}
@@ -659,14 +745,14 @@ namespace Graphics
                     LogWithDotsLight("TAA Sharpness", origSharpness.ToString());
                     break;
 
-                //case PostProcessingSettings.Antialiasing.FSR3:
-                //    Graphics.Instance.Log.LogInfo("Restoring FSR3 settings...");
-                //    FSR3Manager.Instance.IsScreenshotFired = false;
-                //    var fsr3Settings = FSR3Manager.Settings;
-                //    fsr3Settings.QualityMode = origFSRquality;
-                //    FSR3Manager.UpdateSettings();
-                //    LogWithDotsLight("FSR3 Quality Mode", origFSRquality.ToString());
-                //    break;
+                case PostProcessingSettings.Antialiasing.FSR3:
+                    Graphics.Instance.Log.LogInfo("Restoring FSR3 settings...");
+                    FSR3Manager.Instance.IsScreenshotFired = false;
+                    var fsr3Settings = FSR3Manager.Settings;
+                    fsr3Settings.QualityMode = origFSRquality;
+                    FSR3Manager.UpdateSettings();
+                    LogWithDotsLight("FSR3 Quality Mode", origFSRquality.ToString());
+                    break;
             }
 
             // Restore CTAA Settings
@@ -793,7 +879,7 @@ namespace Graphics
                         originalResolutions[rp] = rp.resolution;
                         rp.resolution = 2048;
                         rp.RenderProbe();
-                        LogWithDotsLight(rp.name+ " Resolution", "2048");
+                        LogWithDotsLight(rp.name + " Resolution", "2048");
                     }
                     else
                     {
@@ -874,7 +960,7 @@ namespace Graphics
             circleObj.transform.SetParent(canvasObj.transform, false);
             Image loadingImage = circleObj.AddComponent<Image>();
             loadingImage.material = new Material(loadingShader);
-            
+
             RectTransform circleRect = loadingImage.rectTransform;
             circleRect.anchorMin = new Vector2(0.5f, 0.5f);
             circleRect.anchorMax = new Vector2(0.5f, 0.5f);

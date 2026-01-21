@@ -1,5 +1,5 @@
 ﻿using Graphics.CTAA;
-//using Graphics.FSR3;
+using Graphics.FSR3;
 using Graphics.Settings;
 using UnityEngine;
 using static Graphics.Inspector.Util;
@@ -38,7 +38,7 @@ namespace Graphics.Inspector
             {
                 Label("POST PROCESS AA", "", true);
                 GUILayout.Space(2);
-                Selection("Mode", postProcessingSettings.AntialiasingMode, mode => { postProcessingSettings.AntialiasingMode = mode; postProcessingSettings.UpdateFilterDithering(); CTAAManager.UpdateSettings(); /*FSR3Manager.UpdateSettings();*/ });
+                Selection("Mode", postProcessingSettings.AntialiasingMode, mode => { postProcessingSettings.AntialiasingMode = mode; postProcessingSettings.UpdateFilterDithering(); CTAAManager.UpdateSettings(); FSR3Manager.UpdateSettings(); });
                 GUILayout.Space(20);
 
                 GUILayout.EndVertical();
@@ -77,82 +77,83 @@ namespace Graphics.Inspector
                     Toggle("Keep Alpha", postProcessingSettings.FXAAAlpha, false, alpha => postProcessingSettings.FXAAAlpha = alpha);
                     Shader.DisableKeyword("_TEMPORALFILTER_ON");
                 }
-                //else if (PostProcessingSettings.Antialiasing.FSR3 == postProcessingSettings.AntialiasingMode)
-                //{
-                //    if (FSR3Manager.Settings != null)
-                //    {
-                //        FSR3Settings fsr3Settings = FSR3Manager.Settings;
+                else if (PostProcessingSettings.Antialiasing.FSR3 == postProcessingSettings.AntialiasingMode)
+                {
+                    if (FSR3Manager.Settings != null)
+                    {
+                        FSR3Settings fsr3Settings = FSR3Manager.Settings;
 
-                //        if (fsr3Settings.Enabled)
-                //        {
-                //            if (!Graphics.ScreenshotOverride.Value)
-                //            {
-                //                //GUILayout.Space(15);
-                //                Warning("Screenshot Enghine Not Enabled! Rendered screenshot will be incorrect! Toggle 'Enable New Screenshot Engine' it in the F1 - Graphics Plugin settings.", true);
-                //                GUILayout.Space(5);
-                //            }
-                //            Label("SETTINGS", "", true);
-                //            GUILayout.Space(10);
-                //            //Selection("Quality Mode", fsr3Settings.QualityMode, value => { fsr3Settings.QualityMode = value; FSR3Manager.UpdateSettings(); FSR3HelperManager.UpdateSettings(); }, 3);
-                //            Selection("Quality Mode", fsr3Settings.QualityMode, value => { fsr3Settings.QualityMode = value; FSR3Manager.UpdateSettings(); }, 3);
-                //            GUILayout.Space(10);
-                //            Label("", "Resolution: NativveAA: 100%, UltraQuality: 83%, Quality: 66%, Balanced: 58%, Performance: 50%, UltraPerformance: 33%", false);
-                //            GUILayout.Space(10);
-                //            ToggleAlt("Perform Sharpen Pass", fsr3Settings.PerformSharpenPass.value, false, value => { fsr3Settings.PerformSharpenPass.value = value; FSR3Manager.UpdateSettings(); });
-                //            if (fsr3Settings.PerformSharpenPass.value)
-                //            {
-                //                GUILayout.Space(10);
-                //                Slider("Sharpness", fsr3Settings.Sharpness.value, 0f, 1f, "N2", value => { fsr3Settings.Sharpness.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.Sharpness.overrideState, overrideState => { fsr3Settings.Sharpness.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //                Slider("Velocity Factor", fsr3Settings.VelocityFactor.value, 0f, 1f, "N2", value => { fsr3Settings.VelocityFactor.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.VelocityFactor.overrideState, overrideState => { fsr3Settings.VelocityFactor.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //            }
+                        if (fsr3Settings.Enabled)
+                        {
+                            if (!Graphics.ScreenshotOverride.Value)
+                            {
+                                //GUILayout.Space(15);
+                                Warning("Screenshot Enghine Not Enabled! Rendered screenshot will be incorrect! Toggle 'Enable New Screenshot Engine' it in the F1 - Graphics Plugin settings.", true);
+                                GUILayout.Space(5);
+                            }
+                            Label("SETTINGS", "", true);
+                            GUILayout.Space(10);
+                            //Selection("Quality Mode", fsr3Settings.QualityMode, value => { fsr3Settings.QualityMode = value; FSR3Manager.UpdateSettings(); FSR3HelperManager.UpdateSettings(); }, 3);
+                            Selection("Quality Mode", fsr3Settings.QualityMode, value => { fsr3Settings.QualityMode = value; FSR3Manager.UpdateSettings(); }, 3);
+                            GUILayout.Space(10);
+                            Label("", "Resolution: NativveAA: 100%, UltraQuality: 83%, Quality: 66%, Balanced: 58%, Performance: 50%, UltraPerformance: 33%", false);
+                            GUILayout.Space(10);
+                            ToggleAlt("Perform Sharpen Pass", fsr3Settings.PerformSharpenPass.value, false, value => { fsr3Settings.PerformSharpenPass.value = value; FSR3Manager.UpdateSettings(); });
+                            if (fsr3Settings.PerformSharpenPass.value)
+                            {
+                                GUILayout.Space(10);
+                                Slider("Sharpness", fsr3Settings.Sharpness.value, 0f, 1f, "N2", value => { fsr3Settings.Sharpness.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.Sharpness.overrideState, overrideState => { fsr3Settings.Sharpness.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                                Slider("Velocity Factor", fsr3Settings.VelocityFactor.value, 0f, 1f, "N2", value => { fsr3Settings.VelocityFactor.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.VelocityFactor.overrideState, overrideState => { fsr3Settings.VelocityFactor.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                            }
 
-                //            GUILayout.Space(30);
-                //            Label("EXPOSURE", "", true);
-                //            GUILayout.Space(10);
-                //            ToggleAlt("Enable Auto Exposure", fsr3Settings.EnableAutoExposure.value, false, value => { fsr3Settings.EnableAutoExposure.value = value; FSR3Manager.UpdateSettings(); });
-                //            Text("Pre Exposure", fsr3Settings.PreExposure.value, "N2", value => { fsr3Settings.PreExposure.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.PreExposure.overrideState, overrideState => { fsr3Settings.PreExposure.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //            //Label("Exposure", "dummy for Texture", false);
+                            GUILayout.Space(30);
+                            Label("EXPOSURE", "", true);
+                            GUILayout.Space(10);
+                            ToggleAlt("Enable Auto Exposure", fsr3Settings.EnableAutoExposure.value, false, value => { fsr3Settings.EnableAutoExposure.value = value; FSR3Manager.UpdateSettings(); });
+                            Text("Pre Exposure", fsr3Settings.PreExposure.value, "N2", value => { fsr3Settings.PreExposure.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.PreExposure.overrideState, overrideState => { fsr3Settings.PreExposure.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                            //Label("Exposure", "dummy for Texture", false);
 
-                //            GUILayout.Space(30);
-                //            Label("TRANSPARENCY & COMPOSITION", "", true);
-                //            GUILayout.Space(10);
-                //            //Label("Reactive Mask", "dummy for Texture", false);
-                //            //Label("Transparency And Composition Mask", "dummy for Texture", false);
-                //            ToggleAlt("Auto Reactive Mask", fsr3Settings.AutoGenerateReactiveMask.value, false, value => { fsr3Settings.AutoGenerateReactiveMask.value = value; FSR3Manager.UpdateSettings(); });
-                //            if (fsr3Settings.AutoGenerateReactiveMask.value)
-                //            {
-                //                GUILayout.Space(10);
-                //                Slider("Scale", fsr3Settings.Scale.value, 0f, 2f, "N2", value => { fsr3Settings.Scale.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.Scale.overrideState, overrideState => { fsr3Settings.Scale.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //                Slider("Cutoff Threshold", fsr3Settings.CutoffThreshold.value, 0f, 1f, "N2", value => { fsr3Settings.CutoffThreshold.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.CutoffThreshold.overrideState, overrideState => { fsr3Settings.CutoffThreshold.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //                Slider("Binary Value", fsr3Settings.BinaryValue.value, 0f, 1f, "N2", value => { fsr3Settings.BinaryValue.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.BinaryValue.overrideState, overrideState => { fsr3Settings.BinaryValue.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //                GUILayout.Space(5);
-                //                MultiSelection("Flags", fsr3Settings.Flags, value => { fsr3Settings.Flags = value; FSR3Manager.UpdateSettings(); }, 2);
-                //            }
-                //            GUILayout.Space(30);
-                //            Label("EXPERIMENTAL", "Automatically generate and use Reactive mask and Transparency & composition mask internally.", true);
-                //            GUILayout.Space(10);
-                //            ToggleAlt("Auto Transparency And Composition", fsr3Settings.AutoGenerateTransparencyAndComposition.value, false, value => { fsr3Settings.AutoGenerateTransparencyAndComposition.value = value; FSR3Manager.UpdateSettings(); });
-                //            if (fsr3Settings.AutoGenerateTransparencyAndComposition.value)
-                //            {
-                //                GUILayout.Space(10);
-                //                Slider("Auto Tc Threshold", fsr3Settings.AutoTcThreshold.value, 0f, 1f, "N2", value => { fsr3Settings.AutoTcThreshold.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.AutoTcThreshold.overrideState, overrideState => { fsr3Settings.AutoTcThreshold.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //                Slider("Auto Tc Scale", fsr3Settings.AutoTcScale.value, 0f, 2f, "N2", value => { fsr3Settings.AutoTcScale.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.AutoTcScale.overrideState, overrideState => { fsr3Settings.AutoTcScale.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //                Slider("Auto Reactive Scale", fsr3Settings.AutoReactiveScale.value, 0f, 10f, "N2", value => { fsr3Settings.AutoReactiveScale.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.AutoReactiveScale.overrideState, overrideState => { fsr3Settings.AutoReactiveScale.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //                Slider("Auto Reactive Max", fsr3Settings.AutoReactiveMax.value, 0f, 1f, "N2", value => { fsr3Settings.AutoReactiveMax.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.AutoReactiveMax.overrideState, overrideState => { fsr3Settings.AutoReactiveMax.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
-                //            }
-                //            GUILayout.Space(30);
-                //            Label("DEBUG", "", true);
-                //            GUILayout.Space(10);
-                //            ToggleAlt("Enable Debug View", fsr3Settings.EnableDebugView.value, false, value => { fsr3Settings.EnableDebugView.value = value; FSR3Manager.UpdateSettings(); });
-                //            //GUILayout.Space(10);
-                //            //Label("Assets", "dummy for Assets", false);
-                //            GUILayout.Space(10);
-                //            ToggleAlt("FILTER DITHERING", postProcessingSettings.FilterDithering, true, value => { postProcessingSettings.FilterDithering = value; postProcessingSettings.UpdateFilterDithering(); });
-                //        }
-                //    }
-                //}
+                            GUILayout.Space(30);
+                            Label("TRANSPARENCY & COMPOSITION", "", true);
+                            GUILayout.Space(10);
+                            //Label("Reactive Mask", "dummy for Texture", false);
+                            //Label("Transparency And Composition Mask", "dummy for Texture", false);
+                            ToggleAlt("Auto Reactive Mask", fsr3Settings.AutoGenerateReactiveMask.value, false, value => { fsr3Settings.AutoGenerateReactiveMask.value = value; FSR3Manager.UpdateSettings(); });
+                            if (fsr3Settings.AutoGenerateReactiveMask.value)
+                            {
+                                GUILayout.Space(10);
+                                Slider("Scale", fsr3Settings.Scale.value, 0f, 2f, "N2", value => { fsr3Settings.Scale.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.Scale.overrideState, overrideState => { fsr3Settings.Scale.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                                Slider("Cutoff Threshold", fsr3Settings.CutoffThreshold.value, 0f, 1f, "N2", value => { fsr3Settings.CutoffThreshold.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.CutoffThreshold.overrideState, overrideState => { fsr3Settings.CutoffThreshold.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                                Slider("Binary Value", fsr3Settings.BinaryValue.value, 0f, 1f, "N2", value => { fsr3Settings.BinaryValue.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.BinaryValue.overrideState, overrideState => { fsr3Settings.BinaryValue.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                                GUILayout.Space(5);
+                                MultiSelection("Flags", fsr3Settings.Flags, value => { fsr3Settings.Flags = value; FSR3Manager.UpdateSettings(); }, 2);
+                            }
+                            GUILayout.Space(30);
+                            Label("EXPERIMENTAL", "Automatically generate and use Reactive mask and Transparency & composition mask internally.", true);
+                            GUILayout.Space(10);
+                            ToggleAlt("Auto Transparency And Composition", fsr3Settings.AutoGenerateTransparencyAndComposition.value, false, value => { fsr3Settings.AutoGenerateTransparencyAndComposition.value = value; FSR3Manager.UpdateSettings(); });
+                            if (fsr3Settings.AutoGenerateTransparencyAndComposition.value)
+                            {
+                                GUILayout.Space(10);
+                                Slider("Auto Tc Threshold", fsr3Settings.AutoTcThreshold.value, 0f, 1f, "N2", value => { fsr3Settings.AutoTcThreshold.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.AutoTcThreshold.overrideState, overrideState => { fsr3Settings.AutoTcThreshold.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                                Slider("Auto Tc Scale", fsr3Settings.AutoTcScale.value, 0f, 2f, "N2", value => { fsr3Settings.AutoTcScale.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.AutoTcScale.overrideState, overrideState => { fsr3Settings.AutoTcScale.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                                Slider("Auto Reactive Scale", fsr3Settings.AutoReactiveScale.value, 0f, 10f, "N2", value => { fsr3Settings.AutoReactiveScale.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.AutoReactiveScale.overrideState, overrideState => { fsr3Settings.AutoReactiveScale.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                                Slider("Auto Reactive Max", fsr3Settings.AutoReactiveMax.value, 0f, 1f, "N2", value => { fsr3Settings.AutoReactiveMax.value = value; FSR3Manager.UpdateSettings(); }, fsr3Settings.AutoReactiveMax.overrideState, overrideState => { fsr3Settings.AutoReactiveMax.overrideState = overrideState; FSR3Manager.UpdateSettings(); });
+                            }
+                            GUILayout.Space(30);
+                            Label("DEBUG", "", true);
+                            GUILayout.Space(10);
+                            ToggleAlt("Enable Debug View", fsr3Settings.EnableDebugView.value, false, value => { fsr3Settings.EnableDebugView.value = value; FSR3Manager.UpdateSettings(); });
+                            //GUILayout.Space(10);
+                            //Label("Assets", "dummy for Assets", false);
+                            GUILayout.Space(10);
+                            ToggleAlt("FILTER DITHERING", postProcessingSettings.FilterDithering, true, value => { postProcessingSettings.FilterDithering = value; postProcessingSettings.UpdateFilterDithering(); });
+                        }
+                    }
+                }
                 else if (PostProcessingSettings.Antialiasing.CTAA == postProcessingSettings.AntialiasingMode)
                 {
+
                     if (CTAAManager.settings != null)
                     {
                         CTAASettings ctaaSettings = CTAAManager.settings;

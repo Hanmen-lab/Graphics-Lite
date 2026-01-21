@@ -22,18 +22,27 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Graphics.DebugUtils;
 using UnityEngine.Rendering;
+using Graphics.FSR3;
+using System.Reflection;
+using FidelityFX;
+using Aura2API;
+using UnityEngine.Rendering.PostProcessing;
+using System.Collections.Generic;
 
 namespace Graphics
 {
-    [BepInIncompatibility("dhhai4mod"), BepInIncompatibility("HS2_HDSaveCard"), BepInIncompatibility("8484093f-f32f-47ab-857d-484370c226b7")]
+    [BepInIncompatibility("dhhai4mod"),
+        BepInIncompatibility("HS2_HDSaveCard"),
+        BepInIncompatibility("BetterAA")]
     [BepInPlugin(GUID, PluginName, Version)]
-    [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
+    [BepInDependency(KoikatuAPI.GUID, "1.43")]
+    [BepInDependency("com.bepis.bepinex.screenshotmanager", "21.0.0.0")]
     [BepInDependency(ExtensibleSaveFormat.ExtendedSave.GUID)]
     public partial class Graphics : BaseUnityPlugin
     {
         public const string GUID = "ore.graphics";
         public const string PluginName = "Graphics";
-        public const string Version = "2.2.2";
+        public const string Version = "2.3.0";
 
         public enum ShadowResolutionOverride
         {
@@ -88,11 +97,13 @@ namespace Graphics
 #if AI
         private float _previousTimeScale;
 #endif 
+        private FSR3HelperManager _fsr3HelperManager;
         private SkyboxManager _skyboxManager;
         private LightManager _lightManager;
         private PostProcessingManager _postProcessingManager;
         private PresetManager _presetManager;
         private CTAAManager _ctaaManager;
+        private FSR3Manager _fsr3Manager;
         private SSSManager _sssManager;
         private SEGIManager _segiManager;
         private GlobalFogManager _globalfogManager;
@@ -193,6 +204,11 @@ namespace Graphics
             CameraSettings = new CameraSettings();
             LightingSettings = new LightingSettings();
             PostProcessingSettings = new PostProcessingSettings(Graphics.Instance.CameraSettings.MainCamera);
+
+            _fsr3HelperManager = new FSR3HelperManager();
+            _fsr3HelperManager.Initialize();
+
+            ReorderScripts();
 
             _postProcessingManager = Instance.GetOrAddComponent<PostProcessingManager>();
             _postProcessingManager.Parent = this;
@@ -374,6 +390,68 @@ namespace Graphics
             }
 
             Graphics.Instance.Log.LogInfo("Removed old image effects from Main Camera");
+        }
+
+        public static void ReorderScripts()
+        {
+            Camera camera = Graphics.Instance.CameraSettings.MainCamera;
+
+            // Get components
+            var helperScript = camera.GetComponent<Fsr3UpscalerImageEffectHelper>();
+            var postProcessLayer = camera.GetComponent<PostProcessLayer>();
+            var aura = camera.GetComponent<AuraCamera>();
+
+            if (helperScript == null || postProcessLayer == null) return;
+
+            helperScript.enabled = false;
+            postProcessLayer.enabled = false;
+
+            // Save component with Reflection
+            var postProcessData = CopyComponentData(postProcessLayer);
+
+            // Remove components
+            DestroyImmediate(helperScript);
+            DestroyImmediate(postProcessLayer);
+            //DestroyImmediate(aura);
+
+            // Add components back in correct order
+            var newHelper = camera.gameObject.AddComponent<Fsr3UpscalerImageEffectHelper>();
+            //var newAura = camera.gameObject.AddComponent<AuraCamera>();
+            var newPostProcess = camera.gameObject.AddComponent<PostProcessLayer>();
+            newHelper.enabled = false;
+            newPostProcess.enabled = false;
+            // Restore data to PostProcessLayer
+            RestoreComponentData(newPostProcess, postProcessData);
+
+            newHelper.enabled = true;
+            //newAura.enabled = true;
+            newPostProcess.enabled = true;
+
+            Graphics.Instance.Log.LogInfo("Reordered PostProcessLayer components on Main Camera");
+        }
+
+        private static Dictionary<string, object> CopyComponentData(Component component)
+        {
+            var data = new Dictionary<string, object>();
+            var fields = component.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var field in fields)
+            {
+                if (!field.IsNotSerialized)
+                    data[field.Name] = field.GetValue(component);
+            }
+
+            return data;
+        }
+
+        private static void RestoreComponentData(Component component, Dictionary<string, object> data)
+        {
+            var fields = component.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                if (data.ContainsKey(field.Name))
+                    field.SetValue(component, data[field.Name]);
+            }
         }
 
         internal void Update()

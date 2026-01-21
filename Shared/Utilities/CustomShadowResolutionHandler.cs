@@ -18,7 +18,7 @@ namespace Graphics
             _16K = 16384
         }
 
-        public CustomShadowResolution shadowResolutionCustomSelector = CustomShadowResolution._2048;
+        public CustomShadowResolution shadowResolutionCustomSelector = CustomShadowResolution._4096;
 
         private int _targetResolution;
         public int targetResolution
@@ -61,7 +61,7 @@ namespace Graphics
 
                 if (_targetResolution == -1)
                     //Graphics.Instance.Log.LogInfo($"{name} ....... Reset shadow resolution to default");
-                    LogWithDotsLight($"{name}"+" Shadow Resolution", "Default");
+                    LogWithDotsLight($"{name}" + " Shadow Resolution", "Default");
                 else
                     //Graphics.Instance.Log.LogInfo($"{name} ....... Applied custom shadow resolution {_targetResolution}");
                     LogWithDotsLight($"{name}" + " Shadow Resolution", $"{_targetResolution}");

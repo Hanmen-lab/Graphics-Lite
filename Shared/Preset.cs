@@ -11,7 +11,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using static Graphics.DebugUtils;
-
+using Graphics.FSR3;
 
 namespace Graphics
 {
@@ -26,6 +26,7 @@ namespace Graphics
         public SkyboxSettings skyboxSetting;
         public PostProcessingSettings pp;
         public CTAASettings ctaa;
+        public FSR3Settings fsr3;
         public SSSSettings sss;
         public SEGISettings segi;
         public VAOSettings vao;
@@ -55,6 +56,7 @@ namespace Graphics
             this.pp = pp;
             this.skybox = skybox;
             this.ctaa = CTAAManager.settings;
+            this.fsr3 = FSR3Manager.Settings;
             this.sss = SSSManager.settings;
             this.segi = SEGIManager.settings;
             this.gtao = GTAOManager.settings;
@@ -89,6 +91,7 @@ namespace Graphics
             segi = SEGIManager.settings;
             gtao = GTAOManager.settings;
             ctaa = CTAAManager.settings;
+            fsr3 = FSR3Manager.Settings;
             fog = GlobalFogManager.settings;
             vao = VAOManager.settings;
             amplifyocc = AmplifyOccManager.settings;
@@ -335,6 +338,12 @@ namespace Graphics
             CTAAManager.settings = ctaa;
             CTAAManager.UpdateSettings();
             LogWithDots("CTAA", "OK");
+
+            if (fsr3 == null)
+                fsr3 = new FSR3Settings();
+            FSR3Manager.Settings = fsr3;
+            FSR3Manager.UpdateSettings();
+            LogWithDots("FSR3", "OK");
 
             if (loaddof)
             {

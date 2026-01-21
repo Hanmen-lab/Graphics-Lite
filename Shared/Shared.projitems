@@ -134,6 +134,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\DitheredShadowsManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\FilmGrainManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\FocusManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\FSR3Manager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\GlobalFogManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\GTAOManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\LightManager.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Setting\DeferredDecalsSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\FilmGrainSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\FocusSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Setting\FSR3Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\GlobalFogSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\GTAOSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\SEGISettings.cs" />
@@ -182,6 +184,16 @@
     <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\DitheredShadows\DitheredShadows.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FilmGrain\FilmGrain.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FocusPuller\FocusPuller.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3ShaderIDs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3Upscaler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3UpscalerAssets.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3UpscalerCallbacks.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3UpscalerContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3UpscalerImageEffect.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3UpscalerImageEffectHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3UpscalerPass.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\Fsr3UpscalerResources.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\FSR3\ResourceView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\GTAO\GroundTruthAmbientOcclusion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\GTAO\GTAOShaderIDs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\GTAO\GTAOUtils.cs" />
@@ -325,6 +337,9 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\defref.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\loading.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\temporalscreen.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\fsr3upscaler.unity3d">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\spectral_luts.unity3d" />
