@@ -12,7 +12,6 @@ namespace Graphics.Inspector
     {
         private static Vector2 probeSettingsScrollView;
         private static int selectedProbe = 0;
-        private static bool inspectReflectionProbes = true;
 
         private static int cachedFontSize = -1;
         private static int paddingL, paddingR;

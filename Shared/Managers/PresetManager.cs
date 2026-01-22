@@ -195,7 +195,7 @@ namespace Graphics
                 mapName = Manager.BaseMap.infoTable[Singleton<Manager.HSceneManager>.Instance.mapID].MapNames[0];
 #endif
 
-            MapLightPreset mapLightPreset = new MapLightPreset();
+            //MapLightPreset mapLightPreset = new MapLightPreset();
             string presetName = sceneName + (mapName == null ? "" : "-" + mapName) + (original ? "-original" : "");
             string targetPath = Path.Combine(_path, "mapLightPresets", presetName + ".light");
 

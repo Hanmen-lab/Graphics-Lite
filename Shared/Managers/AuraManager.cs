@@ -74,7 +74,7 @@ namespace Graphics
     {
         internal AuraSettings settings { get { return AuraManager.settings; } set { AuraManager.settings = value; } }
         internal AuraCamera AuraInstance;
-        internal AuraBaseSettings BaseSettings;
+        //internal AuraBaseSettings BaseSettings;
         internal AuraQualitySettings QualitySettings;
 
         // Initialize Components

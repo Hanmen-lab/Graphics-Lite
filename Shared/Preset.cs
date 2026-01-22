@@ -46,7 +46,12 @@ namespace Graphics
         public ProceduralSkyboxSettings proceduralsky;
         public AuraSettings aura;
         public FilmGrainSettings filmGrain;
+#if AI
+        //do nothing
+#else
         public DeferredDecalsSettings deferredDecals;
+#endif
+
 
         public Preset(GlobalSettings global, CameraSettings camera, LightingSettings lights, PostProcessingSettings pp, SkyboxParams skybox)
         {
@@ -72,8 +77,11 @@ namespace Graphics
             this.focus = FocusManager.settings;
             this.filmGrain = FilmGrainManager.settings;
             this.aura = AuraManager.settings;
+#if AI
+            //do nothing
+#else
             this.deferredDecals = DecalsSystemManager.settings;
-
+#endif
             // Skybox setting is generated when preset is being saved.
             skyboxSetting = null;
             this.aiosky = SkyboxManager.dynAIOSkySetting;
@@ -109,8 +117,11 @@ namespace Graphics
             proceduralsky = SkyboxManager.dynProceduralSkySettings;
             groundProjectionSkybox = SkyboxManager.groundProjectionSkyboxSettings;
             aura = AuraManager.settings;
+#if AI
+            //do nothing
+#else
             deferredDecals = DecalsSystemManager.settings;
-
+#endif
 
             Material mat = manager.Skybox;
             if (mat)
@@ -379,11 +390,13 @@ namespace Graphics
             //{
             //    LogWithDots("Volumetric Lights", "SKIP");
             //}
-
+#if AI
+            //do nothing
+#else
             DecalsSystemManager.settings = deferredDecals;
             DecalsSystemManager.UpdateSettings();
             LogWithDots("Deferred Decals", "OK");
-
+#endif
             FilmGrainManager.settings = filmGrain;
             FilmGrainManager.UpdateSettings();
             LogWithDots("Film Grain", "OK");

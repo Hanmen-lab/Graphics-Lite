@@ -16,11 +16,8 @@ namespace Graphics.Inspector
         public delegate void RenderingPathChangedHandler();
 
         private static int cachedFontSize = -1;
-        private static int paddingL, paddingR;
+        private static int paddingL;
         private static GUIStyle TabContent;
-        private static Vector2Int screenshotres;
-        private static int supersampling;
-
 
         static void UpdateCachedValues(GlobalSettings renderSettings)
         {

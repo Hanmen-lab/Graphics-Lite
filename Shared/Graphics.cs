@@ -118,7 +118,12 @@ namespace Graphics
         private FocusManager _focusManager;
         private AuraManager _auraManager;
         private FilmGrainManager _filmGrainManager;
+#if AI
+        //do nothing
+#else
         private DecalsSystemManager _decalsSystemManager;
+#endif
+
         private TemporalScreenshotManager _temporalScreenshotManager;
 
         private Inspector.Inspector _inspector;
@@ -262,6 +267,9 @@ namespace Graphics
 
             _focusManager = new FocusManager();
             _focusManager.Initialize();
+
+            _fsr3Manager = new FSR3Manager();
+            _fsr3Manager.Initialize();
 
             _ditheredshadowsManager = new DitheredShadowsManager();
             _ditheredshadowsManager.Initialize();

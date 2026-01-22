@@ -126,7 +126,6 @@ namespace Graphics.SEGI
         Transform shadowCamTransform;
         Camera shadowCam;
         GameObject shadowCamGameObject;
-        //public static Texture2D[] blueNoise;
 
         private readonly int sunShadowResolution = 256;
         private int prevSunShadowResolution;
@@ -140,7 +139,7 @@ namespace Graphics.SEGI
         RenderTexture sunDepthTexture;
         RenderTexture previousGIResult;
         RenderTexture previousCameraDepth;
-        RenderTexture gi1, gi2, gi3, gi4; //These are used to store the results of GI tracing for temporal stabilization and blending. They are not used in the current implementation but can be useful for future improvements.
+        //RenderTexture gi1, gi2, gi3, gi4; //These are used to store the results of GI tracing for temporal stabilization and blending. They are not used in the current implementation but can be useful for future improvements.
 
         ///<summary>This is a volume texture that is immediately written to in the voxelization shader. The RInt format enables atomic writes to avoid issues where multiple fragments are trying to write to the same voxel in the volume.</summary>
         RenderTexture integerVolume;

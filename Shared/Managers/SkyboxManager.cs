@@ -15,41 +15,14 @@ using static Graphics.DebugUtils;
 
 namespace Graphics
 {
-    //[MessagePackObject(true)]
-    //public struct SkyboxParams
-    //{
-    //    public float exposure;
-    //    public float rotation;
-    //    public Color tint;
-    //    public string selectedCubeMap;
-    //    public bool projection;
-    //    public float horizon;
-    //    public float scale;
-
-    //    public SkyboxParams(float exposure, float rotation, Color tint, string selectedCubeMap, bool projection, float horizon, float scale)
-    //    {
-    //        this.exposure = exposure;
-    //        this.rotation = rotation;
-    //        this.tint = tint;
-    //        this.selectedCubeMap = selectedCubeMap;
-    //        this.projection = projection;
-    //        this.horizon = horizon;
-    //        this.scale = scale;
-    //    }
-    //};
 
     internal class SkyboxManager : TextureManager
     {
         private static readonly int _Exposure = Shader.PropertyToID("_Exposure");
         private static readonly int _Rotation = Shader.PropertyToID("_Rotation");
         private static readonly int _Tint = Shader.PropertyToID("_Tint");
-        private static readonly int _Horizon = Shader.PropertyToID("_Horizon");
-        private static readonly int _Scale = Shader.PropertyToID("_Scale");
-        private static readonly int _Projection = Shader.PropertyToID("_Projection");
 
-        private static readonly Texture2D _defaultPreviewTexture = new Texture2D(128, 128, TextureFormat.ARGB32, false);
-
-        public static SkyboxSettings dynSkyboxSetting;
+        //public static SkyboxSettings dynSkyboxSetting;
 
         public static FourPointGradientSkyboxSetting dynFourPointGradientSettings;
         public static HemisphereGradientSkyboxSetting dynHemisphereGradientSettings;
@@ -59,7 +32,7 @@ namespace Graphics
         public static GroundProjectionSkyboxSettings groundProjectionSkyboxSettings;
 
 
-        public SkyboxParams skyboxParams = new SkyboxParams(1f, 0f, new Color32(128, 128, 128, 128), ""/*, false, 0f, 50f*/);
+        public SkyboxParams skyboxParams = new SkyboxParams(1f, 0f, new Color32(128, 128, 128, 128), "");
         public Material Skyboxbg { get; set; }
         public Material Skybox { get; set; }
 
@@ -102,10 +75,8 @@ namespace Graphics
             Material newSkyboxbg = new Material(ReplacementShader);
 
             newSkybox.CopyPropertiesFromMaterial(Skybox);
-            //newSkybox.mainTexture = Skybox.mainTexture;
-
             newSkyboxbg.CopyPropertiesFromMaterial(Skyboxbg);
-            //newSkyboxbg.mainTexture = Skyboxbg.mainTexture;
+
             GroundProjectionSkyboxSettings projectionSkyboxSettings = new GroundProjectionSkyboxSettings();
 
             Skybox = newSkybox;
@@ -132,43 +103,16 @@ namespace Graphics
                 if (Skyboxbg.HasProperty(_Rotation)) Skyboxbg.SetFloat(_Rotation, skyboxParams.rotation);
                 if (Skyboxbg.HasProperty(_Tint)) Skyboxbg.SetColor(_Tint, skyboxParams.tint);
 
-                //if (Skyboxbg.IsKeywordEnabled("_GROUNDPROJECTION"))
-                //{
-                //    Skyboxbg.EnableKeyword("_GROUNDPROJECTION");
-                //}
-                //else
-                //{
-                //    Skyboxbg.DisableKeyword("_GROUNDPROJECTION");
-                //}
-
-                //if (Skyboxbg.HasProperty(_Horizon)) Skyboxbg.SetFloat(_Horizon, skyboxParams.horizon);
-                //if (Skyboxbg.HasProperty(_Scale)) Skyboxbg.SetFloat(_Scale, skyboxParams.scale);
-
             }
             if (Skybox != null)
             {
                 if (Skybox.HasProperty(_Exposure)) Skybox.SetFloat(_Exposure, skyboxParams.exposure);
                 if (Skybox.HasProperty(_Tint)) Skybox.SetColor(_Tint, skyboxParams.tint);
                 if (Skybox.HasProperty(_Rotation)) Skybox.SetFloat(_Rotation, skyboxParams.rotation);
-
-                //if (Skybox.IsKeywordEnabled("_GROUNDPROJECTION"))
-                //{
-                //    Skybox.EnableKeyword("_GROUNDPROJECTION");
-                //}
-                //else
-                //{
-                //    Skybox.DisableKeyword("_GROUNDPROJECTION");
-                //}
-
-                //if (Skybox.HasProperty(_Horizon)) Skybox.SetFloat(_Horizon, skyboxParams.horizon);
-                //if (Skybox.HasProperty(_Scale)) Skybox.SetFloat(_Scale, skyboxParams.scale);
             }
         }
         public void SaveMapSkyBox()
         {
-            //Skybox sky = camera.GetComponent<Skybox>();
-            //MapSkybox = null == sky ? RenderSettings.skybox : sky.material;
-            //MapSkybox = RenderSettings.skybox;
             MapSkybox = Parent.LightingSettings.SkyboxSetting;
         }
         bool Loading = false;
@@ -179,9 +123,6 @@ namespace Graphics
             Tint = skyboxParams.tint;
             Rotation = skyboxParams.rotation;
             CurrentTexturePath = skyboxParams.selectedCubeMap;
-            //Projection = skyboxParams.projection;
-            //Horizon = skyboxParams.horizon;
-            //Scale = skyboxParams.scale;
         }
 
         public void SaveSkyboxParams()
@@ -190,13 +131,9 @@ namespace Graphics
             skyboxParams.tint = Tint;
             skyboxParams.rotation = Rotation;
             skyboxParams.selectedCubeMap = CurrentTexturePath;
-            //skyboxParams.projection = Projection;
-            //skyboxParams.horizon = Horizon;
-            //skyboxParams.scale = Scale;
         }
         public void TurnOffCubeMap(Camera camera)
         {
-            //RenderSettings.skybox = MapSkybox;
             Parent.LightingSettings.SkyboxSetting = MapSkybox;
             Skybox sky = camera.GetComponent<Skybox>();
             if (null != sky)
@@ -206,7 +143,6 @@ namespace Graphics
 
             if (null == MapSkybox)
             {
-                //Parent.LightingSettings.AmbientModeSetting = LightingSettings.AIAmbientMode.Trilight;
                 Parent.CameraSettings.ClearFlag = AICameraClearFlags.Colour;
             }
             MapSkybox = null;
@@ -241,48 +177,6 @@ namespace Graphics
                 skyboxParams.rotation = value;
             }
         }
-
-        //public float Scale
-        //{
-        //    get => Skybox.GetFloat(_Scale);
-        //    set
-        //    {
-        //        Skyboxbg?.SetFloat(_Scale, value);
-        //        Skybox?.SetFloat(_Scale, value);
-        //        skyboxParams.scale = value;
-        //    }
-        //}
-
-        //public float Horizon
-        //{
-        //    get => Skybox.GetFloat(_Horizon);
-        //    set
-        //    {
-        //        Skyboxbg?.SetFloat(_Horizon, value);
-        //        Skybox?.SetFloat(_Horizon, value);
-        //        skyboxParams.horizon = value;
-        //    }
-        //}
-
-        //public bool Projection
-        //{
-        //    get => Skybox.IsKeywordEnabled("_GROUNDPROJECTION");
-        //    set
-        //    {
-        //        if (value)
-        //        {
-        //            Skybox?.EnableKeyword("_GROUNDPROJECTION");
-        //            Skyboxbg?.EnableKeyword("_GROUNDPROJECTION");
-        //        }
-        //        else
-        //        {
-        //            Skybox?.DisableKeyword("_GROUNDPROJECTION");
-        //            Skyboxbg?.DisableKeyword("_GROUNDPROJECTION");
-        //        }
-        //        skyboxParams.projection = value;
-
-        //    }
-        //}
 
         internal override IEnumerator LoadTexture(string filePath, Action<Texture> _)
         {

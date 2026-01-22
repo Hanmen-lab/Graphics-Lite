@@ -1154,14 +1154,9 @@ namespace Graphics.Inspector
         internal static TEnum SelectionVertical<TEnum>(string label, TEnum selected, Action<TEnum> onChanged = null, int columns = -1, bool enable = true, Action<bool> onChangedEnable = null)
         {
             GUILayout.BeginVertical();
-            int spacing = 0;
-            //int columns = -1;
+
             int adaptiveColumns = Inspector.adaptiveColumns;
 
-            //float availableWidth = (Inspector.Width * 0.75f); // Padding
-            //int adaptiveColumns = Mathf.Max(1, Mathf.FloorToInt(availableWidth / 200f));
-
-            //EnableToggle(label, ref spacing, ref enable, onChangedEnable);
             GUILayout.Label(label, GUILayout.ExpandWidth(false));
             GUILayout.Space(10);
 

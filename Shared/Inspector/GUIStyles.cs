@@ -15,10 +15,8 @@ namespace Graphics.Inspector
         private static readonly Texture2D _btnOnNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _btnActiveBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _btnOnActiveBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-        private static readonly Texture2D _btnFocusedBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _btnNormalHoverBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _btnOnlHoverBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-
         private static readonly Texture2D _sliderHNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _sliderVNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _sliderThumbNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
@@ -74,11 +72,10 @@ namespace Graphics.Inspector
         private static readonly Texture2D _previewBoxNormalBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         private static readonly Texture2D _previewBoxHoverBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 
-
         private static GUISkin _skin;
         public static int fontSize = 12;
         private static readonly string[] fonts = new string[] { "Lucida Grande", "Segoe UI", "Terminal" };
-        //private static readonly string[] fonts = new string[] { "Times New Roman" };
+
         public static GUIStyle toolbarbutton;
         public static GUIStyle activestylebutton;
         public static GUIStyle boldlabel;
@@ -114,8 +111,6 @@ namespace Graphics.Inspector
         public static GUIStyle previewbox;
 
         public static float labelWidth = 150f;
-        public static GlobalSettings renderSettings;
-
 
         public static GUISkin Skin
         {
@@ -192,8 +187,6 @@ namespace Graphics.Inspector
             newSkin.box.fixedHeight = 0;
             newSkin.box.stretchWidth = false;
             newSkin.box.stretchHeight = false;
-
-
 
             texData = ResourceUtils.GetEmbeddedResource("PopupWindowOff.png");
             LoadImage(_winNormalBackground, texData);
@@ -395,8 +388,6 @@ namespace Graphics.Inspector
             newSkin.horizontalSlider.fixedHeight = 18f;
             newSkin.horizontalSlider.stretchWidth = true;
             newSkin.horizontalSlider.stretchHeight = false;
-
-
 
             texData = ResourceUtils.GetEmbeddedResource("slider thumb.png");
             LoadImage(_sliderThumbNormalBackground, texData);
@@ -662,24 +653,11 @@ namespace Graphics.Inspector
             boldlabel.stretchWidth = true;
             boldlabel.stretchHeight = false;
 
-            /*colorindlabel = new GUIStyle(GUI.skin.label)
-            {
-                name = "colorindlabel",
-                contentOffset = new Vector2(5, 10)
-            };*/
             colorindlabel = new GUIStyle(GUI.skin.label);
             colorindlabel.name = "colorindlabel";
             colorindlabel.contentOffset = new Vector2(5, 10);
             colorindlabel.normal.textColor = newSkin.label.normal.textColor;
 
-            /*colorlabel = new GUIStyle(GUI.skin.label)
-            {
-                name = "colorlabel",
-                padding = new RectOffset(0, 0, 0, 0),
-                margin = new RectOffset(0, 0, 0, 0),
-                alignment = TextAnchor.MiddleLeft,
-                fixedWidth = 60
-            };*/
             colorlabel = new GUIStyle(GUI.skin.label);
             colorlabel.name = "colorlabel";
             colorlabel.padding = new RectOffset(0, 0, 0, 0);
@@ -688,43 +666,6 @@ namespace Graphics.Inspector
             colorlabel.fixedWidth = 60;
             colorlabel.normal.background = null;
             colorlabel.normal.textColor = newSkin.label.normal.textColor;
-
-            /*boldstylelabel = new GUIStyle(GUI.skin.label)
-            {
-                name = "boldstylelabel",
-                fontStyle = FontStyle.Bold,
-                border = new RectOffset(7, 7, 7, 7),
-                //margin = new RectOffset(4, 4, 6, 6),
-                padding = new RectOffset(0, 0, 5, 7),
-                overflow = new RectOffset(0, 0, 0, 0)
-            };*/
-            //boldstylelabel = new GUIStyle(GUI.skin.label);
-            //boldstylelabel.name = "boldstylelabel";
-            //boldstylelabel.fontStyle = FontStyle.Bold;
-            //boldstylelabel.border = new RectOffset(7, 7, 7, 7);
-            //boldstylelabel.margin = new RectOffset(0, 0, 9, 9);
-            //boldstylelabel.padding = new RectOffset(0, 0, 0, 0);
-            //boldstylelabel.overflow = new RectOffset(0, 0, 0, 0);
-            //boldstylelabel.normal.textColor = newSkin.label.normal.textColor;
-
-            /*normalstylelabel = new GUIStyle(GUI.skin.label)
-            {
-                name = "normalstylelabel",
-                fontStyle = FontStyle.Normal,
-                border = new RectOffset(7, 7, 7, 7),
-                //margin = new RectOffset(4, 4, 6, 6),
-                padding = new RectOffset(0, 0, 5, 7),
-                overflow = new RectOffset(0, 0, 0, 0)
-            };*/
-            //normalstylelabel = new GUIStyle(GUI.skin.label);
-            //normalstylelabel.name = "normalstylelabel";
-            //normalstylelabel.fontStyle = FontStyle.Normal;
-            //normalstylelabel.border = new RectOffset(7, 7, 7, 7);
-            //normalstylelabel.margin = new RectOffset(0, 0, 9, 9);
-            //normalstylelabel.padding = new RectOffset(0, 0, 0, 0);
-            //normalstylelabel.overflow = new RectOffset(0, 0, 0, 0);
-            //normalstylelabel.normal.textColor = newSkin.label.normal.textColor;
-            //normalstylelabel.alignment = TextAnchor.MiddleLeft;
 
             togglealtstyle = new GUIStyle(GUI.skin.box);
             togglealtstyle.name = "togglealtstyle";
@@ -742,41 +683,18 @@ namespace Graphics.Inspector
             newtoggle.padding = new RectOffset(0, 3, 1, 2);
             newtoggle.overflow = new RectOffset(0, 0, -3, 1);
 
-            //togglealtstyle.alignment = TextAnchor.MiddleLeft;
-            //togglealtstyle.contentOffset = new Vector2(0, -1);
-            //togglealtstyle.imagePosition = ImagePosition.ImageLeft;
-            //togglealtstyle.wordWrap = false;
-            //togglealtstyle.border = new RectOffset(0, 0, 0, 0);
-            //togglealtstyle.margin = new RectOffset(0, 0, 0, 0);
-            //togglealtstyle.padding = new RectOffset(0, 0, 0, 0);
-            //togglealtstyle.overflow = new RectOffset(0, 0, 0, 0);
-
-            /*wrapuplabel = new GUIStyle(GUI.skin.label)
-            {
-                name = "wrapuplabel",
-                wordWrap = true
-            };*/
             wrapuplabel = new GUIStyle(GUI.skin.label);
             wrapuplabel.name = "wrapuplabel";
             wrapuplabel.wordWrap = true;
             wrapuplabel.normal.textColor = newSkin.label.normal.textColor;
             wrapuplabel.alignment = TextAnchor.UpperLeft;
 
-            /*colorredlabel = new GUIStyle(GUI.skin.label)
-            {
-                name = "colorredlabel",
-                wordWrap = true
-            };*/
             colorredlabel = new GUIStyle(GUI.skin.label);
             colorredlabel.name = "colorredlabel";
             colorredlabel.wordWrap = true;
             colorredlabel.normal.textColor = new Color(0.75f, 0.4f, 0.4f);
             colorredlabel.normal.textColor = newSkin.label.normal.textColor;
-            /*colorredboldlabel = new GUIStyle(boldlabel)
-            {
-                name = "colorredboldlabel",
-                wordWrap = true
-            };*/
+
             colorredboldlabel = new GUIStyle(boldlabel);
             colorredboldlabel.name = "colorredboldlabel";
             colorredboldlabel.wordWrap = true;
@@ -833,14 +751,6 @@ namespace Graphics.Inspector
             toolbarbutton.stretchWidth = true;
             toolbarbutton.stretchHeight = false;
 
-            /*activestylebutton = new GUIStyle(toolbarbutton)
-            {
-                name = "activestylebutton",
-                normal = toolbarbutton.onNormal,
-                hover = toolbarbutton.onHover,
-                active = toolbarbutton.onActive,
-                focused = toolbarbutton.onFocused
-            };*/
             activestylebutton = new GUIStyle(toolbarbutton);
             activestylebutton.name = "activestylebutton";
             activestylebutton.normal = toolbarbutton.onNormal;

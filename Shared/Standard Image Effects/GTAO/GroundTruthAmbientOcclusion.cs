@@ -76,21 +76,15 @@ namespace Graphics.GTAO
         private Matrix4x4 projectionMatrix;
         private Matrix4x4 LastFrameViewProjectionMatrix;
         private Matrix4x4 View_ProjectionMatrix;
-        //private Matrix4x4 Inverse_View_ProjectionMatrix;
         private Matrix4x4 worldToCameraMatrix;
 
         ////// private
-        //private float HalfProjScale;
-        //private float TemporalOffsets;
-        //private float TemporalDirections;
+
         private Vector2 CameraSize;
         private Vector2 RenderResolution;
-        //private Vector4 UVToView;
         private Vector4 oneOverSize_Size;
-        //private Vector4 Target_TexelSize;
 
         private RenderTexture Prev_RT;
-        private RenderTexture Curr_RT;
         private RenderTexture[] AO_BentNormal_RT = new RenderTexture[2];
         private RenderTargetIdentifier[] AO_BentNormal_ID = new RenderTargetIdentifier[2];
 
@@ -131,9 +125,7 @@ namespace Graphics.GTAO
         private static int _Combien_AO_RT_ID = Shader.PropertyToID("_Combien_AO_RT");
 
         private Shader gtaoShader;
-        private Shader reflectionShader;
-        private AssetBundle assetBundle, assetref;
-        //private RenderingPath lastRenderPath;
+        private AssetBundle assetBundle;
 
         /* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* *//* */
         void Awake()
@@ -146,11 +138,6 @@ namespace Graphics.GTAO
             RenderCamera.depthTextureMode = DepthTextureMode.Depth | DepthTextureMode.DepthNormals | DepthTextureMode.MotionVectors;
             GTAOMaterial = new Material(gtaoShader);
         }
-
-        //void CreateMaterial()
-        //{
-        //    GTAOMaterial = new Material(Shader.Find("Hidden/GroundTruthAmbientOcclusion"));
-        //}
 
         void OnEnable()
         {
@@ -172,14 +159,7 @@ namespace Graphics.GTAO
 
         void OnPreRender()
         {
-            //RenderResolution = new Vector2(RenderCamera.pixelWidth, RenderCamera.pixelHeight) / (int)SamplerResolution;
             RenderResolution = new Vector2(RenderCamera.pixelWidth, RenderCamera.pixelHeight);
-
-            //if (!GTAOMaterial)
-            //{
-            //    CreateMaterial();
-            //}
-
             UpdateVariable_SSAO();
             RenderSSAO();
         }
@@ -187,9 +167,6 @@ namespace Graphics.GTAO
         void OnDisable()
         {
             Shader.SetGlobalInt("GTRO_ENABLED", 0);
-
-            //GraphicsSettings.SetShaderMode(BuiltinShaderType.DeferredReflections, BuiltinShaderMode.UseCustom);
-            //GraphicsSettings.SetCustomShader(BuiltinShaderType.DeferredReflections, Shader.Find("Hidden/Internal-DeferredReflections"));
 
             if (GTAOBufferCompute != null)
                 RenderCamera.RemoveCommandBuffer(CameraEvent.BeforeReflections, GTAOBufferCompute);
@@ -352,12 +329,10 @@ namespace Graphics.GTAO
             GTAOBufferCompute.SetGlobalTexture(_PrevRT_ID, Prev_RT);
             GTAOBufferCompute.GetTemporaryRT(_CurrRT_ID, (int)RenderResolution.x, (int)RenderResolution.y, 0, FilterMode.Point, RenderTextureFormat.RGHalf);
             GTAOBufferCompute.BlitSRT(_CurrRT_ID, GTAOMaterial, 3);
-            //GTAOBufferCompute.SetGlobalTexture(_CurrRT_ID, Curr_RT);
             GTAOBufferCompute.CopyTexture(_CurrRT_ID, Prev_RT);
 
 
             ////// Combien Scene Color
-
             if (Debug == OutPass.Combined)
             {
                 GTAOBufferApply.GetTemporaryRT(_Combien_AO_RT_ID, (int)RenderResolution.x, (int)RenderResolution.y, 0, FilterMode.Point, RenderTextureFormat.DefaultHDR);

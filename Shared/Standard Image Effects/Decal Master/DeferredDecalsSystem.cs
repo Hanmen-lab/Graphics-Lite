@@ -48,11 +48,11 @@ namespace Knife.DeferredDecals
         HeightmapsCollector heightmapsCollector;
         CommandBuffer copyHeightmapsBuffer;
 
-        Dictionary<Decal, FloatValue> lastSelectedDecals = new Dictionary<Decal, FloatValue>();
-        const float selectionDuration = 1f;
-        readonly AnimationCurve selectionFadeCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
-        List<Decal> decalsToRemove = new List<Decal>(); // editor only for selection
-        double lastRenderTime;
+        //Dictionary<Decal, FloatValue> lastSelectedDecals = new Dictionary<Decal, FloatValue>();
+        //const float selectionDuration = 1f;
+        //readonly AnimationCurve selectionFadeCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
+        //List<Decal> decalsToRemove = new List<Decal>(); // editor only for selection
+        //double lastRenderTime;
 
         [SerializeField]
         Shader specularSmoothnessBlitterShader;

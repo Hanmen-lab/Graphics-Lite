@@ -96,10 +96,9 @@ namespace Graphics
         ////private static CTAASettings ctaa;
         private bool enableSupersampling = false;
         private bool origSEGIresolution;
-        private bool enableSegIresolution;
         private bool origAxis;
         private bool origWindowState;
-        private bool raindropEnabled;
+        //private bool raindropEnabled;
         //private ShadowMapResolution origNGSS_SHADOWS_RESOLUTION;
         //private int origNGSS_SAMPLING_TEST;
         //private int origNGSS_SAMPLING_FILTER;
@@ -1024,7 +1023,7 @@ namespace Graphics
             HideLoadingScreen();
         }
 
-        public IEnumerator MakeThumbnailRoutineWithCallback(Camera camera, System.Action onComplete)
+        public IEnumerator MakeThumbnailRoutineWithCallback(System.Action onComplete)
         {
             ShowLoadingScreen();
             for (int i = 0; i < 16; i++)
@@ -1047,30 +1046,6 @@ namespace Graphics
             onComplete?.Invoke();
         }
 
-        // Broken
-        //void ResetComponents()
-        //{
-        //var components = GetComponents<Behaviour>();
-
-        //for (int i = 0; i < components.Length; i++)
-        //{
-        //    if (components[i].enabled && components[i] != this)
-        //    {
-        //        components[i].enabled = false;
-        //    }
-        //    else
-        //    {
-        //        components[i] = null;
-        //    }
-        //}
-        //for (int i = 0; i < components.Length; i++)
-        //{
-        //    if (components[i] && components[i] != this)
-        //    {
-        //        components[i].enabled = true;
-        //    }
-        //}
-        //}
     }
 
 }

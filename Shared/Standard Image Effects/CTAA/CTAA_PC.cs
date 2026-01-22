@@ -183,7 +183,7 @@ namespace Graphics
         public bool firstFrame;
         public bool swap;
         private int frameCounter;
-        internal Vector2 jitterThisFrame;
+        //internal Vector2 jitterThisFrame;
 
         private static readonly float[] x_jit = { 0.5f, -0.25f, 0.75f, -0.125f, 0.625f, 0.575f, -0.875f, 0.0625f, -0.3f, 0.75f, -0.25f, -0.625f, 0.325f, 0.975f, -0.075f, 0.625f };
         private static readonly float[] y_jit = { 0.33f, -0.66f, 0.51f, 0.44f, -0.77f, 0.12f, -0.55f, 0.88f, -0.83f, 0.14f, 0.71f, -0.34f, 0.87f, -0.12f, 0.75f, 0.08f };

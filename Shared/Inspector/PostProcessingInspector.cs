@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 using static Graphics.Inspector.Util;
 using Graphics.AmplifyOcclusion;
-using static Illusion.Game.Utils;
 using System.Collections.Generic;
 
 
@@ -16,7 +15,6 @@ namespace Graphics.Inspector
     internal static class PostProcessingInspector
     {
         private static Vector2 postScrollView;
-        private static bool _flareCustomize;
 
         private static float switchHeight;
         private static int cachedFontSize = -1;
