@@ -3,7 +3,6 @@ using BepInEx.Configuration;
 using Graphics.GTAO;
 using Graphics.AmplifyOcclusion;
 using Graphics.VAO;
-//using Graphics.AmplifyBloom;
 using Graphics.CTAA;
 using Graphics.Hooks;
 using Graphics.SEGI;
@@ -25,19 +24,17 @@ using UnityEngine.Rendering;
 using Graphics.FSR3;
 using System.Reflection;
 using FidelityFX;
-using Aura2API;
 using UnityEngine.Rendering.PostProcessing;
 using System.Collections.Generic;
 
 namespace Graphics
 {
-    [BepInIncompatibility("dhhai4mod"),
-        BepInIncompatibility("HS2_HDSaveCard"),
-        BepInIncompatibility("BetterAA")]
+    [BepInIncompatibility("dhhai4mod")]
     [BepInPlugin(GUID, PluginName, Version)]
     [BepInDependency(KoikatuAPI.GUID, "1.43")]
     [BepInDependency("com.bepis.bepinex.screenshotmanager", "21.0.0.0")]
     [BepInDependency(ExtensibleSaveFormat.ExtendedSave.GUID)]
+    [BepInDependency(HooahComponents.Utility.PluginConstant.GUID)]
     public partial class Graphics : BaseUnityPlugin
     {
         public const string GUID = "ore.graphics";
@@ -65,7 +62,6 @@ namespace Graphics
         public static ConfigEntry<string> ConfigCubeMapPath { get; private set; }
         public static ConfigEntry<string> ConfigPresetPath { get; private set; }
         public static ConfigEntry<string> ConfigLensDirtPath { get; private set; }
-        //public static ConfigEntry<string> ConfigStarburstPath { get; private set; }
         public static ConfigEntry<string> ConfigLocalizationPath { get; private set; }
         public static ConfigEntry<LocalizationManager.Language> ConfigLanguage { get; private set; }
         public static ConfigEntry<int> ConfigFontSize { get; internal set; }
@@ -76,7 +72,6 @@ namespace Graphics
         public static ConfigEntry<bool> ScreenshotOverride { get; internal set; }
         public static ConfigEntry<ShadowResolutionOverride> customShadowResolutionOverride { get; internal set; }
         public static ConfigEntry<ShadowCascadesOverride> customShadowCascadesOverride { get; internal set; }
-
         public static ConfigEntry<bool> loadSkybox { get; internal set; }
         public static ConfigEntry<bool> loadSEGI { get; internal set; }
         public static ConfigEntry<bool> loadSSS { get; internal set; }
@@ -135,9 +130,6 @@ namespace Graphics
         internal LightingSettings LightingSettings { get; private set; }
         internal PostProcessingSettings PostProcessingSettings { get; private set; }
         internal AmplifyOccSettings AmplifyOcclusionSettings { get; private set; }
-
-        //internal SSSSettings SSSSettings { get; private set; }
-        //internal SEGISettings SEGISettings { get; private set; }
 
         internal BepInEx.Logging.ManualLogSource Log => Logger;
 
@@ -355,7 +347,7 @@ namespace Graphics
             AssetBundle assetref = AssetBundle.LoadFromMemory(ResourceUtils.GetEmbeddedResource("defref.unity3d"));
             Shader reflectionShader = assetref.LoadAsset<Shader>("Assets/GTAO/Shaders/GTRO-DeferredReflections.shader");
 
-            UnityEngine.Object.DontDestroyOnLoad(reflectionShader);
+            DontDestroyOnLoad(reflectionShader);
             assetref.Unload(false);
 
             GraphicsSettings.SetShaderMode(BuiltinShaderType.DeferredReflections, BuiltinShaderMode.UseCustom);
@@ -407,7 +399,6 @@ namespace Graphics
             // Get components
             var helperScript = camera.GetComponent<Fsr3UpscalerImageEffectHelper>();
             var postProcessLayer = camera.GetComponent<PostProcessLayer>();
-            var aura = camera.GetComponent<AuraCamera>();
 
             if (helperScript == null || postProcessLayer == null) return;
 
@@ -420,19 +411,16 @@ namespace Graphics
             // Remove components
             DestroyImmediate(helperScript);
             DestroyImmediate(postProcessLayer);
-            //DestroyImmediate(aura);
 
             // Add components back in correct order
             var newHelper = camera.gameObject.AddComponent<Fsr3UpscalerImageEffectHelper>();
-            //var newAura = camera.gameObject.AddComponent<AuraCamera>();
             var newPostProcess = camera.gameObject.AddComponent<PostProcessLayer>();
             newHelper.enabled = false;
             newPostProcess.enabled = false;
+
             // Restore data to PostProcessLayer
             RestoreComponentData(newPostProcess, postProcessData);
-
             newHelper.enabled = true;
-            //newAura.enabled = true;
             newPostProcess.enabled = true;
 
             Graphics.Instance.Log.LogInfo("Reordered PostProcessLayer components on Main Camera");

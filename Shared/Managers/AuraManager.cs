@@ -4,9 +4,9 @@ using Graphics.Textures;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
-using Aura2API;
 
 namespace Graphics
 {
@@ -52,6 +52,7 @@ namespace Graphics
         }
 
         // Factory method that keeps Aura2API references isolated, since it's not called unless Aura2API exists
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private IAuraManagerImpl CreateAuraManagerImpl()
         {
             return new AuraManagerImpl();
@@ -68,6 +69,11 @@ namespace Graphics
             }
         }
     }
+}
+
+namespace Graphics
+{
+    using Aura2API;
 
     // This class is only created if Aura2API exists to prevent plugin from failing to load
     internal class AuraManagerImpl : IAuraManagerImpl
@@ -75,7 +81,7 @@ namespace Graphics
         internal AuraSettings settings { get { return AuraManager.settings; } set { AuraManager.settings = value; } }
         internal AuraCamera AuraInstance;
         //internal AuraBaseSettings BaseSettings;
-        internal AuraQualitySettings QualitySettings;
+        //internal AuraQualitySettings QualitySettings;
 
         // Initialize Components
         public void Initialize()
@@ -214,5 +220,36 @@ namespace Graphics
             //qualitySettings.occlusionCullingAccuracy = settings.occlusionCullingAccuracy;
             //qualitySettings.enableLightProbes = settings.enableLightProbes.value;
         }
+        /*public static void ReorderAura()
+        {
+            Camera camera = Camera.main;
+
+            // Get components
+            var helperScript = camera.GetComponent<Fsr3UpscalerImageEffectHelper>();
+            var postProcessLayer = camera.GetComponent<PostProcessLayer>();
+
+            helperScript.enabled = false;
+            postProcessLayer.enabled = false;
+
+            if (helperScript == null || postProcessLayer == null) return;
+
+            // Save component with Reflection
+            var postProcessData = CopyComponentData(postProcessLayer);
+
+            // Remove components
+            DestroyImmediate(helperScript);
+            DestroyImmediate(postProcessLayer);
+
+            // Add components back in correct order
+            var newHelper = camera.gameObject.AddComponent<Fsr3UpscalerImageEffectHelper>();
+            var newPostProcess = camera.gameObject.AddComponent<PostProcessLayer>();
+            newHelper.enabled = false;
+            newPostProcess.enabled = false;
+            // Restore data to PostProcessLayer
+            RestoreComponentData(newPostProcess, postProcessData);
+
+            newHelper.enabled = true;
+            newPostProcess.enabled = true;
+        }*/
     }
 }

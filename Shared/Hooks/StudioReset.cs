@@ -29,6 +29,39 @@ namespace Graphics.Hooks
             HarmonyMethod studioSelect2 = new HarmonyMethod(typeof(StudioReset), "OnSelectStudioItem");
             harmony.Patch(AccessTools.Method(typeof(HooahComponents.Hooks.Hooks), "OnSelectStudioItem"), studioSelect2, null);
             harmony.Patch(AccessTools.Method(typeof(HooahComponents.Hooks.Hooks), "OnDeselectStudioItem"), studioSelect2, null);
+
+            HarmonyMethod breakIt = new HarmonyMethod(typeof(StudioReset), "BreakIt");
+
+            var HDSaveCard = Type.GetType("HDSaveCard.HS2_HDSaveCard, HS2_HDSaveCard");
+            if (HDSaveCard != null)
+            {
+                // Since we can't hook early enough to prevent the hook, instead break the function it patches
+                harmony.Patch(AccessTools.Method(HDSaveCard, "CharaCustom_CustomCapture_CreatePng"), breakIt);
+            }
+
+            var BetterAA = Type.GetType("AI_stuff.BetterAA, HS2_BetterAA");
+            if (BetterAA != null)
+            {
+                // Since we can't hook early enough to prevent the hook, instead break the function it patches
+                harmony.Patch(AccessTools.Method(BetterAA, "CameraCreateHook"), breakIt);
+                // Also break all other functions in this plugin
+                harmony.Patch(AccessTools.Method(BetterAA, "UpdateEnabledState"), breakIt);
+                harmony.Patch(AccessTools.Method(BetterAA, "UpdateSettings"), breakIt);
+                harmony.Patch(AccessTools.Method(BetterAA, "AddCamera"), breakIt);
+            }
+
+            //var DofToggle = Type.GetType("itsnt.doftoggle, DoF Toggle");
+            //if (DofToggle != null)
+            //{
+            //    // Since we can't hook early enough to prevent the hook, instead break the function it patches
+            //    harmony.Patch(AccessTools.Method(DofToggle, "RegisterToolbar"), breakIt);
+            //}
+        }
+
+        public static bool BreakIt()
+        {
+            Console.WriteLine("Blocked");
+            return false;
         }
 
         public static void LoadPresetOnStudioReset()
