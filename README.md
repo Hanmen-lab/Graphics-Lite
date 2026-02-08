@@ -7,6 +7,8 @@ Post Processing plugin for AIGirl and HoneySelect2
 This is the separate free branch of my main Graphics Plugin Updates. It Contains the core fixes and optimizations developed for the 6 months of constant updates.  
 
 - NEW UI
+- NEW Screenshot Engine for Rendered Screenshot (F11)
+- FSR3
 - SEGI optimizations
 - File Paths Fixes
 - Cubemaps & External textures caching
@@ -21,9 +23,9 @@ This is the separate free branch of my main Graphics Plugin Updates. It Contains
 - CTAA Upscaling
 - IGN Dithering filter for clothing & hair
 - Spectral LUTs for Chromatic Aberration
+- AIOv3 Skyboxes
 
 This version DOES NOT includes: 
-- AIOv3 Skyboxes
 - Beautify Bloom + Sun Flares
 - CRT Tube Effect
 - SunShafts HDR
@@ -41,6 +43,9 @@ This version DOES NOT includes:
 - Screen Space Shadows
 - FrostFX screen freezing
 - Geometric Specular AA
+- Raindrop Effect
+- Stochastic SSR
+- Volumetric Lighting
   
 If you want to have FUll version you can get it on my sites. The Lite version will be updated accordingly.
 ## Full version
