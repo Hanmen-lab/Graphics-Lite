@@ -179,6 +179,9 @@ namespace Graphics
             loadHeightFog = Config.Bind("Preset Filters", "Load Preset Height Fog", true, new ConfigDescription("Load Preset Height Fog"));
             loadDoF = Config.Bind("Preset Filters", "Load Preset Depth of Field", false, new ConfigDescription("Load Preset Depth of Field"));
             loadRain = Config.Bind("Preset Filters", "Load Preset Rain", true, new ConfigDescription("Load Preset Rain"));
+
+            ConfigDoFShortcut = Config.Bind("Keybind", "DoF Toggle Shortcut", new KeyboardShortcut(KeyCode.D, KeyCode.LeftControl), new ConfigDescription("DoF Toggle Keyboard Shortcut"));
+            ConfigDoFEnableOnStart = Config.Bind("DoF Settings", "Enable DoF on Start", false, new ConfigDescription("Enable Depth of Field on Start"));
         }
 
         private void Awake()
