@@ -82,6 +82,8 @@ namespace Graphics
         public static ConfigEntry<bool> loadHeightFog { get; internal set; }
         public static ConfigEntry<bool> loadDoF { get; internal set; }
         public static ConfigEntry<bool> loadRain { get; internal set; }
+        public static ConfigEntry<KeyboardShortcut> ConfigDoFShortcut { get; private set; } //DOFToggle
+        public static ConfigEntry<bool> ConfigDoFEnableOnStart { get; private set; }
 
         public Preset preset;
 
@@ -118,12 +120,13 @@ namespace Graphics
 #else
         private DecalsSystemManager _decalsSystemManager;
 #endif
-
         private TemporalScreenshotManager _temporalScreenshotManager;
-
         private Inspector.Inspector _inspector;
-
         private HoohSmartphoneScanner smartphoneScanner;
+
+        //DOFToggle
+        private bool _dofEnabled = true;
+        private KKAPI.Studio.UI.ToolbarToggle dofToolbarButton;
 
         internal GlobalSettings Settings { get; private set; }
         internal CameraSettings CameraSettings { get; private set; }
@@ -321,11 +324,27 @@ namespace Graphics
 
             if (KKAPI.Studio.StudioAPI.InsideStudio)
             {
+                _dofEnabled = ConfigDoFEnableOnStart.Value;
+                ApplyDoFState(_dofEnabled);
+
+                // Add Graphics Toolbar Button
                 Texture2D gIconTex = new Texture2D(32, 32);
                 byte[] texData = ResourceUtils.GetEmbeddedResource("icon_camera_vsmall.png");
                 ImageConversion.LoadImage(gIconTex, texData);
+
+                // Add DOF Toggle Button
+                Texture2D dofIconTex = new Texture2D(32, 32);
+                byte[] dofTexData = ResourceUtils.GetEmbeddedResource("dof.png");
+                ImageConversion.LoadImage(dofIconTex, dofTexData);
+
                 studioToolbarToggle = KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(gIconTex, false, active => {
                     Show = active;
+                });
+
+                dofToolbarButton = KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(dofIconTex, _dofEnabled, active => {
+                    _dofEnabled = active;
+                    ApplyDoFState(_dofEnabled);
+                    Log.LogInfo($"DoF Toggle: {_dofEnabled}");
                 });
             }
 
@@ -426,6 +445,31 @@ namespace Graphics
             Graphics.Instance.Log.LogInfo("Reordered PostProcessLayer components on Main Camera");
         }
 
+        private void ApplyDoFState(bool state)
+        {
+            var volumes = Resources.FindObjectsOfTypeAll<PostProcessVolume>();
+            foreach (var volume in volumes)
+            {
+                if (volume == null || volume.profile == null) continue;
+
+                //DepthOfField
+                if (volume.profile.HasSettings<UnityEngine.Rendering.PostProcessing.DepthOfField>())
+                {
+                    var dof = volume.profile.GetSetting<UnityEngine.Rendering.PostProcessing.DepthOfField>();
+                    if (dof != null)
+                        dof.active = state;
+                }
+
+                //AdvancedDepthOfField
+                //if (volume.profile.HasSettings<AdvancedDepthOfField>())
+                //{
+                //    var adof = volume.profile.GetSetting<AdvancedDepthOfField>();
+                //    if (adof != null)
+                //        adof.active = state;
+                //}
+            }
+        }
+
         private static Dictionary<string, object> CopyComponentData(Component component)
         {
             var data = new Dictionary<string, object>();
@@ -461,7 +505,21 @@ namespace Graphics
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
-            }           
+            }
+
+            // DoF Toggle Hotkey
+            if (ConfigDoFShortcut.Value.IsDown())
+            {
+                _dofEnabled = !_dofEnabled;
+                ApplyDoFState(_dofEnabled);
+
+                if (dofToolbarButton != null && KKAPI.Studio.StudioAPI.InsideStudio)
+                {
+                    dofToolbarButton.Value = _dofEnabled;
+                }
+
+                Log.LogInfo($"DoF Hotkey Pressed: {_dofEnabled}");
+            }
         }
 
         internal void LateUpdate()
