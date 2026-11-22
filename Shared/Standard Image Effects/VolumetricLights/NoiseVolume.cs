@@ -3,10 +3,9 @@ using UnityEngine;
 namespace Graphics.VolumetricLights
 {
     /// <summary>
-    /// The noise the volumetric lights drift through when a light's Noise is on: a tileable 3D
-    /// fractal noise made once for the session. HS2PostProcessing reads a noise volume from its
-    /// height-fog bundle; that bundle is nearly 10 MB for this one texture, so the Lite build makes
-    /// a volume of the same kind instead (the same value in every channel, wrapping on every axis).
+    /// A stand-in for the noise the volumetric lights drift through when a light's Noise is on, used
+    /// only if FogWindNoise cannot be read from the embedded height-fog bundle: a tileable 3D fractal
+    /// noise made once for the session (the same value in every channel, wrapping on every axis).
     /// </summary>
     internal static class NoiseVolume
     {

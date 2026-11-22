@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
@@ -11,6 +11,7 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Resources\blueNoiseSSR64.png" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\spot.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\ultrafog.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\volumetrics.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\hssss-pass.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\hssss-luts.unity3d" />
@@ -143,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Hooks\CreatePngScreenController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\DeferredShadingSlot.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\VolumetricLightManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Setting\VolumetricLightSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\EmbeddedBundles.cs" />

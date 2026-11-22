@@ -1,4 +1,4 @@
-﻿using Graphics.GTAO;
+using Graphics.GTAO;
 using Graphics.UI;
 using Graphics.SEGI;
 using Graphics.Settings;
@@ -135,6 +135,8 @@ namespace Graphics.Inspector
 
                     if (ditheredSettings.Enabled)
                     {
+                        if (DeferredShadingSlot.DitherDisplaced)
+                            Warning("HSSSS is using the deferred pass: point and spot light dithering is paused while it runs. Directional dithering still applies.");
                         Lay.Space(10);
                         Slider("Point Size", ditheredSettings.point_size.value, 0.0f, 0.1f, "N2", point => { ditheredSettings.point_size.value = point; DitheredShadowsManager.UpdateSettings(); });
                         Slider("Directional Size", ditheredSettings.direction_size.value, 0.0f, 0.1f, "N2", direction => { ditheredSettings.direction_size.value = direction; DitheredShadowsManager.UpdateSettings(); });

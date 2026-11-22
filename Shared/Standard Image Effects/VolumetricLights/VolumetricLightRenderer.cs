@@ -219,7 +219,7 @@ namespace Graphics.VolumetricLights
         void LoadTextures()
         {
             if (!_noiseTexture)
-                _noiseTexture = NoiseVolume.Get();
+                _noiseTexture = EmbeddedBundles.Load<Texture3D>("ultrafog.unity3d", "Assets/HeightFog/Resources/FogWindNoise.asset", false) ?? NoiseVolume.Get();
 
             GenerateDitherTexture();
             Shader.SetGlobalTexture(DitherTexture, _ditheringTexture);
@@ -228,7 +228,7 @@ namespace Graphics.VolumetricLights
 
         void CleanupTextures()
         {
-            // The noise volume is shared and kept for the session (see NoiseVolume).
+            // The noise volume is shared and kept for the session (see EmbeddedBundles).
             if (_ditheringTexture != null)
                 Destroy(_ditheringTexture);
             if (_volumeLightTexture != null)

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Graphics.UI;
 using UnityEngine.UI;
 using Graphics.Settings;
@@ -155,6 +155,8 @@ namespace Graphics.Inspector
                 {
                     if (!HSSSSManager.Deferred)
                         Warning("HSSSS needs the Deferred rendering path (Settings tab).");
+                    if (DeferredShadingSlot.DitherDisplaced)
+                        Warning("Dithered Shadows: point and spot light dithering is paused while HSSSS runs (they share the deferred pass). Directional dithering still applies.");
 
                     Lay.Space(20);
                     Label("SCATTERING", "", true);
