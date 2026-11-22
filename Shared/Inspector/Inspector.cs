@@ -13,18 +13,11 @@ namespace Graphics.Inspector
 {
     internal class Inspector
     {
-        private static Rect _windowRect;
-        private readonly int _windowID = 53157126;
-        public static int adaptiveColumns;
-        public static int adaptivePreviewColumns;
-        private static int cachedWindowWidth = -1;
-        public static int maxTextWidth;
+        public static int adaptiveColumns = 3;
+        public static int adaptivePreviewColumns = 6;
+        public static int maxTextWidth = 480;
 
-        public static float currentToolbarWidth = 180f;
 
-        private int _selectedProbeIndex;
-        private Vector2 _postProcessingScrollPosition;
-        private Vector2 _reflectionProbesScrollPosition;
 
         public enum Tab
         {
@@ -56,7 +49,8 @@ namespace Graphics.Inspector
             SunShafts,
             GlobalFog,
             LuxWater,
-            Aura
+            Aura,
+            VolumetricLights
         }
 
         public static readonly Dictionary<Tab, string> DisplayNames = new Dictionary<Tab, string>
@@ -89,11 +83,13 @@ namespace Graphics.Inspector
             { PostProcessingSubTab.SunShafts, "Sun Shafts HDR" },
             { PostProcessingSubTab.GlobalFog, "Global Fog" },
             { PostProcessingSubTab.LuxWater, "Lux Water" },
-            { PostProcessingSubTab.Aura, "Aura" }
+            { PostProcessingSubTab.Aura, "Aura" },
+            { PostProcessingSubTab.VolumetricLights, "Volumetric Lights" }
         };
 
-        private Tab SelectedTab { get; set; }
-        private PostProcessingSubTab SelectedPostProcessingSubTab { get; set; }
+        internal Tab SelectedTab { get; set; }
+        internal PostProcessingSubTab SelectedPostProcessingSubTab { get; set; }
+        internal int SelectedProbeIndex { get; set; }
         internal Graphics Parent { get; set; }
 
         internal Inspector(Graphics parent)
@@ -108,20 +104,18 @@ namespace Graphics.Inspector
 
             if (StartOffsetX < 0) StartOffsetX = 0;
             if (StartOffsetY < 0) StartOffsetY = 0;
-
-            _windowRect = new Rect(StartOffsetX, StartOffsetY, Width, Height);
         }
 
         internal static int Width
         {
             get => Graphics.ConfigWindowWidth.Value;
-            set { Graphics.ConfigWindowWidth.Value = value; _windowRect.width = value; }
+            set { Graphics.ConfigWindowWidth.Value = value; }
         }
 
         internal static int Height
         {
             get => Graphics.ConfigWindowHeight.Value;
-            set { Graphics.ConfigWindowHeight.Value = value; _windowRect.height = value; }
+            set { Graphics.ConfigWindowHeight.Value = value; }
         }
 
         internal static int StartOffsetX
@@ -136,100 +130,9 @@ namespace Graphics.Inspector
             set => Graphics.ConfigWindowOffsetY.Value = value;
         }
 
-        private static void UpdateColumns(GlobalSettings renderSettings)
+        internal void DrawTabs()
         {
-            if (cachedWindowWidth == Width)
-                return;
-
-            // 22% of window width, clamped between 120 px and 220 px
-            currentToolbarWidth = Mathf.Clamp(Width * 0.22f, 120f, 220f);
-
-            maxTextWidth = Width - (int)currentToolbarWidth;
-            cachedWindowWidth = Width;
-
-            int availableWidth = Width - (int)currentToolbarWidth - 60; // 60 px padding
-            adaptiveColumns = Mathf.Max(1, Mathf.FloorToInt(availableWidth / 150f));
-            adaptivePreviewColumns = Mathf.Max(1, Mathf.FloorToInt(availableWidth / 74f));
-        }
-
-        internal void DrawWindow()
-        {
-            _windowRect = GUILayout.Window(_windowID, _windowRect, WindowFunction, "");
-            EatInputInRect(_windowRect);
-            StartOffsetX = (int)_windowRect.x;
-            StartOffsetY = (int)_windowRect.y;
-
-            UpdateColumns(Parent.Settings);
-        }
-
-        private void WindowFunction(int thisWindowID)
-        {
-            GUILayout.BeginHorizontal(GUIStyles.headerStyle);
-            {
-                GUILayout.Space(80);
-                GUILayout.FlexibleSpace();
-                GUILayout.Label($"Graphics Plugin Lite {Graphics.Version}", GUIStyles.windowLabel);
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("X", GUIStyles.closeButton))
-                    Parent.ToggleGUI();
-            }
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal(GUIStyles.boxPadding);
-
-            // ── Left column: adaptive width, main tabs NOT in a scroll view ──────────
-            GUILayout.BeginVertical(GUILayout.Width(currentToolbarWidth));
-
-            SelectedTab = VerticalToolbar(SelectedTab);
-
-            // PostProcessing sub-tabs appear only on that tab, inside their own scroll
-            if (SelectedTab == Tab.PostProcessing)
-            {
-                GUILayout.Space(10);
-                GUILayout.Box(GUIContent.none, GUIStyles.lineStyle, GUILayout.ExpandWidth(true));
-                GUILayout.Space(10);
-
-                _postProcessingScrollPosition = GUILayout.BeginScrollView(
-                    _postProcessingScrollPosition,
-                    GUILayout.ExpandHeight(true),
-                    GUILayout.ExpandWidth(true));
-                SelectedPostProcessingSubTab = PostProcessingVerticalToolbar(
-                    SelectedPostProcessingSubTab, Parent.PostProcessingSettings);
-                GUILayout.EndScrollView();
-            }
-
-            // Probe list appears only on the Probes tab, inside its own scroll
-            if (SelectedTab == Tab.Probes)
-            {
-                GUILayout.Space(10);
-                GUILayout.Box(GUIContent.none, GUIStyles.lineStyle, GUILayout.ExpandWidth(true));
-                GUILayout.Space(10);
-
-                _reflectionProbesScrollPosition = GUILayout.BeginScrollView(
-                    _reflectionProbesScrollPosition,
-                    GUILayout.ExpandHeight(true),
-                    GUILayout.ExpandWidth(true));
-                _selectedProbeIndex = ProbesVerticalToolbar(_selectedProbeIndex, Parent.SkyboxManager);
-                GUILayout.EndScrollView();
-            }
-
-            GUILayout.EndVertical();
-            // ─────────────────────────────────────────────────────────────────────────
-
-            // ── Right content area ───────────────────────────────────────────────────
-            GUILayout.BeginVertical(GUIStyles.rightTab, GUILayout.ExpandWidth(true));
-            DrawTabs(SelectedTab);
-            GUILayout.FlexibleSpace();
-            GUILayout.EndVertical();
-            // ─────────────────────────────────────────────────────────────────────────
-
-            GUILayout.EndHorizontal();
-            GUI.DragWindow();
-        }
-
-        private void DrawTabs(Tab tabSelected)
-        {
-            switch (tabSelected)
+            switch (SelectedTab)
             {
                 case Tab.Environmental:
                     LightingInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.LightManager, Parent.Settings, Parent.Settings.ShowAdvancedSettings);
@@ -238,7 +141,7 @@ namespace Graphics.Inspector
                     LightInspector.Draw(Parent.Settings, Parent.LightManager, Parent.LightingSettings, Parent.Settings.ShowAdvancedSettings);
                     break;
                 case Tab.Probes:
-                    ReflectionProbeInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.Settings, Parent.Settings.ShowAdvancedSettings, _selectedProbeIndex);
+                    ReflectionProbeInspector.Draw(Parent.LightingSettings, Parent.SkyboxManager, Parent.Settings, Parent.Settings.ShowAdvancedSettings, SelectedProbeIndex);
                     break;
                 case Tab.GI:
                     SEGIInspector.Draw(Parent.LightManager, Parent.Settings);
@@ -264,53 +167,31 @@ namespace Graphics.Inspector
             }
         }
 
-        private int ProbesVerticalToolbar(int selectedIndex, SkyboxManager skyboxManager)
+        /// <summary>The scene's reflection probes by name, for the rail.</summary>
+        internal string[] ProbeNames()
         {
-            ReflectionProbe[] probes = skyboxManager.GetReflectinProbes();
+            ReflectionProbe[] probes = Parent.SkyboxManager != null ? Parent.SkyboxManager.GetReflectinProbes() : null;
             if (probes == null || probes.Length == 0)
-            {
-                GUILayout.Label("No probes found", GUIStyles.subToolbarButton);
-                return 0;
-            }
-
-            if (selectedIndex >= probes.Length)
-                selectedIndex = 0;
-
+                return new string[0];
+            if (SelectedProbeIndex >= probes.Length)
+                SelectedProbeIndex = 0;
+            string[] names = new string[probes.Length];
             for (int i = 0; i < probes.Length; i++)
             {
-                ReflectionProbe probe = probes[i];
-                string probeName = probe != null ? probe.name : $"Probe {i}";
+                string probeName = probes[i] != null ? probes[i].name : $"Probe {i}";
                 if (probeName.Length > 18)
                     probeName = probeName.Substring(0, 18) + "...";
-
-                GUIStyle buttonStyle = selectedIndex == i ? GUIStyles.activestylebutton : GUIStyles.subToolbarButton;
-                if (GUILayout.Button(probeName, buttonStyle))
-                    selectedIndex = i;
+                names[i] = probeName;
             }
-
-            return selectedIndex;
+            return names;
         }
 
-        private PostProcessingSubTab PostProcessingVerticalToolbar(PostProcessingSubTab selected, PostProcessingSettings settings)
+        /// <summary>Which page the window shows: one per tab, and one per post-processing sub-tab.</summary>
+        internal string PageKey => SelectedTab == Tab.PostProcessing ? "PostProcessing/" + SelectedPostProcessingSubTab : SelectedTab.ToString();
+
+        internal bool IsPostProcessingEffectEnabled(PostProcessingSubTab subTab)
         {
-            foreach (KeyValuePair<PostProcessingSubTab, string> subTab in PostProcessingDisplayNames)
-            {
-                bool isEnabled = IsPostProcessingEffectEnabled(subTab.Key, settings);
-                string displayName = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(subTab.Value) : subTab.Value;
-                GUIStyle buttonStyle;
-
-                if (selected == subTab.Key)
-                    buttonStyle = isEnabled ? GUIStyles.activeSubToolbarButtonSelected : GUIStyles.activestylebutton;
-                else if (isEnabled)
-                    buttonStyle = GUIStyles.activeSubToolbarButton;
-                else
-                    buttonStyle = GUIStyles.subToolbarButton;
-
-                if (GUILayout.Button(displayName, buttonStyle))
-                    selected = subTab.Key;
-            }
-
-            return selected;
+            return IsPostProcessingEffectEnabled(subTab, Parent.PostProcessingSettings);
         }
 
         private bool IsPostProcessingEffectEnabled(PostProcessingSubTab subTab, PostProcessingSettings settings)
@@ -371,31 +252,12 @@ namespace Graphics.Inspector
                 case PostProcessingSubTab.Aura:
                     return AuraManager.Available && AuraManager.settings != null && AuraManager.settings.Enabled;
 
+                case PostProcessingSubTab.VolumetricLights:
+                    return VolumetricLightManager.settings != null && VolumetricLightManager.settings.Enabled;
+
                 default:
                     return false;
             }
-        }
-
-        private Tab VerticalToolbar(Tab selected)
-        {
-            GUILayout.BeginVertical();
-
-            foreach (KeyValuePair<Tab, string> tab in DisplayNames)
-            {
-                string displayName = LocalizationManager.HasLocalization() ? LocalizationManager.Localized(tab.Value) : tab.Value;
-                GUIStyle style = selected == tab.Key ? GUIStyles.activestylebutton : GUIStyles.toolbarbutton;
-                if (GUILayout.Button(displayName, style))
-                    selected = tab.Key;
-            }
-
-            GUILayout.EndVertical();
-            return selected;
-        }
-
-        private static void EatInputInRect(Rect eatRect)
-        {
-            if (eatRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
-                Input.ResetInputAxes();
         }
     }
 }

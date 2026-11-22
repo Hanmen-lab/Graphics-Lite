@@ -1,4 +1,5 @@
 ﻿using Graphics.GTAO;
+using Graphics.UI;
 using Graphics.VAO;
 using Graphics.Settings;
 using Graphics.GlobalFog;
@@ -20,37 +21,22 @@ namespace Graphics.Inspector
         private static float switchHeight;
         private static int cachedFontSize = -1;
         private static int paddingL, paddingR, margin, space;
-        private static GUIStyle TabContent, SmallTab, SwitchLabel;
+        private static Lay.Style TabContent, SmallTab;
 
         static void UpdateCachedValues(GlobalSettings renderSettings)
         {
             if (cachedFontSize == renderSettings.FontSize)
                 return;
-
             cachedFontSize = renderSettings.FontSize;
-
-            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2f);
-            paddingR = Mathf.RoundToInt(renderSettings.FontSize * 2.9f);
-            margin = Mathf.RoundToInt(renderSettings.FontSize * 0.3f);
-            space = paddingL + paddingR + 14;
-            switchHeight = renderSettings.FontSize * 2.5f;
-
-            TabContent = new GUIStyle(GUIStyles.tabcontent);
-            TabContent.padding = new RectOffset(paddingL, paddingR, paddingL, paddingL);
-
-            SmallTab = new GUIStyle(GUIStyles.tabcontent);
-            SmallTab.padding = new RectOffset(paddingL, paddingL, paddingL, paddingL);
-            SmallTab.margin = new RectOffset(0, 0, margin, margin);
-
-            SwitchLabel = new GUIStyle(GUIStyles.switchlabel);
-            SwitchLabel.fixedHeight = switchHeight;
+            TabContent = Lay.Style.Card;
+            SmallTab = Lay.Style.Card;
         }
 
         internal static void Draw(LightManager lightManager, PostProcessingSettings settings, GlobalSettings renderSettings, PostProcessingManager postprocessingManager, bool showAdvanced, Inspector.PostProcessingSubTab selectedSubTab)
         {
             UpdateCachedValues(renderSettings);
 
-            postScrollView = GUILayout.BeginScrollView(postScrollView, false, true);
+            postScrollView = Lay.BeginScrollView(postScrollView, false, true);
 
             switch (selectedSubTab)
             {
@@ -99,30 +85,33 @@ namespace Graphics.Inspector
                 case Inspector.PostProcessingSubTab.Aura:
                     DrawAuraLayer();
                     break;
+                case Inspector.PostProcessingSubTab.VolumetricLights:
+                    DrawVolumetricLights();
+                    break;
             }
 
-            GUILayout.EndScrollView();
+            Lay.EndScrollView();
         }
 
         private static void DrawVolumeSettings(PostProcessingSettings settings, bool showAdvanced)
         {
-            GUILayout.BeginVertical(TabContent);
+            Lay.BeginVertical(TabContent);
             {
                 Label("POST PROCESSING", "", true);
-                GUILayout.Space(1);
+                Lay.Space(1);
                 if (showAdvanced)
                 {
                     Label("Volume blending", "", true);
-                    GUILayout.Space(1);
+                    Lay.Space(1);
                     string trigger = settings != null && settings.VolumeTriggerSetting != null ? settings.VolumeTriggerSetting.name : "";
                     Label("Trigger", trigger);
                     Label("Layer", LayerMask.LayerToName(Mathf.RoundToInt(Mathf.Log(settings.VolumeLayerSetting.value, 2))));
-                    GUILayout.Space(10);
+                    Lay.Space(10);
                 }
 
                 string volumeLabel = showAdvanced ? "Post Process Volumes" : "Post Process Volume";
                 Label(volumeLabel, "", true);
-                GUILayout.Space(10);
+                Lay.Space(10);
 
                 PostProcessVolume volume = settings.Volume;
                 if (volume != null)
@@ -130,13 +119,13 @@ namespace Graphics.Inspector
                     Slider("Weight", volume.weight, 0f, 1f, "N1", weight => volume.weight = weight);
                 }
             }
-            GUILayout.EndVertical();
+            Lay.EndVertical();
         }
 
 
         private static void DrawAmbientOcclusion(PostProcessingSettings settings)
         {
-            GUILayout.BeginVertical(SmallTab);
+            Lay.BeginVertical(SmallTab);
 
             bool legacyAOEnabled = settings.ambientOcclusionLayer != null && settings.ambientOcclusionLayer.active && settings.ambientOcclusionLayer.enabled.value;
             bool vaoAOEnabled = VAOManager.settings != null && VAOManager.settings.Enabled;
@@ -158,11 +147,11 @@ namespace Graphics.Inspector
                 {
                     if (settings.ambientOcclusionLayer.enabled.value)
                     {
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         Label("Legacy", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         SelectionVertical("Mode", settings.ambientOcclusionLayer.mode.value, mode => settings.ambientOcclusionLayer.mode.value = mode);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         Slider("Intensity", settings.ambientOcclusionLayer.intensity.value, 0f, 4f, "N2",
                             intensity => settings.ambientOcclusionLayer.intensity.value = intensity, settings.ambientOcclusionLayer.intensity.overrideState,
                             overrideState => settings.ambientOcclusionLayer.intensity.overrideState = overrideState);
@@ -196,9 +185,9 @@ namespace Graphics.Inspector
 
                     if (vaoSettings.Enabled)
                     {
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         Label("VAO", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         Label("Basic Settings:", "", true);
                         Slider("Radius", vaoSettings.Radius.value, 0f, 0.5f, "N2", radius => { vaoSettings.Radius.value = radius; VAOManager.UpdateSettings(); }, vaoSettings.Radius.overrideState, overrideState => { vaoSettings.Radius.overrideState = overrideState; VAOManager.UpdateSettings(); });
                         Slider("Power", vaoSettings.Power.value, 0f, 2f, "N2", power => { vaoSettings.Power.value = power; VAOManager.UpdateSettings(); }, vaoSettings.Power.overrideState, overrideState => { vaoSettings.Power.overrideState = overrideState; VAOManager.UpdateSettings(); });
@@ -345,7 +334,7 @@ namespace Graphics.Inspector
                             gtaoSettings.Enabled = false;
                             GTAOManager.UpdateSettings();
                         }
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         Label("GTAO - Available in Deferred Rendering Mode Only", "", false);
                     }
                     else
@@ -353,9 +342,9 @@ namespace Graphics.Inspector
 
                         if (gtaoSettings.Enabled)
                         {
-                            GUILayout.Space(30);
+                            Lay.Space(30);
                             Label("GTAO", "", true);
-                            GUILayout.Space(10);
+                            Lay.Space(10);
                             Slider("Intensity", gtaoSettings.Intensity.value, 0f, 1f, "N2", intensity => { gtaoSettings.Intensity.value = intensity; GTAOManager.UpdateSettings(); }, gtaoSettings.Intensity.overrideState, overrideState => { gtaoSettings.Intensity.overrideState = overrideState; GTAOManager.UpdateSettings(); });
                             Slider("Power", gtaoSettings.Power.value, 1f, 8f, "N2", power => { gtaoSettings.Power.value = power; GTAOManager.UpdateSettings(); }, gtaoSettings.Power.overrideState, overrideState => { gtaoSettings.Power.overrideState = overrideState; GTAOManager.UpdateSettings(); });
                             Slider("Radius", gtaoSettings.Radius.value, 1f, 5f, "N2", radius => { gtaoSettings.Radius.value = radius; GTAOManager.UpdateSettings(); }, gtaoSettings.Radius.overrideState, overrideState => { gtaoSettings.Radius.overrideState = overrideState; GTAOManager.UpdateSettings(); });
@@ -367,7 +356,7 @@ namespace Graphics.Inspector
                             Slider("TemporalScale", gtaoSettings.TemporalScale.value, 1f, 5f, "N2", temporalScale => { gtaoSettings.TemporalScale.value = temporalScale; GTAOManager.UpdateSettings(); }, gtaoSettings.TemporalScale.overrideState, overrideState => { gtaoSettings.TemporalScale.overrideState = overrideState; GTAOManager.UpdateSettings(); });
                             Slider("TemporalResponse", gtaoSettings.TemporalResponse.value, 0f, 1f, "N2", temporalResponse => { gtaoSettings.TemporalResponse.value = temporalResponse; GTAOManager.UpdateSettings(); }, gtaoSettings.TemporalResponse.overrideState, overrideState => { gtaoSettings.TemporalResponse.overrideState = overrideState; GTAOManager.UpdateSettings(); });
                             ToggleAlt("MultiBounce", gtaoSettings.MultiBounce.value, true, multiBounce => { gtaoSettings.MultiBounce.value = multiBounce; GTAOManager.UpdateSettings(); });
-                            GUILayout.Space(10);
+                            Lay.Space(10);
                             Selection("Debug", gtaoSettings.Debug, debug => { gtaoSettings.Debug = debug; GTAOManager.UpdateSettings(); });
                         }
                     }
@@ -380,9 +369,9 @@ namespace Graphics.Inspector
                     AmplifyOccSettings amplifyOccSettings = AmplifyOccManager.settings;
                     if (amplifyOccSettings.Enabled)
                     {
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         Label("Amplify", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         SelectionApply("Apply Method", amplifyOccSettings.ApplyMethod, apply => { amplifyOccSettings.ApplyMethod = apply; AmplifyOccManager.UpdateSettings(); }, 3);
                         SelectionNormals("PerPixel Normals", amplifyOccSettings.PerPixelNormals, normals => { amplifyOccSettings.PerPixelNormals = normals; AmplifyOccManager.UpdateSettings(); }, 4);
                         Selection("Sample Count", amplifyOccSettings.SampleCount, samples => { amplifyOccSettings.SampleCount = samples; AmplifyOccManager.UpdateSettings(); }, 4);
@@ -393,31 +382,31 @@ namespace Graphics.Inspector
                         Slider("Radius", amplifyOccSettings.Radius.value, 0f, 32f, "N0", radius => { amplifyOccSettings.Radius.value = radius; AmplifyOccManager.UpdateSettings(); });
                         Slider("Power Exponent", amplifyOccSettings.PowerExponent.value, 1f, 16f, "N1", powerExponent => { amplifyOccSettings.PowerExponent.value = powerExponent; AmplifyOccManager.UpdateSettings(); });
                         Slider("Thickness", amplifyOccSettings.Thickness.value, 0f, 1f, "N2", thickness => { amplifyOccSettings.Thickness.value = thickness; AmplifyOccManager.UpdateSettings(); });
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         ToggleAlt("Cache Aware", amplifyOccSettings.CacheAware.value, false, aware => { amplifyOccSettings.CacheAware.value = aware; AmplifyOccManager.UpdateSettings(); });
                         ToggleAlt("Downsample", amplifyOccSettings.Downsample.value, false, sample => { amplifyOccSettings.Downsample.value = sample; AmplifyOccManager.UpdateSettings(); });
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         ToggleAlt("BILATERAL BLUR", amplifyOccSettings.BlurEnabled.value, true, blurenabled => { amplifyOccSettings.BlurEnabled.value = blurenabled; AmplifyOccManager.UpdateSettings(); });
                         if (amplifyOccSettings.BlurEnabled.value)
                         {
-                            GUILayout.Space(5);
+                            Lay.Space(5);
                             Slider("Blur Sharpness", amplifyOccSettings.BlurSharpness.value, 0f, 20f, "N1", blurSharpness => { amplifyOccSettings.BlurSharpness.value = blurSharpness; AmplifyOccManager.UpdateSettings(); });
                             Slider("Blur Passes", amplifyOccSettings.BlurPasses.value, 1, 4, blurPasses => { amplifyOccSettings.BlurPasses.value = blurPasses; AmplifyOccManager.UpdateSettings(); });
                             Slider("Blur Radius", amplifyOccSettings.BlurRadius.value, 1, 4, blurRadius => { amplifyOccSettings.BlurRadius.value = blurRadius; AmplifyOccManager.UpdateSettings(); });
                         }
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         ToggleAlt("TEMPORAL FILTER", amplifyOccSettings.FilterEnabled.value, true, enabled => { amplifyOccSettings.FilterEnabled.value = enabled; AmplifyOccManager.UpdateSettings(); });
                         if (amplifyOccSettings.FilterEnabled.value)
                         {
-                            GUILayout.Space(5);
+                            Lay.Space(5);
                             Slider("Filter Blending", amplifyOccSettings.FilterBlending.value, 0f, 1f, "N2", filterBlending => { amplifyOccSettings.FilterBlending.value = filterBlending; AmplifyOccManager.UpdateSettings(); });
                             Slider("Filter Response", amplifyOccSettings.FilterResponse.value, 0f, 1f, "N2", filterResponse => { amplifyOccSettings.FilterResponse.value = filterResponse; AmplifyOccManager.UpdateSettings(); });
                         }
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         ToggleAlt("DISTANCE FADE", amplifyOccSettings.FadeEnabled.value, true, enabled => { amplifyOccSettings.FadeEnabled.value = enabled; AmplifyOccManager.UpdateSettings(); });
                         if (amplifyOccSettings.FadeEnabled.value)
                         {
-                            GUILayout.Space(5);
+                            Lay.Space(5);
                             Slider("Fade Length", amplifyOccSettings.FadeLength.value, 0f, 100f, "N1", fadeLength => { amplifyOccSettings.FadeLength.value = fadeLength; AmplifyOccManager.UpdateSettings(); });
                             Slider("Fade Start", amplifyOccSettings.FadeStart.value, 0f, 100f, "N1", fadeStart => { amplifyOccSettings.FadeStart.value = fadeStart; AmplifyOccManager.UpdateSettings(); });
                             Slider("Fade To Intensity", amplifyOccSettings.FadeToIntensity.value, 0f, 1f, "N2", fadeToIntensity => { amplifyOccSettings.FadeToIntensity.value = fadeToIntensity; AmplifyOccManager.UpdateSettings(); });
@@ -429,7 +418,7 @@ namespace Graphics.Inspector
                     }
                 }
             }
-            GUILayout.EndVertical();
+            Lay.EndVertical();
         }
 
         private static void DrawAmbientOcclusionSelector(PostProcessingSettings settings, ref bool legacyAOEnabled, ref bool vaoAOEnabled, ref bool gtaoAOEnabled, ref bool amplifyAOEnabled)
@@ -439,16 +428,15 @@ namespace Graphics.Inspector
             string[] localizedSelection = LocalizationManager.HasLocalization() ? selection.Select(text => LocalizationManager.Localized(text)).ToArray() : selection;
             int columns = Mathf.Min(5, selection.Length);
             bool isDeferredRendering = Graphics.Instance.CameraSettings.RenderingPath == CameraSettings.AIRenderingPath.Deferred;
-            bool previousEnabledState = GUI.enabled;
+            bool previousEnabledState = Im.Enabled;
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUIStyles.boldlabel, GUILayout.ExpandWidth(false));
-            GUILayout.Label("", GUILayout.Width(GUIStyles.labelWidth - GUI.skin.label.CalcSize(new GUIContent(label)).x));
+            Label(label, "", true);
+            Lay.BeginHorizontal();
 
-            GUILayout.BeginVertical();
+            Lay.BeginVertical();
             for (int i = 0; i < localizedSelection.Length; i += columns)
             {
-                GUILayout.BeginHorizontal();
+                Lay.BeginHorizontal();
                 for (int j = 0; j < columns && i + j < localizedSelection.Length; j++)
                 {
                     int index = i + j;
@@ -456,8 +444,8 @@ namespace Graphics.Inspector
                     bool isSelected = IsAmbientOcclusionSelected(ao, legacyAOEnabled, vaoAOEnabled, gtaoAOEnabled, amplifyAOEnabled);
                     bool buttonEnabled = IsAmbientOcclusionAvailable(settings, ao, isDeferredRendering);
 
-                    GUI.enabled = previousEnabledState && buttonEnabled;
-                    bool newSelected = GUILayout.Toggle(isSelected, localizedSelection[index], "Button");
+                    Im.Enabled = previousEnabledState && buttonEnabled;
+                    bool newSelected = Lay.Toggle(isSelected, localizedSelection[index], "Button");
 
                     if (ao == PostProcessingSettings.AmbientOcclusionList.None)
                     {
@@ -493,12 +481,12 @@ namespace Graphics.Inspector
                         }
                     }
                 }
-                GUILayout.EndHorizontal();
+                Lay.EndHorizontal();
             }
-            GUILayout.EndVertical();
-            GUI.enabled = previousEnabledState;
+            Lay.EndVertical();
+            Im.Enabled = previousEnabledState;
 
-            GUILayout.EndHorizontal();
+            Lay.EndHorizontal();
         }
 
         private static bool IsAmbientOcclusionSelected(PostProcessingSettings.AmbientOcclusionList ao, bool legacyAOEnabled, bool vaoAOEnabled, bool gtaoAOEnabled, bool amplifyAOEnabled)
@@ -578,11 +566,11 @@ namespace Graphics.Inspector
         {
             if (settings.bloomLayer != null)
             {
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
                 Switch("BLOOM", settings.bloomLayer.enabled.value, true, enabled => settings.bloomLayer.active = settings.bloomLayer.enabled.value = enabled);
                 if (settings.bloomLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Slider("Intensity", settings.bloomLayer.intensity.value, 0f, 10f, "N1", intensity => settings.bloomLayer.intensity.value = intensity,
                         settings.bloomLayer.intensity.overrideState, overrideState => settings.bloomLayer.intensity.overrideState = overrideState);
                     Slider("Threshold", settings.bloomLayer.threshold.value, 0f, 10f, "N1", threshold => settings.bloomLayer.threshold.value = threshold,
@@ -595,14 +583,14 @@ namespace Graphics.Inspector
                         settings.bloomLayer.diffusion.overrideState, overrideState => settings.bloomLayer.diffusion.overrideState = overrideState);
                     Slider("AnamorphicRatio", settings.bloomLayer.anamorphicRatio.value, -1, 1, "N1", anamorphicRatio => settings.bloomLayer.anamorphicRatio.value = anamorphicRatio,
                         settings.bloomLayer.anamorphicRatio.overrideState, overrideState => settings.bloomLayer.anamorphicRatio.overrideState = overrideState);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     SliderColor("Colour", settings.bloomLayer.color.value, colour => { settings.bloomLayer.color.value = colour; }, settings.bloomLayer.color.overrideState,
                         settings.bloomLayer.color.overrideState, overrideState => settings.bloomLayer.color.overrideState = overrideState);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     ToggleAlt("Fast Mode", settings.bloomLayer.fastMode.value, false, fastMode => settings.bloomLayer.fastMode.value = fastMode);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     int lensDirtIndex = SelectionTexture("Lens Dirt", postprocessingManager.CurrentLensDirtTextureIndex, postprocessingManager.LensDirtPreviews, space,
-                        settings.bloomLayer.dirtTexture.overrideState, overrideState => settings.bloomLayer.dirtTexture.overrideState = overrideState, GUIStyles.Skin.box);
+                        settings.bloomLayer.dirtTexture.overrideState, overrideState => settings.bloomLayer.dirtTexture.overrideState = overrideState);
                     if (-1 != lensDirtIndex && lensDirtIndex != postprocessingManager.CurrentLensDirtTextureIndex)
                     {
                         postprocessingManager.LoadLensDirtTexture(lensDirtIndex, dirtTexture => settings.bloomLayer.dirtTexture.value = dirtTexture);
@@ -610,22 +598,22 @@ namespace Graphics.Inspector
                     Text("Dirt Intensity", settings.bloomLayer.dirtIntensity.value, "N2", value => settings.bloomLayer.dirtIntensity.value = value,
                         settings.bloomLayer.dirtIntensity.overrideState, overrideState => settings.bloomLayer.dirtIntensity.overrideState = overrideState);
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
         private static void DrawSunShaftsHDR(LightManager lightManager, PostProcessingSettings settings, GlobalSettings renderSettings)
         {
-            GUILayout.BeginVertical(SmallTab);
+            Lay.BeginVertical(SmallTab);
 
             if (settings.sunShaftsHDRLayer != null)
             {
                 Switch("SUN SHAFTS HDR", settings.sunShaftsHDRLayer.enabled, true, enabled => { settings.sunShaftsHDRLayer.active = enabled; settings.sunShaftsHDRLayer.enabled.Override(enabled); });
                 if (settings.sunShaftsHDRLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     ToggleAlt("Use Global Sun", settings.sunShaftsHDRLayer.connectSun, false, connectsun => settings.sunShaftsHDRLayer.connectSun.Override(connectsun));
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     if (settings.sunShaftsHDRLayer.connectSun)
                     {
                         LightSelector(lightManager, "Sun Source", RenderSettings.sun, light =>
@@ -637,15 +625,15 @@ namespace Graphics.Inspector
                     else
                     {
                         Dimension("Source Position", settings.sunShaftsHDRLayer.sunTransform.value, pos => { settings.sunShaftsHDRLayer.sunTransform.value = pos; settings.sunShaftsHDRLayer.sunTransform.Override(pos); });
-                        GUILayout.Space(5);
+                        Lay.Space(5);
                     }
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     SliderColor("Color", settings.sunShaftsHDRLayer.sunColor.value, colour => { settings.sunShaftsHDRLayer.sunColor.value = colour; }, settings.sunShaftsHDRLayer.sunColor.overrideState,
                         settings.sunShaftsHDRLayer.sunColor.overrideState, overrideState => settings.sunShaftsHDRLayer.sunColor.overrideState = overrideState);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     SliderColor("Threshold", settings.sunShaftsHDRLayer.sunThreshold.value, threshold => { settings.sunShaftsHDRLayer.sunThreshold.value = threshold; }, settings.sunShaftsHDRLayer.sunThreshold.overrideState,
                         settings.sunShaftsHDRLayer.sunThreshold.overrideState, overrideState => settings.sunShaftsHDRLayer.sunThreshold.overrideState = overrideState);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     Slider("Intensity", settings.sunShaftsHDRLayer.sunShaftIntensity.value, 0f, 10f, "N1", intensity => settings.sunShaftsHDRLayer.sunShaftIntensity.value = intensity,
                         settings.sunShaftsHDRLayer.sunShaftIntensity.overrideState, overrideState => settings.sunShaftsHDRLayer.sunShaftIntensity.overrideState = overrideState);
                     Slider("Range", settings.sunShaftsHDRLayer.sunShaftBlurRadius.value, 0f, 10f, "N1", blurradius => settings.sunShaftsHDRLayer.sunShaftBlurRadius.value = blurradius,
@@ -658,12 +646,12 @@ namespace Graphics.Inspector
                 }
             }
 
-            GUILayout.EndVertical();
+            Lay.EndVertical();
         }
 
         private static void DrawColorGrading(PostProcessingSettings settings, PostProcessingManager postprocessingManager)
         {
-            GUILayout.BeginVertical(SmallTab);
+            Lay.BeginVertical(SmallTab);
 
             if (settings.colorGradingLayer)
             {
@@ -675,7 +663,7 @@ namespace Graphics.Inspector
                 });
                 if (settings.colorGradingLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Selection("Mode", (PostProcessingSettings.GradingMode)settings.colorGradingLayer.gradingMode.value, mode =>
                     {
                         settings.colorGradingLayer.gradingMode.value = (GradingMode)mode;
@@ -711,17 +699,17 @@ namespace Graphics.Inspector
                             Selection("Tonemapping", settings.colorGradingLayer.tonemapper.value, mode => settings.colorGradingLayer.tonemapper.value = mode);
                         }
 
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         Label("WHITE BALANCE", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         SliderColorTemp("Temperature", settings.colorGradingLayer.temperature.value, -100, 100, "N0", temperature => settings.colorGradingLayer.temperature.value = temperature,
                             settings.colorGradingLayer.temperature.overrideState, overrideState => settings.colorGradingLayer.temperature.overrideState = overrideState);
                         SliderColorTint("Tint", settings.colorGradingLayer.tint.value, -100, 100, "N0", tint => settings.colorGradingLayer.tint.value = tint,
                             settings.colorGradingLayer.tint.overrideState, overrideState => settings.colorGradingLayer.tint.overrideState = overrideState);
 
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         Label("TONE", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         if (GradingMode.HighDefinitionRange == settings.colorGradingLayer.gradingMode.value)
                         {
                             SliderAlpha("Post-exposure (EV)", settings.colorGradingLayer.postExposure.value, -3, 3, "N2", false, value => settings.colorGradingLayer.postExposure.value = value, settings.colorGradingLayer.postExposure.overrideState, overrideState => settings.colorGradingLayer.postExposure.overrideState = overrideState);
@@ -738,13 +726,13 @@ namespace Graphics.Inspector
                         SliderAlpha("Contrast", settings.colorGradingLayer.contrast.value, -100, 100, "N0", true, contrast => settings.colorGradingLayer.contrast.value = contrast,
                             settings.colorGradingLayer.contrast.overrideState, overrideState => settings.colorGradingLayer.contrast.overrideState = overrideState);
 
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         Label("CHANNEL MIXER", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         Selection("Channel", settings.agxColorLayer.channelMixer, mode => settings.agxColorLayer.channelMixer = mode);
                         if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Red)
                         {
-                            GUILayout.Space(10);
+                            Lay.Space(10);
                             Slider("Red", settings.agxColorLayer.mixerRedOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerRedOutRedIn.value = red,
                                 settings.agxColorLayer.mixerRedOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerRedOutRedIn.overrideState = overrideState);
                             Slider("Green", settings.agxColorLayer.mixerRedOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerRedOutGreenIn.value = green,
@@ -754,7 +742,7 @@ namespace Graphics.Inspector
                         }
                         if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Green)
                         {
-                            GUILayout.Space(10);
+                            Lay.Space(10);
                             Slider("Red", settings.agxColorLayer.mixerGreenOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerGreenOutRedIn.value = red,
                                 settings.agxColorLayer.mixerGreenOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerGreenOutRedIn.overrideState = overrideState);
                             Slider("Green", settings.agxColorLayer.mixerGreenOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerGreenOutGreenIn.value = green,
@@ -764,7 +752,7 @@ namespace Graphics.Inspector
                         }
                         if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Blue)
                         {
-                            GUILayout.Space(10);
+                            Lay.Space(10);
                             Slider("Red", settings.agxColorLayer.mixerBlueOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerBlueOutRedIn.value = red,
                                 settings.agxColorLayer.mixerBlueOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutRedIn.overrideState = overrideState);
                             Slider("Green", settings.agxColorLayer.mixerBlueOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerBlueOutGreenIn.value = green,
@@ -773,9 +761,9 @@ namespace Graphics.Inspector
                                 settings.agxColorLayer.mixerBlueOutBlueIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutBlueIn.overrideState = overrideState);
                         }
 
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         Label("COLOR BALANCE", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         SliderColor("Lift", settings.colorGradingLayer.lift.value, colour => settings.colorGradingLayer.lift.value = colour, false,
                             settings.colorGradingLayer.lift.overrideState, overrideState => settings.colorGradingLayer.lift.overrideState = overrideState, "Value", -1.5f, 3f);
                         SliderColor("Gamma", settings.colorGradingLayer.gamma.value, colour => settings.colorGradingLayer.gamma.value = colour, false,
@@ -783,13 +771,13 @@ namespace Graphics.Inspector
                         SliderColor("Gain", settings.colorGradingLayer.gain.value, colour => settings.colorGradingLayer.gain.value = colour, false,
                             settings.colorGradingLayer.gain.overrideState, overrideSate => settings.colorGradingLayer.gain.overrideState = overrideSate, "Value", -1.5f, 3f);
 
-                        GUILayout.Space(30);
+                        Lay.Space(30);
                         if (settings.colorClippingLayer != null)
                         {
                             ToggleAlt("Debug Clipping", settings.colorClippingLayer.enabled, false, enabled => { settings.colorClippingLayer.active = enabled; settings.colorClippingLayer.enabled.Override(enabled); });
                             if (settings.colorClippingLayer.enabled.value)
                             {
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 Slider("Shadow Threshold", settings.colorClippingLayer.shadowThreshold.value, 0.001f, 0.1f, "N3", shadowThreshold => settings.colorClippingLayer.shadowThreshold.value = shadowThreshold,
                                     settings.colorClippingLayer.shadowThreshold.overrideState, overrideState => settings.colorClippingLayer.shadowThreshold.overrideState = overrideState);
                                 Slider("Highlight Threshold", settings.colorClippingLayer.highlightThreshold.value, 0.9f, 1f, "N3", highlightThreshold => settings.colorClippingLayer.highlightThreshold.value = highlightThreshold,
@@ -804,7 +792,7 @@ namespace Graphics.Inspector
                     {
                         //settings.agxColorLayer.active = true;
                         //settings.agxColorLayer.enabled.Override(true);
-                        GUILayout.Space(30);
+                        Lay.Space(30);
 
                         if (settings.agxColorLayer != null && settings.agxColorPostLayer != null)
                         {
@@ -812,23 +800,23 @@ namespace Graphics.Inspector
                             {
                                 settings.colorGradingLayer.postExposure.overrideState = false;
 
-                                GUILayout.Space(30);
+                                Lay.Space(30);
                                 Label("PRE-TRANSFORM (HDR)", "This settings should be preferred when doing corrections.", true);
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 SliderAlpha("Exposure", settings.agxColorLayer.exposure.value, -9, 9, "N2", false, exposure => settings.agxColorLayer.exposure.value = exposure,
                                     settings.agxColorLayer.exposure.overrideState, overrideState => settings.agxColorLayer.exposure.overrideState = overrideState);
 
-                                GUILayout.Space(30);
+                                Lay.Space(30);
                                 Label("WHITE BALANCE", "", true);
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 SliderColorTemp("Temperature", settings.agxColorLayer.temperature.value, -100, 100, "N0", temperature => settings.agxColorLayer.temperature.value = temperature,
                                     settings.agxColorLayer.temperature.overrideState, overrideState => settings.agxColorLayer.temperature.overrideState = overrideState);
                                 SliderColorTint("Tint", settings.agxColorLayer.tint.value, -100, 100, "N0", tint => settings.agxColorLayer.tint.value = tint,
                                     settings.agxColorLayer.tint.overrideState, overrideState => settings.agxColorLayer.tint.overrideState = overrideState);
 
-                                GUILayout.Space(30);
+                                Lay.Space(30);
                                 Label("TONE", "", true);
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 SliderColorHue("Hue Shift", settings.agxColorLayer.hueShift.value, -180, 180, "N0", hueShift => settings.agxColorLayer.hueShift.value = hueShift,
                                     settings.agxColorLayer.hueShift.overrideState, overrideState => settings.agxColorLayer.hueShift.overrideState = overrideState);
                                 SliderColorVib("Vibrance", settings.agxColorLayer.colorBoost.value, -1, 1, "N2", colorboost => settings.agxColorLayer.colorBoost.value = colorboost,
@@ -836,9 +824,9 @@ namespace Graphics.Inspector
                                 Slider("Perceptual", settings.agxColorLayer.perceptual.value, 0, 1, "N1", perceptual => settings.agxColorLayer.perceptual.value = perceptual,
                                     settings.agxColorLayer.perceptual.overrideState, overrideState => settings.agxColorLayer.perceptual.overrideState = overrideState);
 
-                                GUILayout.Space(30);
+                                Lay.Space(30);
                                 Label("COLOR BALANCE (HDR)", "", true);
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 SliderColor("Offset (Highlights)", settings.agxColorLayer.offset.value, colour => settings.agxColorLayer.offset.value = colour, true,
                                     settings.agxColorLayer.offset.overrideState, overrideState => settings.agxColorLayer.offset.overrideState = overrideState, "Value", 0f, 1f);
                                 SliderColor("Power (Midtones)", settings.agxColorLayer.power.value, colour => settings.agxColorLayer.power.value = colour, true,
@@ -846,13 +834,13 @@ namespace Graphics.Inspector
                                 SliderColor("Slope (Shadows)", settings.agxColorLayer.slope.value, colour => settings.agxColorLayer.slope.value = colour, true,
                                     settings.agxColorLayer.slope.overrideState, overrideSate => settings.agxColorLayer.slope.overrideState = overrideSate, "Value", 0f, 2f);
 
-                                GUILayout.Space(30);
+                                Lay.Space(30);
                                 Label("CHANNEL MIXER", "", true);
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 Selection("Channel", settings.agxColorLayer.channelMixer, mode => settings.agxColorLayer.channelMixer = mode);
                                 if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Red)
                                 {
-                                    GUILayout.Space(10);
+                                    Lay.Space(10);
                                     Slider("Red", settings.agxColorLayer.mixerRedOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerRedOutRedIn.value = red,
                                         settings.agxColorLayer.mixerRedOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerRedOutRedIn.overrideState = overrideState);
                                     Slider("Green", settings.agxColorLayer.mixerRedOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerRedOutGreenIn.value = green,
@@ -862,7 +850,7 @@ namespace Graphics.Inspector
                                 }
                                 if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Green)
                                 {
-                                    GUILayout.Space(10);
+                                    Lay.Space(10);
                                     Slider("Red", settings.agxColorLayer.mixerGreenOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerGreenOutRedIn.value = red,
                                         settings.agxColorLayer.mixerGreenOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerGreenOutRedIn.overrideState = overrideState);
                                     Slider("Green", settings.agxColorLayer.mixerGreenOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerGreenOutGreenIn.value = green,
@@ -872,7 +860,7 @@ namespace Graphics.Inspector
                                 }
                                 if (settings.agxColorLayer.channelMixer == AgXColor.ChannelMixer.Blue)
                                 {
-                                    GUILayout.Space(10);
+                                    Lay.Space(10);
                                     Slider("Red", settings.agxColorLayer.mixerBlueOutRedIn.value, -200, 200, "N0", red => settings.agxColorLayer.mixerBlueOutRedIn.value = red,
                                         settings.agxColorLayer.mixerBlueOutRedIn.overrideState, overrideState => settings.agxColorLayer.mixerBlueOutRedIn.overrideState = overrideState);
                                     Slider("Green", settings.agxColorLayer.mixerBlueOutGreenIn.value, -200, 200, "N0", green => settings.agxColorLayer.mixerBlueOutGreenIn.value = green,
@@ -882,19 +870,19 @@ namespace Graphics.Inspector
                                 }
 
                             }
-                            GUILayout.Space(30);
+                            Lay.Space(30);
                             Label("COLOR TRANSFORM", "", true);
-                            GUILayout.Space(10);
+                            Lay.Space(10);
                             Selection("Tonemapper", postprocessingManager.Current3DLUTName, postprocessingManager.LUT3DNames,
                                 lut3d => { if (lut3d != postprocessingManager.Current3DLUTName) { settings.colorGradingLayer.externalLut.Override(postprocessingManager.Load3DLUT(lut3d)); } }, 2);
 
-                            GUILayout.Space(30);
+                            Lay.Space(30);
                             //Toggle("POST-TRANSFORM (LDR)", settings.agxColorPostLayer.enabled, true, enabled => { settings.agxColorPostLayer.active = enabled; settings.agxColorPostLayer.enabled.Override(enabled); settings.agxColorPostLayer.external.Override(enabled); });
                             if (settings.agxColorPostLayer.enabled.value)
                             {
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 Label("", "Warning! This settings may be destructive. Prefer to use Pre-Transform instead.", true);
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 SliderColorVib("Saturation", settings.agxColorPostLayer.saturation.value, -100, 100, "N0", saturation => settings.agxColorPostLayer.saturation.value = saturation,
                                     settings.agxColorPostLayer.saturation.overrideState, overrideState => settings.agxColorPostLayer.saturation.overrideState = overrideState);
                                 SliderAlpha("Brightness", settings.agxColorPostLayer.brightness.value, -100, 100, "N0", false, brightness => settings.agxColorPostLayer.brightness.value = brightness,
@@ -902,9 +890,9 @@ namespace Graphics.Inspector
                                 SliderAlpha("Contrast", settings.agxColorPostLayer.contrast.value, -100, 100, "N0", true, contrast => settings.agxColorPostLayer.contrast.value = contrast,
                                     settings.agxColorPostLayer.contrast.overrideState, overrideState => settings.agxColorPostLayer.contrast.overrideState = overrideState);
 
-                                GUILayout.Space(30);
+                                Lay.Space(30);
                                 Label("COLOR BALANCE (LDR)", "", true);
-                                GUILayout.Space(10);
+                                Lay.Space(10);
                                 SliderColor("Lift", settings.agxColorPostLayer.lift.value, colour => settings.agxColorPostLayer.lift.value = colour, false,
                                     settings.agxColorPostLayer.lift.overrideState, overrideState => settings.agxColorPostLayer.lift.overrideState = overrideState, "Value", -1.5f, 3f);
                                 SliderColor("Gamma", settings.agxColorPostLayer.gamma.value, colour => settings.agxColorPostLayer.gamma.value = colour, false,
@@ -912,13 +900,13 @@ namespace Graphics.Inspector
                                 SliderColor("Gain", settings.agxColorPostLayer.gain.value, colour => settings.agxColorPostLayer.gain.value = colour, false,
                                     settings.agxColorPostLayer.gain.overrideState, overrideSate => settings.agxColorPostLayer.gain.overrideState = overrideSate, "Value", -1.5f, 3f);
 
-                                //GUILayout.Space(30);
+                                //Lay.Space(30);
                                 if (settings.colorClippingLayer != null)
                                 {
                                     ToggleAlt("Debug Clipping", settings.colorClippingLayer.enabled, false, enabled => { settings.colorClippingLayer.active = enabled; settings.colorClippingLayer.enabled.Override(enabled); });
                                     if (settings.colorClippingLayer.enabled.value)
                                     {
-                                        GUILayout.Space(10);
+                                        Lay.Space(10);
                                         Slider("Shadow Threshold", settings.colorClippingLayer.shadowThreshold.value, 0.001f, 0.1f, "N3", shadowThreshold => settings.colorClippingLayer.shadowThreshold.value = shadowThreshold,
                                             settings.colorClippingLayer.shadowThreshold.overrideState, overrideState => settings.colorClippingLayer.shadowThreshold.overrideState = overrideState);
                                         Slider("Highlight Threshold", settings.colorClippingLayer.highlightThreshold.value, 0.9f, 1f, "N3", highlightThreshold => settings.colorClippingLayer.highlightThreshold.value = highlightThreshold,
@@ -932,7 +920,7 @@ namespace Graphics.Inspector
                         }
                     }
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
@@ -940,11 +928,11 @@ namespace Graphics.Inspector
         {
             if (settings.screenSpaceReflectionsLayer != null)
             {
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
                 Switch("SSR", settings.screenSpaceReflectionsLayer.enabled.value, true, enabled => settings.screenSpaceReflectionsLayer.active = settings.screenSpaceReflectionsLayer.enabled.value = enabled);
                 if (settings.screenSpaceReflectionsLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Selection("Preset", settings.screenSpaceReflectionsLayer.preset.value, preset => settings.screenSpaceReflectionsLayer.preset.value = preset, 4,
                         settings.screenSpaceReflectionsLayer.preset.overrideState, overrideState => settings.screenSpaceReflectionsLayer.preset.overrideState = overrideState);
 
@@ -967,20 +955,20 @@ namespace Graphics.Inspector
                     Slider("Vignette", settings.screenSpaceReflectionsLayer.vignette.value, 0f, 1f, "N2", vignette => settings.screenSpaceReflectionsLayer.vignette.value = vignette,
                         settings.screenSpaceReflectionsLayer.vignette.overrideState, overrideState => settings.screenSpaceReflectionsLayer.vignette.overrideState = overrideState);
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
 
         }
 
         private static void DrawAutoExposure(PostProcessingSettings settings)
         {
-            GUILayout.BeginVertical(SmallTab);
+            Lay.BeginVertical(SmallTab);
             if (settings.autoExposureLayer != null)
             {
                 Switch("AUTO EXPOSURE", settings.autoExposureLayer.enabled.value, true, enabled => settings.autoExposureLayer.active = settings.autoExposureLayer.enabled.value = enabled);
                 if (settings.autoExposureLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     ToggleAlt("Histogram Filtering (%)", settings.autoExposureLayer.filtering.overrideState, false, overrideState => settings.autoExposureLayer.filtering.overrideState = overrideState);
                     Vector2 filteringRange = settings.autoExposureLayer.filtering.value;
                     Slider("Lower Bound", filteringRange.x, 1f, Math.Min(filteringRange.y, 99f), "N0", filtering => filteringRange.x = filtering, settings.autoExposureLayer.filtering.overrideState);
@@ -992,7 +980,7 @@ namespace Graphics.Inspector
                     Slider("Max Luminance (EV)", settings.autoExposureLayer.maxLuminance.value, -9f, 9f, "N0",
                         luminance => settings.autoExposureLayer.maxLuminance.value = luminance, settings.autoExposureLayer.maxLuminance.overrideState,
                         overrideState => settings.autoExposureLayer.maxLuminance.overrideState = overrideState);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     ToggleAlt("Eye Adaptation", settings.autoExposureLayer.eyeAdaptation.overrideState, false, overrideState => settings.autoExposureLayer.eyeAdaptation.overrideState = overrideState);
                     Selection("Type", settings.autoExposureLayer.eyeAdaptation.value, type => settings.autoExposureLayer.eyeAdaptation.value = type, -1,
                         settings.autoExposureLayer.eyeAdaptation.overrideState);
@@ -1004,23 +992,23 @@ namespace Graphics.Inspector
                         overrideState => settings.autoExposureLayer.speedDown.overrideState = overrideState);
                 }
             }
-            GUILayout.EndVertical();
+            Lay.EndVertical();
         }
 
         private static void DrawChromaticAberrationLayer(PostProcessingSettings settings, PostProcessingManager postprocessingManager)
         {
-            GUILayout.BeginVertical(SmallTab);
+            Lay.BeginVertical(SmallTab);
 
             if (settings.chromaticAberrationLayer)
             {
                 Switch("CHROMATIC ABERRATION", settings.chromaticAberrationLayer.enabled.value, true, enabled => settings.chromaticAberrationLayer.active = settings.chromaticAberrationLayer.enabled.value = enabled);
                 if (settings.chromaticAberrationLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
 
                     SelectionVertical("Spectral Lut", postprocessingManager.CurrentSpecLUTName, postprocessingManager.LUTSpecNames,
                         speclut => { if (speclut != postprocessingManager.CurrentSpecLUTName) { settings.chromaticAberrationLayer.spectralLut.Override(postprocessingManager.LoadSpecLUT(speclut)); } }, 4);
-                    GUILayout.Space(10);
+                    Lay.Space(10);
                     Slider("Intensity", settings.chromaticAberrationLayer.intensity.value, 0f, 5f, "N2", intensity => settings.chromaticAberrationLayer.intensity.value = intensity,
                         settings.chromaticAberrationLayer.intensity.overrideState, overrideState => settings.chromaticAberrationLayer.intensity.overrideState = overrideState);
                     ToggleAlt("Fast Mode", settings.chromaticAberrationLayer.fastMode.value, false, fastMode => settings.chromaticAberrationLayer.fastMode.value = fastMode);
@@ -1028,29 +1016,29 @@ namespace Graphics.Inspector
 
             }
 
-            GUILayout.EndVertical();
+            Lay.EndVertical();
         }
 
         private static void DrawDepthOfFieldLayer(PostProcessingSettings settings)
         {
             if (settings.depthOfFieldLayer)
             {
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
                 Switch("DEPTH OF FIELD", settings.depthOfFieldLayer.enabled.value, true, enabled => settings.depthOfFieldLayer.active = settings.depthOfFieldLayer.enabled.value = enabled);
                 if (settings.depthOfFieldLayer.enabled.value)
                 {
                     FocusSettings focusSettings = FocusManager.settings;
                     FocusPuller focusPuller = FocusManager.FocusInstance;
 
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     ToggleAlt("Focus On Object", focusSettings.Enabled, false, focus => { focusSettings.Enabled = focus; FocusManager.UpdateSettings(); });
                     if (focusSettings.Enabled)
                     {
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         if (KKAPI.Studio.StudioAPI.InsideStudio)
                         {
-                            GUILayout.ExpandHeight(true);
-                            GUILayout.BeginHorizontal();
+                            Lay.ExpandHeight(true);
+                            Lay.BeginHorizontal();
                             if (Button("Focus on selected node", true))
                             {
                                 var TreeNodeCtrl = Singleton<Studio.Studio>.Instance.treeNodeCtrl;
@@ -1081,32 +1069,32 @@ namespace Graphics.Inspector
                                         }
                                 }
                             }
-                            GUILayout.EndHorizontal();
-                            GUILayout.Space(10);
+                            Lay.EndHorizontal();
+                            Lay.Space(10);
                         }
 
-                        GUI.enabled = false;
+                        Im.Enabled = false;
                         Dimension("Target Position", focusPuller.TargetPosition);
-                        GUI.enabled = true;
+                        Im.Enabled = true;
                         Slider("Focus Speed", focusSettings.Speed.value, 1f, 12f, "N1", speed => { focusSettings.Speed.value = speed; FocusManager.UpdateSettings(); },
                             focusSettings.Speed.overrideState, overrideState => { focusSettings.Speed.overrideState = overrideState; FocusManager.UpdateSettings(); });
                     }
                     Slider("Focal Distance", settings.depthOfFieldLayer.focusDistance.value, 0.1f, 1000f, "N0", focusDistance => settings.depthOfFieldLayer.focusDistance.value = focusDistance,
                         settings.depthOfFieldLayer.focusDistance.overrideState && !focusPuller.enabled, overrideState => settings.depthOfFieldLayer.focusDistance.overrideState = overrideState);
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Label("LENS SETTINGS", "", true);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     Slider("Aperture", settings.depthOfFieldLayer.aperture.value, 1f, 22f, "N1", aperture => settings.depthOfFieldLayer.aperture.value = aperture,
                         settings.depthOfFieldLayer.aperture.overrideState, overrideState => settings.depthOfFieldLayer.aperture.overrideState = overrideState);
                     Slider("Focal Length", settings.depthOfFieldLayer.focalLength.value, 10f, 600f, "N0", focalLength => settings.depthOfFieldLayer.focalLength.value = focalLength,
                         settings.depthOfFieldLayer.focalLength.overrideState, overrideState => settings.depthOfFieldLayer.focalLength.overrideState = overrideState);
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Label("BLUR SETTINGS", "", true);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     Selection("Max Blur Size", settings.depthOfFieldLayer.kernelSize.value, kernelSize => settings.depthOfFieldLayer.kernelSize.value = kernelSize, -1,
                         settings.depthOfFieldLayer.kernelSize.overrideState, overrideState => settings.depthOfFieldLayer.kernelSize.overrideState = overrideState);
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
@@ -1114,11 +1102,11 @@ namespace Graphics.Inspector
         {
             //if (settings.grainLayer != null)
             //{
-            //    GUILayout.BeginVertical(SmallTab);
+            //    Lay.BeginVertical(SmallTab);
             //    Switch("GRAIN", settings.grainLayer.enabled.value, true, enabled => { settings.grainLayer.active = enabled; settings.grainLayer.enabled.Override(enabled); });
             //    if (settings.grainLayer.enabled.value)
             //    {
-            //        GUILayout.Space(10);
+            //        Lay.Space(10);
             //        ToggleAlt("Colored", settings.grainLayer.colored.overrideState, false, overrideState => settings.grainLayer.colored.overrideState = overrideState);
             //        Slider("Intensity", settings.grainLayer.intensity.value, 0f, 1f, "N2", intensity => settings.grainLayer.intensity.value = intensity,
             //            settings.grainLayer.intensity.overrideState, overrideState => settings.grainLayer.intensity.overrideState = overrideState);
@@ -1127,19 +1115,19 @@ namespace Graphics.Inspector
             //        Slider("Luminance Contribution", settings.grainLayer.lumContrib.value, 0f, 1f, "N2", lumContrib => settings.grainLayer.lumContrib.value = lumContrib,
             //            settings.grainLayer.lumContrib.overrideState, overrideState => settings.grainLayer.lumContrib.overrideState = overrideState);
             //    }
-            //    GUILayout.EndVertical();
+            //    Lay.EndVertical();
             //}
 
             if (FilmGrainManager.settings != null)
             {
                 FilmGrainSettings grainLayer = FilmGrainManager.settings;
 
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
                 Switch("GRAIN", grainLayer.enabled, true, enabled => { grainLayer.enabled = enabled; FilmGrainManager.UpdateSettings(); });
 
                 if (grainLayer.enabled)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
 
                     ToggleAlt("Colored", grainLayer.colored.value, false, colored => { grainLayer.colored.value = colored; FilmGrainManager.UpdateSettings(); });
 
@@ -1150,7 +1138,7 @@ namespace Graphics.Inspector
                     Slider("Luminance Contribution", grainLayer.lumContrib.value, 0f, 1f, "N2", lumContrib => { grainLayer.lumContrib.value = lumContrib; FilmGrainManager.UpdateSettings(); },
                         grainLayer.lumContrib.overrideState, overrideState => { grainLayer.lumContrib.overrideState = overrideState; FilmGrainManager.UpdateSettings(); });
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
@@ -1158,11 +1146,11 @@ namespace Graphics.Inspector
         {
             if (settings.vignetteLayer != null)
             {
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
                 Switch("VIGNETTE", settings.vignetteLayer.enabled.value, true, enabled => settings.vignetteLayer.active = settings.vignetteLayer.enabled.value = enabled);
                 if (settings.vignetteLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Selection("Mode", settings.vignetteLayer.mode.value, mode => settings.vignetteLayer.mode.value = mode, -1,
                         settings.vignetteLayer.mode.overrideState, overrideState => settings.vignetteLayer.mode.overrideState = overrideState);
                     SliderColor("Colour", settings.vignetteLayer.color.value, colour => settings.vignetteLayer.color.value = colour, false,
@@ -1175,7 +1163,7 @@ namespace Graphics.Inspector
                         settings.vignetteLayer.roundness.overrideState, overrideState => settings.vignetteLayer.roundness.overrideState = overrideState);
                     ToggleAlt("Rounded", settings.vignetteLayer.rounded, settings.vignetteLayer.rounded.overrideState, rounded => settings.vignetteLayer.rounded.value = rounded);
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
@@ -1183,17 +1171,17 @@ namespace Graphics.Inspector
         {
             if (settings.motionBlurLayer != null)
             {
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
                 Switch("MOTION BLUR", settings.motionBlurLayer.enabled.value, true, enabled => settings.motionBlurLayer.active = settings.motionBlurLayer.enabled.value = enabled);
                 if (settings.motionBlurLayer.enabled.value)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Slider("Shutter Angle", settings.motionBlurLayer.shutterAngle.value, 0f, 360f, "N0", intensity => settings.motionBlurLayer.shutterAngle.value = intensity,
                         settings.motionBlurLayer.shutterAngle.overrideState, overrideState => settings.motionBlurLayer.shutterAngle.overrideState = overrideState);
                     Slider("Sample Count", settings.motionBlurLayer.sampleCount.value, 4, 32, intensity => settings.motionBlurLayer.sampleCount.value = intensity,
                         settings.motionBlurLayer.sampleCount.overrideState, overrideState => settings.motionBlurLayer.sampleCount.overrideState = overrideState);
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
@@ -1202,7 +1190,7 @@ namespace Graphics.Inspector
             if (GlobalFogManager.settings != null)
             {
                 GlobalFogSettings globalfogSettings = GlobalFogManager.settings;
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
                 Switch("GLOBAL FOG", globalfogSettings.Enabled, true, enabled =>
                 {
                     globalfogSettings.Enabled = enabled;
@@ -1211,7 +1199,7 @@ namespace Graphics.Inspector
                 });
                 if (globalfogSettings.Enabled)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     ToggleAlt("Distance Fog", globalfogSettings.distanceFog.value, false, distanceFog => { globalfogSettings.distanceFog.value = distanceFog; GlobalFogManager.UpdateSettings(); });
                     ToggleAlt("Exclude Far Pixels", globalfogSettings.excludeFarPixels.value, false, excludeFarPixels => { globalfogSettings.excludeFarPixels.value = excludeFarPixels; GlobalFogManager.UpdateSettings(); });
                     ToggleAlt("Use Radial Distance", globalfogSettings.useRadialDistance.value, false, useRadialDistance => { globalfogSettings.useRadialDistance.value = useRadialDistance; GlobalFogManager.UpdateSettings(); });
@@ -1224,7 +1212,7 @@ namespace Graphics.Inspector
                     SelectionVertical("Fog Mode", globalfogSettings.fogMode, mode => { globalfogSettings.fogMode = mode; GlobalFogManager.UpdateSettings(); });
                 }
 
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
@@ -1236,7 +1224,7 @@ namespace Graphics.Inspector
                 WaterVolumeTriggerSettings triggerSettings = LuxWater_WaterVolumeTriggerManager.settings;
                 ConnectSunToUnderwaterSettings connectSettings = ConnectSunToUnderwaterManager.settings;
                 UnderWaterBlurSettings blurSettings = LuxWater_UnderwaterBlurManager.settings;
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
 
                 Switch("UNDERWATER RENDERING", underwaterSettings.Enabled, true, enabled =>
                 {
@@ -1250,16 +1238,16 @@ namespace Graphics.Inspector
 
                 if (underwaterSettings.Enabled)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Label("Info", "Requires Water Volume");
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     LightSelector(lightManager, "Sun Source", RenderSettings.sun, light =>
                     {
                         RenderSettings.sun = light;
                         ConnectSunToUnderwater.ConnectSun();
                     });
 
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     ToggleAlt("Underwater Blur", blurSettings.Enabled, false, underwaterBlur => { blurSettings.Enabled = underwaterBlur; LuxWater_UnderwaterBlurManager.UpdateSettings(); });
                     if (blurSettings.Enabled)
                     {
@@ -1269,7 +1257,7 @@ namespace Graphics.Inspector
                     }
                 }
 
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
@@ -1279,14 +1267,14 @@ namespace Graphics.Inspector
             {
                 AuraSettings auralayer = AuraManager.settings;
 
-                GUILayout.BeginVertical(SmallTab);
+                Lay.BeginVertical(SmallTab);
                 Switch("AURA 2 Volumetric Lighting & Fog", auralayer.Enabled, true, enabled => { auralayer.Enabled = enabled; AuraManager.UpdateSettings(); });
 
                 if (auralayer.Enabled)
                 {
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Label("BASE SETTINGS", "", true);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     ToggleAlt("Use Density", auralayer.useDensity.value, false, useDensity => { auralayer.useDensity.value = useDensity; AuraManager.UpdateSettings(); });
                     if (auralayer.useDensity.value)
                     {
@@ -1331,9 +1319,9 @@ namespace Graphics.Inspector
                             auralayer.extinction.overrideState, overrideState => { auralayer.extinction.overrideState = overrideState; AuraManager.UpdateSettings(); });
                     }
 
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Label("QUALITY SETTINGS", "", true);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
 
                     Slider("Far Clip Plane Distance", auralayer.farClipPlaneDistance.value, 0.0f, 256.0f, "N2", farClipPlaneDistance => { auralayer.farClipPlaneDistance.value = farClipPlaneDistance; AuraManager.UpdateSettings(); },
                         auralayer.farClipPlaneDistance.overrideState, overrideState => { auralayer.farClipPlaneDistance.overrideState = overrideState; AuraManager.UpdateSettings(); });
@@ -1355,13 +1343,37 @@ namespace Graphics.Inspector
                             auralayer.EXPERIMENTAL_blurFilterGaussianDeviation.overrideState, overrideState => { auralayer.EXPERIMENTAL_blurFilterGaussianDeviation.overrideState = overrideState; AuraManager.UpdateSettings(); });
                     }
 
-                    GUILayout.Space(30);
+                    Lay.Space(30);
                     Label("DEBUG", "", true);
-                    GUILayout.Space(5);
+                    Lay.Space(5);
                     ToggleAlt("Display Volumetric Lighting Buffer", auralayer.displayVolumetricLightingBuffer.value, false, displayVolumetricLightingBuffer => { auralayer.displayVolumetricLightingBuffer.value = displayVolumetricLightingBuffer; AuraManager.UpdateSettings(); });
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
+        }
+
+        private static readonly string[] VolumetricResolutions = { "Full", "Half", "Quarter" };
+
+        /// <summary>The volumetric lights renderer; which lights scatter is set per light in the Lights tab.</summary>
+        private static void DrawVolumetricLights()
+        {
+            if (VolumetricLightManager.settings == null)
+                VolumetricLightManager.settings = new VolumetricLightSettings();
+            VolumetricLightSettings v = VolumetricLightManager.settings;
+
+            Lay.BeginVertical(SmallTab);
+            Switch("VOLUMETRIC LIGHTS", v.Enabled, true, enabled => { v.Enabled = enabled; VolumetricLightManager.UpdateSettings(); });
+            if (v.Enabled)
+            {
+                Lay.Space(30);
+                if (!VolumetricLightManager.AnyLightScatters())
+                    Warning("No light scatters yet: switch Volumetric Light on for a light in the Lights tab.");
+                Selection("Resolution", VolumetricResolutions[Mathf.Clamp(v.Resolution, 0, 2)], VolumetricResolutions,
+                    r => { v.Resolution = Array.IndexOf(VolumetricResolutions, r); VolumetricLightManager.UpdateSettings(); });
+                ToggleAlt("Bilateral Blur", v.BilateralBlur, false, on => { v.BilateralBlur = on; VolumetricLightManager.UpdateSettings(); });
+                ToggleAlt("Show Light Only", v.Visualize, false, on => { v.Visualize = on; VolumetricLightManager.UpdateSettings(); });
+            }
+            Lay.EndVertical();
         }
     }
 }

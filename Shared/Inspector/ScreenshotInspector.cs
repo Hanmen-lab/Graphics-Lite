@@ -1,3 +1,4 @@
+using Graphics.UI;
 using Graphics.Settings;
 using HarmonyLib;
 using KKAPI.Utilities;
@@ -17,40 +18,33 @@ namespace Graphics.Inspector
 
         private static int cachedFontSize = -1;
         private static int paddingL, paddingR;
-        private static GUIStyle TabContent;
+        private static Lay.Style TabContent;
 
         private static void UpdateCachedValues(GlobalSettings renderSettings)
         {
-            if (cachedFontSize == renderSettings.FontSize) return;
-
+            if (cachedFontSize == renderSettings.FontSize)
+                return;
             cachedFontSize = renderSettings.FontSize;
-
-            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2.9f);
-            paddingR = Mathf.RoundToInt(renderSettings.FontSize * 2.5f);
-
-            TabContent = new GUIStyle(GUIStyles.tabcontent)
-            {
-                padding = new RectOffset(paddingL, paddingR, paddingL, paddingL)
-            };
+            TabContent = Lay.Style.Card;
         }
 
         internal static void Draw(GlobalSettings renderingSettings)
         {
             UpdateCachedValues(renderingSettings);
-            settingstScrollView = GUILayout.BeginScrollView(settingstScrollView, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
-            GUILayout.BeginVertical(TabContent);
+            settingstScrollView = Lay.BeginScrollView(settingstScrollView, Lay.ExpandHeight(true), Lay.ExpandWidth(true));
+            Lay.BeginVertical(TabContent);
             {
                 TemporalScreenshotTool screenshotTool = TemporalScreenshotManager.TemporalScreenshotInstance
                     ?? Graphics.Instance.CameraSettings.MainCamera.GetOrAddComponent<TemporalScreenshotTool>();
 
                 Switch("ENABLE SCREENSHOT ENGINE", Graphics.ScreenshotOverride.Value, true, enabled => Graphics.ScreenshotOverride.Value = enabled);
 
-                GUI.enabled = Graphics.ScreenshotOverride.Value;
+                Im.Enabled = Graphics.ScreenshotOverride.Value;
 
-                GUILayout.Space(30);
+                Lay.Space(30);
                 Label("CAPTURE SETTINGS", "", true);
-                GUILayout.Space(10);
-                if (GUILayout.Button("Open Screenshot Manager"))
+                Lay.Space(10);
+                if (Lay.Button("Open Screenshot Manager"))
                 {
                     var screenshotManagerType = AccessTools.TypeByName("Screencap.ScreenshotManager");
                     var instance = screenshotManagerType != null ? GameObject.FindObjectOfType(screenshotManagerType) : null;
@@ -63,39 +57,39 @@ namespace Graphics.Inspector
                         plugin.Field("_uiRect").SetValue(currentRect);
                     }
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 Slider("Warmup Frames", screenshotTool.warmupFrames, 1, 60, frames => screenshotTool.warmupFrames = frames);
 
-                GUILayout.Space(30);
+                Lay.Space(30);
                 Label("QUALITY SETTINGS", "", true);
-                GUILayout.Space(10);
+                Lay.Space(10);
                 Selection("Shadow Cascades Override", Graphics.CustomShadowCascadesOverride.Value, cascades => Graphics.CustomShadowCascadesOverride.Value = cascades, 2);
                 Selection("Shadow Resolution Override", Graphics.CustomShadowResolutionOverride.Value, resolution => Graphics.CustomShadowResolutionOverride.Value = resolution);
                 if (Graphics.CustomShadowResolutionOverride.Value > Graphics.ShadowResolutionOverride._4096)
                 {
                     Warning("High shadow resolutions override can cause crash or slow rendering, especially in scenes with many realtime lights. Per-light shadow tuning is still recommended.");
-                    GUILayout.Space(10);
+                    Lay.Space(10);
                 }
-                GUILayout.Space(5);
+                Lay.Space(5);
                 ToggleWithText("Fullscreen SEGI", Graphics.ScreenshotFullScreenSEGI.Value, "Disable SEGI 'half resolution' while rendering screenshot.", false, value => Graphics.ScreenshotFullScreenSEGI.Value = value);
                 ToggleWithText("Fullscreen SSS", Graphics.ScreenshotFullScreenSSS.Value, "Set SSS 'Downscale factor' to 1.0 while rendering a screenshot.", false, value => Graphics.ScreenshotFullScreenSSS.Value = value);
                 ToggleWithText("Hi-Res Reflection Probes", Graphics.ScreenshotHiResReflectionProbes.Value, "Set max (2048) resolution for all realtime reflection probes while rendering screenshot.", false, value => Graphics.ScreenshotHiResReflectionProbes.Value = value);
                 ToggleWithText("Hi-Res SSR", Graphics.ScreenshotHiResSSR.Value, "Set highest resolution for legacy SSR while rendering screenshot.", false, value => Graphics.ScreenshotHiResSSR.Value = value);
-                GUI.enabled = Graphics.Instance.PostProcessingSettings.AntialiasingMode == PostProcessingSettings.Antialiasing.CTAA;
+                Im.Enabled = Graphics.Instance.PostProcessingSettings.AntialiasingMode == PostProcessingSettings.Antialiasing.CTAA;
                 ToggleWithText("CTAA Supersampling", Graphics.ScreenshotCTAASupersampling.Value, "Auto set supersampling mode to CINA_ULTRA while rendering screenshot (F11).", false, value => Graphics.ScreenshotCTAASupersampling.Value = value);
-                GUI.enabled = true;
-                GUI.enabled = TemporalScreenshotManager.Hooks.AlphaEnabled();
+                Im.Enabled = true;
+                Im.Enabled = TemporalScreenshotManager.Hooks.AlphaEnabled();
                 ToggleWithText("Enable alpha MSAA", Graphics.ScreenshotAlphaMaskMSAA.Value, "Enables MSAA x2 on alpha channel, generating better transparent edges.", false, value => Graphics.ScreenshotAlphaMaskMSAA.Value = value);
-                GUI.enabled = true;
+                Im.Enabled = true;
 
-                GUILayout.Space(30);
+                Lay.Space(30);
                 Label("INFO", "New Screenshot Engine aims to create highest quality renders and allows modern anti-aliasing techniques like CTAA and FSR3 in custom resolutions.", true);
-                GUILayout.Space(10);
+                Lay.Space(10);
                 Label("Transparent Screenshot works!", "You can enable it in Screenshot Manager. For a correct mask, use compatible shaders like Hanmen/Clothing, Next-Gen Body/Face, and Hair shaders.", false);
-                GUI.enabled = true;
+                Im.Enabled = true;
             }
-            GUILayout.EndVertical();
-            GUILayout.EndScrollView();
+            Lay.EndVertical();
+            Lay.EndScrollView();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Graphics.Settings;
+using Graphics.UI;
 using KKAPI.Studio;
 using System;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace Graphics.Inspector
         private static int cachedFontSize = -1;
         private static int cachedWindowWidth = -1;
         private static int paddingL, paddingT, floorsize, labelspace;
-        private static GUIStyle Tab, TabContent, LightList, LightButton, LightListBox;
+        private static Lay.Style Tab, TabContent, LightList, LightButton, LightListBox;
         private static float lightbox, lightbuttonwidth;
 
         static void UpdateCachedValues(GlobalSettings renderSettings)
@@ -32,34 +33,13 @@ namespace Graphics.Inspector
             paddingT = Mathf.RoundToInt(renderSettings.FontSize * 1.5f);
             floorsize = Mathf.RoundToInt(renderSettings.FontSize);
             lightbox = Inspector.Height * 0.25f;
-            lightbuttonwidth = (Inspector.Width - GUIStyles.toolbarWidth) * 0.32f;
+            lightbuttonwidth = Mathf.Clamp(LiteWindow.ContentWidth * 0.34f, 170f, 230f);
 
-            Tab = new GUIStyle(GUIStyles.tabcontent);
-            Tab.padding = new RectOffset(paddingL, paddingL, paddingT, paddingT);
-            Tab.margin = new RectOffset(0, 0, 0, 5);
-            Tab.normal.background = null;
-
-            LightList = new GUIStyle(GUIStyles.tabsmall);
-            LightList.margin = new RectOffset(0, 0, 0, floorsize);
-            LightList.padding = new RectOffset(floorsize, floorsize, floorsize, 4);
-
-            LightButton = new GUIStyle(GUIStyles.tabsmall);
-            LightButton.margin = new RectOffset(0, 0, 0, 0);
-            LightButton.padding = new RectOffset(0, 0, 0, 0);
-
-            LightButton.fixedWidth = lightbuttonwidth;
-            LightButton.fixedHeight = lightbox;
-
-            LightListBox = new GUIStyle(GUIStyles.tabcontent);
-            LightListBox.margin = new RectOffset(0, 0, 0, 0);
-            LightListBox.padding = new RectOffset(0, 0, paddingT, 0);
-            LightListBox.normal.background = null;
-            LightListBox.fixedWidth = lightbuttonwidth;
-            //LightListBox.fixedHeight = 400;
-
-            TabContent = new GUIStyle(GUIStyles.tabcontent);
-            TabContent.padding = new RectOffset(0, 0, 0, 0);
-            TabContent.margin = new RectOffset(0, 0, 0, 0);
+            Tab = Lay.Style.Card;
+            LightList = Lay.Style.Plain;
+            LightButton = Lay.Style.Card;
+            LightListBox = Lay.Style.Fixed(lightbuttonwidth, false);
+            TabContent = Lay.Style.Plain;
 
             labelspace = Mathf.RoundToInt(renderSettings.FontSize * 1.8f);
         }
@@ -71,51 +51,51 @@ namespace Graphics.Inspector
 
             lightToDestroy = null;
 
-            GUILayout.BeginVertical(TabContent);
+            Lay.BeginVertical(TabContent);
             {
 
-                GUILayout.BeginHorizontal();
+                Lay.BeginHorizontal();
                 {
                     if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Studio)
                     {
-                        if (GUILayout.Button("Save Map Lights to Preset"))
+                        if (Lay.Button("Save Map Lights to Preset"))
                         {
                             Graphics.Instance.PresetManager.SaveMapLights(false);
                         }
-                        if (GUILayout.Button("Load Map Lights Preset"))
+                        if (Lay.Button("Load Map Lights Preset"))
                         {
                             Graphics.Instance.PresetManager.LoadMapLights(false);
                         }
-                        if (GUILayout.Button("Reset Map Lights"))
+                        if (Lay.Button("Reset Map Lights"))
                         {
                             Graphics.Instance.PresetManager.LoadMapLightsDefault(false);
                         }
                     }
                 }
-                GUILayout.EndHorizontal();
-                GUILayout.BeginHorizontal();
+                Lay.EndHorizontal();
+                Lay.BeginHorizontal();
                 {
-                    GUILayout.BeginVertical(LightListBox);
+                    Lay.BeginVertical(LightListBox);
                     {
-                        GUILayout.Space(15);
+                        Lay.Space(15);
                         Label("  DIRECTIONAL", "", true);
-                        GUILayout.Space(15);
+                        Lay.Space(15);
                         if (0 < lightManager.DirectionalLights.Count)
                         {
-                            GUILayout.BeginVertical(LightButton);
+                            Lay.BeginVertical(LightButton);
                             {
-                                GUILayout.BeginVertical(LightList);
+                                Lay.BeginVertical(LightList);
                                 {
-                                    dirLightScrollView = GUILayout.BeginScrollView(dirLightScrollView);
+                                    dirLightScrollView = Lay.BeginScrollView(dirLightScrollView, Lay.MaxHeight(lightbox));
                                     lightManager.DirectionalLights.ForEach(l => LightOverviewModule(lightManager, l));
-                                    //GUILayout.Space(200);
-                                    GUILayout.EndScrollView();
+                                    //Lay.Space(200);
+                                    Lay.EndScrollView();
                                 }
-                                GUILayout.EndVertical();
+                                Lay.EndVertical();
                                 if (3 < lightManager.DirectionalLights.Count)
                                 {
-                                    GUILayout.BeginHorizontal();
-                                    if (GUILayout.Button("All ON"))
+                                    Lay.BeginHorizontal();
+                                    if (Lay.Button("All ON"))
                                     {
                                         switch (LightSettings.LightType.Directional)
                                         {
@@ -125,7 +105,7 @@ namespace Graphics.Inspector
 
                                         }
                                     }
-                                    if (GUILayout.Button("All OFF"))
+                                    if (Lay.Button("All OFF"))
                                     {
                                         switch (LightSettings.LightType.Directional)
                                         {
@@ -135,12 +115,12 @@ namespace Graphics.Inspector
 
                                         }
                                     }
-                                    GUILayout.EndHorizontal();
+                                    Lay.EndHorizontal();
                                 }
 
                                 if (Graphics.Instance.IsStudio())
                                 {
-                                    if (GUILayout.Button(" + "))
+                                    if (Lay.Button(" + "))
                                     {
                                         Singleton<Studio.Studio>.Instance.AddLight((int)LightSettings.LightType.Directional);
                                         lightManager.Light();
@@ -149,7 +129,7 @@ namespace Graphics.Inspector
                                 //add custom directional lights in maker
                                 else/* if (LightSettings.LightType.Directional == LightSettings.LightType.Directional)*/
                                 {
-                                    if (GUILayout.Button(" + "))
+                                    if (Lay.Button(" + "))
                                     {
                                         customLightIndex += 1;
                                         GameObject lightGameObject = new GameObject("(Graphics) Directional Light " + customLightIndex);
@@ -159,26 +139,26 @@ namespace Graphics.Inspector
                                     }
                                 }
                             }
-                            GUILayout.EndVertical();
+                            Lay.EndVertical();
                         }
-                        GUILayout.Space(15);
+                        Lay.Space(15);
                         Label("  POINT LIGHTS", "", true);
-                        GUILayout.Space(15);
-                        GUILayout.BeginVertical(LightButton);
+                        Lay.Space(15);
+                        Lay.BeginVertical(LightButton);
                         {
-                            GUILayout.BeginVertical(LightList);
+                            Lay.BeginVertical(LightList);
                             {
-                                pointLightScrollView = GUILayout.BeginScrollView(pointLightScrollView);
+                                pointLightScrollView = Lay.BeginScrollView(pointLightScrollView, Lay.MaxHeight(lightbox));
                                 lightManager.PointLights.ForEach(l => LightOverviewModule(lightManager, l));
-                                //GUILayout.Space(200);
-                                GUILayout.EndScrollView();
+                                //Lay.Space(200);
+                                Lay.EndScrollView();
                             }
-                            GUILayout.EndVertical();
+                            Lay.EndVertical();
 
                             if (1 < lightManager.PointLights.Count)
                             {
-                                GUILayout.BeginHorizontal();
-                                if (GUILayout.Button("All ON"))
+                                Lay.BeginHorizontal();
+                                if (Lay.Button("All ON"))
                                 {
                                     switch (LightSettings.LightType.Point)
                                     {
@@ -188,7 +168,7 @@ namespace Graphics.Inspector
 
                                     }
                                 }
-                                if (GUILayout.Button("All OFF"))
+                                if (Lay.Button("All OFF"))
                                 {
                                     switch (LightSettings.LightType.Point)
                                     {
@@ -198,37 +178,37 @@ namespace Graphics.Inspector
 
                                     }
                                 }
-                                GUILayout.EndHorizontal();
+                                Lay.EndHorizontal();
                             }
 
                             if (Graphics.Instance.IsStudio())
                             {
-                                if (GUILayout.Button(" + "))
+                                if (Lay.Button(" + "))
                                 {
                                     Singleton<Studio.Studio>.Instance.AddLight((int)LightSettings.LightType.Point);
                                     lightManager.Light();
                                 }
                             }
                         }
-                        GUILayout.EndVertical();
-                        GUILayout.Space(15);
+                        Lay.EndVertical();
+                        Lay.Space(15);
                         Label("  SPOT LIGHTS", "", true);
-                        GUILayout.Space(15);
-                        GUILayout.BeginVertical(LightButton);
+                        Lay.Space(15);
+                        Lay.BeginVertical(LightButton);
                         {
-                            GUILayout.BeginVertical(LightList);
+                            Lay.BeginVertical(LightList);
                             {
-                                spotLightScrollView = GUILayout.BeginScrollView(spotLightScrollView);
+                                spotLightScrollView = Lay.BeginScrollView(spotLightScrollView, Lay.MaxHeight(lightbox));
                                 lightManager.SpotLights.ForEach(l => LightOverviewModule(lightManager, l));
-                                //GUILayout.Space(200);
-                                GUILayout.EndScrollView();
+                                //Lay.Space(200);
+                                Lay.EndScrollView();
                             }
-                            GUILayout.EndVertical();
+                            Lay.EndVertical();
 
                             if (1 < lightManager.SpotLights.Count)
                             {
-                                GUILayout.BeginHorizontal();
-                                if (GUILayout.Button("All ON"))
+                                Lay.BeginHorizontal();
+                                if (Lay.Button("All ON"))
                                 {
                                     switch (LightSettings.LightType.Spot)
                                     {
@@ -238,7 +218,7 @@ namespace Graphics.Inspector
 
                                     }
                                 }
-                                if (GUILayout.Button("All OFF"))
+                                if (Lay.Button("All OFF"))
                                 {
                                     switch (LightSettings.LightType.Spot)
                                     {
@@ -248,24 +228,24 @@ namespace Graphics.Inspector
 
                                     }
                                 }
-                                GUILayout.EndHorizontal();
+                                Lay.EndHorizontal();
                             }
 
                             if (Graphics.Instance.IsStudio())
                             {
-                                if (GUILayout.Button(" + "))
+                                if (Lay.Button(" + "))
                                 {
                                     Singleton<Studio.Studio>.Instance.AddLight((int)LightSettings.LightType.Spot);
                                     lightManager.Light();
                                 }
                             }
                         }
-                        GUILayout.EndVertical();
-                        GUILayout.FlexibleSpace();
+                        Lay.EndVertical();
+                        Lay.FlexibleSpace();
                     }
-                    GUILayout.EndVertical();
-                    inspectorScrollView = GUILayout.BeginScrollView(inspectorScrollView);
-                    GUILayout.BeginVertical();
+                    Lay.EndVertical();
+                    inspectorScrollView = Lay.BeginScrollView(inspectorScrollView);
+                    Lay.BeginVertical();
                     {
 
                         if (null != lightManager.SelectedLight)
@@ -274,20 +254,20 @@ namespace Graphics.Inspector
                         }
                         else
                         {
-                            GUILayout.BeginVertical(Tab);
+                            Lay.BeginVertical(Tab);
                             {
                                 Label("Select a light source on the left panel.", "");
                             }
-                            GUILayout.EndVertical();
+                            Lay.EndVertical();
                         }
-                        GUILayout.FlexibleSpace();
+                        Lay.FlexibleSpace();
                     }
-                    GUILayout.EndVertical();
-                    GUILayout.EndScrollView();
+                    Lay.EndVertical();
+                    Lay.EndScrollView();
                 }
-                GUILayout.EndHorizontal();
+                Lay.EndHorizontal();
             }
-            GUILayout.EndVertical();
+            Lay.EndVertical();
 
             if (lightToDestroy != null)
             {
@@ -331,18 +311,8 @@ namespace Graphics.Inspector
         }
         private static void DrawLightSettings(LightManager lightManager, GlobalSettings renderingSettings)
         {
-            GUIStyle TabHeader = new GUIStyle(GUIStyles.tabcontent);
-            TabHeader.padding = new RectOffset(Mathf.RoundToInt(renderingSettings.FontSize * 2f), Mathf.RoundToInt(renderingSettings.FontSize * 2f), 0, 0);
-            TabHeader.margin = new RectOffset(0, 0, Mathf.RoundToInt(renderingSettings.FontSize * 2f), 0);
-            TabHeader.normal.background = null;
-            TabHeader.fixedHeight = 61;
-            //TabHeader.fixedWidth = 200;
-
-
-            GUIStyle Tab = new GUIStyle(GUIStyles.tabcontent);
-            Tab.padding = new RectOffset(Mathf.RoundToInt(renderingSettings.FontSize * 2f), Mathf.RoundToInt(renderingSettings.FontSize * 2f), Mathf.RoundToInt(renderingSettings.FontSize * 1.5f), Mathf.RoundToInt(renderingSettings.FontSize * 1.5f));
-            Tab.margin = new RectOffset(0, 0, 0, 5);
-            Tab.normal.background = null;
+            Lay.Style TabHeader = Lay.Style.Card;
+            Lay.Style Tab = Lay.Style.Card;
 
             if (lightManager.SelectedLight.Enabled)
             {
@@ -358,9 +328,9 @@ namespace Graphics.Inspector
                 if (Graphics.Instance.IsStudio())
                 {
                     string currentAliasedName = PerLightSettings.NameForLight(lightManager.SelectedLight.Light);
-                    //GUILayout.Space(10);
+                    //Lay.Space(10);
 
-                    GUILayout.BeginHorizontal(TabHeader, GUILayout.ExpandWidth(false));
+                    Lay.BeginHorizontal(TabHeader, Lay.ExpandWidth(false));
                     {
                         Text("LIGHT NAME", currentAliasedName, lightName =>
                         {
@@ -369,17 +339,17 @@ namespace Graphics.Inspector
                         },
                         !lightManager.SelectedLight.Light.transform.IsChildOf(GameObject.Find("StudioScene/Camera").transform));
                     }
-                    GUILayout.EndHorizontal();
+                    Lay.EndHorizontal();
                 }
                 else
                 {
-                    GUILayout.BeginHorizontal(Tab);
+                    Lay.BeginHorizontal(Tab);
                     Label(lightManager.SelectedLight.Light.name, "", true);
 
-                    GUILayout.EndHorizontal();
+                    Lay.EndHorizontal();
                 }
 
-                GUILayout.BeginVertical(Tab);
+                Lay.BeginVertical(Tab);
                 //------------------------------PutlogicHere
                 switch (lightManager.SelectedLight.Type)
                 {
@@ -393,19 +363,19 @@ namespace Graphics.Inspector
                         DrawSpotLightSettings(lightManager, /*alloyLight,*/ renderingSettings, customShadowResolutionHandler);
                         break;
                     default:
-                        GUILayout.Label("Unknown light type");
+                        Lay.Label("Unknown light type");
                         break;
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
             else
             {
 
-                GUILayout.BeginVertical(Tab);
+                Lay.BeginVertical(Tab);
                 {
                     Label("Selected light is disabled.", "");
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
         }
 
@@ -422,6 +392,8 @@ namespace Graphics.Inspector
             DrawDirShadowsSettings(lightManager, customShadowResolutionHandler);
             //Layers
             DrawLayersSettings(lightManager);
+            //Volumetric
+            DrawVolumetricSettings(lightManager);
             //Alloy
             //DrawAlloySettings(lightManager, alloyLight);
         }
@@ -438,6 +410,8 @@ namespace Graphics.Inspector
             DrawCookieSettings(lightManager);
             //Layers
             DrawLayersSettings(lightManager);
+            //Volumetric
+            DrawVolumetricSettings(lightManager);
             //Alloy
             //DrawAlloySettings(lightManager, alloyLight);
 
@@ -453,6 +427,8 @@ namespace Graphics.Inspector
             DrawLocalShadowsSettings(lightManager, customShadowResolutionHandler);
             //Layers
             DrawLayersSettings(lightManager);
+            //Volumetric
+            DrawVolumetricSettings(lightManager);
             //Alloy
             //DrawAlloySettings(lightManager, alloyLight);
         }
@@ -460,23 +436,23 @@ namespace Graphics.Inspector
         private static void DrawBasicSettings(LightManager lightManager, GlobalSettings renderingSettings)
         {
             //Label("COLOR", "", true);
-            //GUILayout.Space(10);
+            //Lay.Space(10);
             SliderColorVertical("Light Color", lightManager.SelectedLight.Color, c => lightManager.SelectedLight.Color = c);
-            //GUILayout.Space(20);
+            //Lay.Space(20);
             //Label("INTENSITY", "", true);
-            GUILayout.Space(10);
+            Lay.Space(10);
             SliderCompact("Intensity", lightManager.SelectedLight.Intensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N2", i => lightManager.SelectedLight.Intensity = i);
             //SliderCompact("Indirect Multiplier", lightManager.SelectedLight.Light.bounceIntensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N0", bi => lightManager.SelectedLight.Light.bounceIntensity = bi);
             ToggleAlt("Linear Intensity", renderingSettings.LightsUseLinearIntensity, false, useLinear => renderingSettings.LightsUseLinearIntensity = useLinear);
-            GUILayout.Space(10);
+            Lay.Space(10);
             SliderCompact("Indirect Multiplier", lightManager.SelectedLight.Light.bounceIntensity, LightSettings.IntensityMin, LightSettings.IntensityMax, "N0", bi => lightManager.SelectedLight.Light.bounceIntensity = bi);
         }
         private static void DrawSunSettings(LightManager lightManager)
         {
             bool isSun = ReferenceEquals(lightManager.SelectedLight.Light, RenderSettings.sun);
-            GUILayout.Space(labelspace);
+            Lay.Space(labelspace);
             Label("SUN", "", true);
-            GUILayout.Space(10);
+            Lay.Space(10);
             ToggleAlt("Sun Source", isSun, false, suns =>
             {
                 if (suns)
@@ -494,7 +470,7 @@ namespace Graphics.Inspector
         {
             if (!lightManager.SelectedLight.IsNotAdditionalCamAvailable)
             {
-                GUILayout.Space(labelspace);
+                Lay.Space(labelspace);
                 Toggle("Additional Cam Light", lightManager.SelectedLight.AdditionalCamLight, false, addCamLight => lightManager.SelectedLight.AdditionalCamLight = addCamLight);
             }
         }
@@ -505,9 +481,9 @@ namespace Graphics.Inspector
                 if (!lightManager.SelectedLight.AdditionalCamLight)
                 {
                     Vector3 rot = lightManager.SelectedLight.Rotation;
-                    GUILayout.Space(labelspace);
+                    Lay.Space(labelspace);
                     Label("POSITION", "", true);
-                    GUILayout.Space(10);
+                    Lay.Space(10);
                     SliderCompact("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
                     SliderCompact("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
 
@@ -522,9 +498,9 @@ namespace Graphics.Inspector
                     {
                         GraphicsAdditionalCamLight graphicsAdditionalCamLight = lightManager.SelectedLight.Light.gameObject.GetComponent<GraphicsAdditionalCamLight>();
                         Vector3 rot = graphicsAdditionalCamLight.OriginalRotation.eulerAngles;
-                        GUILayout.Space(labelspace);
+                        Lay.Space(labelspace);
                         Label("POSITION", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         SliderCompact("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
                         SliderCompact("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
 
@@ -536,9 +512,9 @@ namespace Graphics.Inspector
                     else
                     {
                         Vector3 rot = lightManager.SelectedLight.OciLight.guideObject.changeAmount.rot;
-                        GUILayout.Space(labelspace);
+                        Lay.Space(labelspace);
                         Label("POSITION", "", true);
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         SliderCompact("Vertical Rotation", rot.x, LightSettings.RotationXMin, LightSettings.RotationXMax, "N1", x => { rot.x = x; });
                         SliderCompact("Horizontal Rotation", rot.y, LightSettings.RotationYMin, LightSettings.RotationYMax, "N1", y => { rot.y = y; });
 
@@ -552,12 +528,12 @@ namespace Graphics.Inspector
         }
         private static void DrawPointControls(LightManager lightManager)
         {
-            GUILayout.Space(labelspace);
+            Lay.Space(labelspace);
             SliderCompact("Light Range", lightManager.SelectedLight.Range, 0.1f, 500f, "N1", range => { lightManager.SelectedLight.Range = range; });
         }
         private static void DrawSpotControls(LightManager lightManager)
         {
-            GUILayout.Space(labelspace);
+            Lay.Space(labelspace);
             SliderCompact("Light Range", lightManager.SelectedLight.Range, 0.1f, 500f, "N1", range => { lightManager.SelectedLight.Range = range; });
             SliderCompact("Spot Angle", lightManager.SelectedLight.SpotAngle, 1f, 179f, "N1", angle => { lightManager.SelectedLight.SpotAngle = angle; });
             if (lightManager.SelectedLight.SpotAngle > 90f)
@@ -566,37 +542,37 @@ namespace Graphics.Inspector
 
         //private static void DrawAlloySettings(LightManager lightManager, AlloyAreaLight alloyLight)
         //{
-        //    //GUI.enabled = false;
+        //    //Im.Enabled = false;
 
-        //    GUILayout.Space(20);
+        //    Lay.Space(20);
         //    Label("SPECULARITY", "", true);
-        //    GUILayout.Space(10);
+        //    Lay.Space(10);
         //    ToggleAlt("Use Alloy Light", lightManager.UseAlloyLight, false, useAlloy => lightManager.UseAlloyLight = useAlloy);
-        //    GUILayout.Space(10);
+        //    Lay.Space(10);
         //    if (lightManager.UseAlloyLight && null != alloyLight)
         //    {
         //        ToggleAlt("Specular Highlight", alloyLight.HasSpecularHighlight, false, highlight => alloyLight.HasSpecularHighlight = highlight);
         //        if (alloyLight.HasSpecularHighlight)
         //        {
-        //            GUILayout.Space(10);
+        //            Lay.Space(10);
         //            SliderCompact("Specular Size", alloyLight.Radius, 0f, 1f, "N2", i => alloyLight.Radius = i);
 
         //            if (lightManager.SelectedLight.Type == LightType.Point)
         //            {
-        //                GUILayout.Space(10);
+        //                Lay.Space(10);
         //                SliderCompact("Length", alloyLight.Length, 0f, 1f, "N2", i => alloyLight.Length = i);
         //            }
         //        }
         //    }
-        //    //GUI.enabled = true;
+        //    //Im.Enabled = true;
         //}
 
         private static void DrawDirShadowsSettings(LightManager lightManager, CustomShadowResolutionHandler customShadowResolutionHandler)
         {
 
-                GUILayout.Space(labelspace);
+                Lay.Space(labelspace);
                 Label("SHADOWS", "", true);
-                GUILayout.Space(10);
+                Lay.Space(10);
 
             SelectionVertical("Shadow Type", lightManager.SelectedLight.Shadows, type => lightManager.SelectedLight.Shadows = type);
             if (lightManager.SelectedLight.Shadows == LightShadows.Soft)
@@ -616,9 +592,9 @@ namespace Graphics.Inspector
         }
         private static void DrawLocalShadowsSettings(LightManager lightManager, CustomShadowResolutionHandler customShadowResolutionHandler)
         {
-                GUILayout.Space(labelspace);
+                Lay.Space(labelspace);
                 Label("SHADOWS", "", true);
-                GUILayout.Space(10);
+                Lay.Space(10);
 
             SelectionVertical("Shadow Type", lightManager.SelectedLight.Shadows, type => lightManager.SelectedLight.Shadows = type);
             if (lightManager.SelectedLight.Shadows == LightShadows.Soft)
@@ -638,21 +614,64 @@ namespace Graphics.Inspector
             }
         }
 
+        /// <summary>This light's light in the air: the volumetric lights renderer draws the ones that scatter.</summary>
+        private static void DrawVolumetricSettings(LightManager lightManager)
+        {
+            Light light = lightManager.SelectedLight.Light;
+            VolumetricLights.VolumetricLight v = VolumetricLightManager.For(light, false);
+            bool on = v != null && v.enabled;
+
+            Lay.Space(labelspace);
+            Label("VOLUMETRIC", "", true);
+            ToggleAlt("Volumetric Light", on, false, enabled =>
+            {
+                VolumetricLights.VolumetricLight vl = VolumetricLightManager.For(light, enabled);
+                if (vl != null)
+                    vl.enabled = enabled;
+                VolumetricLightManager.Rearm();
+            });
+            if (!on)
+                return;
+            if (VolumetricLightManager.settings == null || !VolumetricLightManager.settings.Enabled)
+                WarningCompact("Volumetric Lights is off: switch it on in Post Processing > Volumetric Lights.");
+
+            SliderCompact("Samples", v.SampleCount, 1, 32, x => v.SampleCount = x);
+            SliderCompact("Scattering", v.ScatteringCoef, 0f, 3f, "N2", x => v.ScatteringCoef = x);
+            SliderCompact("Extinction", v.ExtinctionCoef, 0f, 0.1f, "N3", x => v.ExtinctionCoef = x);
+            SliderCompact("Anisotropy", v.MieG, 0f, 0.999f, "N3", x => v.MieG = x);
+            ToggleAlt("Height Fog", v.HeightFog, false, x => v.HeightFog = x);
+            if (v.HeightFog)
+            {
+                SliderCompact("Height Scale", v.HeightScale, 0f, 0.5f, "N2", x => v.HeightScale = x);
+                SliderCompact("Ground Level", v.GroundLevel, -100f, 100f, "N1", x => v.GroundLevel = x);
+            }
+            ToggleAlt("Noise", v.Noise, false, x => v.Noise = x);
+            if (v.Noise)
+            {
+                SliderCompact("Noise Scale", v.NoiseScale, 0f, 0.2f, "N3", x => v.NoiseScale = x);
+                SliderCompact("Noise Intensity", v.NoiseIntensity, 0f, 1f, "N2", x => v.NoiseIntensity = x);
+                SliderCompact("Noise Offset", v.NoiseIntensityOffset, 0f, 1f, "N2", x => v.NoiseIntensityOffset = x);
+                Dimension("Noise Velocity", v.NoiseVelocity, x => v.NoiseVelocity = x);
+            }
+            SliderCompact("Sky Extinction", v.SkyboxExtinctionCoef, 0f, 1f, "N2", x => v.SkyboxExtinctionCoef = x);
+            SliderCompact("Max Ray Length", v.MaxRayLength, 0f, 1000f, "N0", x => v.MaxRayLength = x);
+        }
+
         private static void DrawLayersSettings(LightManager lightManager)
         {
-            GUILayout.Space(labelspace);
+            Lay.Space(labelspace);
             Label("LAYERS", "", true);
-            GUILayout.Space(10);
+            Lay.Space(10);
             SelectionMaskVertical("Culling Mask", lightManager.SelectedLight.Light.cullingMask, mask => lightManager.SelectedLight.Light.cullingMask = mask, 2);
-            GUILayout.Space(10);
+            Lay.Space(10);
             SelectionVertical("Render Mode", lightManager.SelectedLight.Light.renderMode, mode => lightManager.SelectedLight.Light.renderMode = mode, 3);
         }
 
         private static void DrawCookieSettings(LightManager lightManager)
         {
-            GUILayout.Space(labelspace);
+            Lay.Space(labelspace);
             Label("COOKIE", "", true);
-            GUILayout.Space(10);
+            Lay.Space(10);
 
             CookieTextureManager cookieTextureManager = lightManager.SelectedLight.Light.GetComponent<CookieTextureManager>();
             if (cookieTextureManager == null)
@@ -663,7 +682,7 @@ namespace Graphics.Inspector
 
             ToggleAlt("Enable Cookie Texture", cookieTextureManager.enabled, false, isCookieEnabled => cookieTextureManager.enabled = isCookieEnabled);
 
-            GUILayout.Space(5);
+            Lay.Space(5);
             if (cookieTextureManager.enabled)
             {
                 if (!CookieTextureManager.IsManagerReady())
@@ -673,7 +692,7 @@ namespace Graphics.Inspector
                 }
 
                 Label("Cookie Texture: " + cookieTextureManager.cookiename, "", false);
-                GUILayout.Space(5);
+                Lay.Space(5);
                 DrawTextureGrid(
                     cookieTextureManager.SPOTCookieNames,
                     cookieTextureManager._spotCookieManager.Textures.ToArray(),
@@ -698,24 +717,22 @@ namespace Graphics.Inspector
                 lightManager.Light();
                 return;
             }
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(5);
+            Lay.BeginHorizontal();
 
             if (LightButton(PerLightSettings.NameForLight(l.Light), ReferenceEquals(l, lightManager.SelectedLight), true))
             {
                 lightManager.SelectedLight = l;
             }
-            GUILayout.FlexibleSpace();
-            l.Enabled = ToggleButton(l.Enabled ? " ON" : "OFF", l.Enabled, true);
+            l.Enabled = Lay.Toggle(l.Enabled, l.Enabled ? "ON" : "OFF", "Button", Lay.Width(38));
             if (!KKAPI.Studio.StudioAPI.InsideStudio && l.Light.name.StartsWith("(Graphics)"))
             {
-                if (GUILayout.Button("-"))
+                if (Lay.Button("-", Lay.Width(24)))
                 {
                     lightToDestroy = l.Light.gameObject;
                 }
             }
 
-            GUILayout.EndHorizontal();
+            Lay.EndHorizontal();
         }
         public static void OnLightNameChanged(string newLightName, LightManager lightManager)
         {
@@ -736,15 +753,7 @@ namespace Graphics.Inspector
 
         private static void DrawTexturePreview(Texture texture, float size = 64f)
         {
-            if (texture != null)
-            {
-                Rect rect = GUILayoutUtility.GetRect(size, size, GUILayout.ExpandWidth(false));
-                GUI.DrawTexture(rect, texture, ScaleMode.ScaleToFit);
-            }
-            else
-            {
-                GUILayout.Box(GUIContent.none, GUILayout.Width(size), GUILayout.Height(size));
-            }
+            Lay.Image(texture, size);
         }
     }
 }

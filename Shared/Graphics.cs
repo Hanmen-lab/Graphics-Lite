@@ -108,6 +108,8 @@ namespace Graphics
         private CTAAManager _ctaaManager;
         private FSR3Manager _fsr3Manager;
         private SSSManager _sssManager;
+        private HSSSSManager _hssssManager;
+        private VolumetricLightManager _volumetricLightManager;
         private SEGIManager _segiManager;
         private GlobalFogManager _globalfogManager;
         private LuxWater_UnderWaterRenderingManager _underwaterManager;
@@ -130,6 +132,7 @@ namespace Graphics
 #endif
         private TemporalScreenshotManager _temporalScreenshotManager;
         private Inspector.Inspector _inspector;
+        private UI.LiteWindow _window;
         private HoohSmartphoneScanner smartphoneScanner;
 
         //DOFToggle
@@ -166,7 +169,6 @@ namespace Graphics
             ConfigLocalizationPath = Config.Bind("Folders Config", "Localization path", rootFolder + @"\BepInEx\plugins\Graphics\Resources\", new ConfigDescription("Where localizations are stored"));
             ConfigLanguage = Config.Bind("UI", "Language", LocalizationManager.DefaultLanguage(), new ConfigDescription("Default Language"));
             ConfigFontSize = Config.Bind("UI", "Font Size", 12, new ConfigDescription("Font Size"));
-            GUIStyles.FontSize = ConfigFontSize.Value;
             ConfigWindowWidth = Config.Bind("UI", "Window Width", 750, new ConfigDescription("Window Width"));
             Inspector.Inspector.Width = ConfigWindowWidth.Value;
             ConfigWindowHeight = Config.Bind("UI", "Window Height", 1024, new ConfigDescription("Window Height"));
@@ -278,6 +280,12 @@ namespace Graphics
             _sssManager.Initialize();
             SSSMirrorHooks.InitializeMirrorHooks();
 
+            _hssssManager = new HSSSSManager();
+            _hssssManager.Initialize();
+
+            _volumetricLightManager = new VolumetricLightManager();
+            _volumetricLightManager.Initialize();
+
             _segiManager = new SEGIManager();
             _segiManager.Initialize();
 
@@ -357,6 +365,9 @@ namespace Graphics
             yield return new WaitUntil(LoadAssets);
 
             _inspector = new Inspector.Inspector(this);
+            _window = gameObject.AddComponent<UI.LiteWindow>();
+            _window.Init(this, _inspector);
+            _window.Visible = _showGUI;
             _isLoaded = true;
             float _fov = CameraSettings.MainCamera.fieldOfView; // Grab initial FOV before we override in the preset
             _presetManager.LoadDefaultForCurrentGameMode();
@@ -395,17 +406,6 @@ namespace Graphics
 
         internal void OnGUI()
         {
-            if (Show)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-
-                GUISkin originalSkin = GUI.skin;
-                GUI.skin = GUIStyles.Skin;
-                _inspector.DrawWindow();
-                GUI.skin = originalSkin;
-            }
-
             if (Event.current?.type == EventType.KeyDown && ConfigShortcut.Value == Event.current?.keyCode)
             {
                 ToggleGUI();
@@ -640,6 +640,8 @@ namespace Graphics
                     }
 
                     _showGUI = value;
+                    if (_window != null)
+                        _window.Visible = value;
                 }
             }
         }

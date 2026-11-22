@@ -1,4 +1,5 @@
 ﻿using Graphics.GTAO;
+using Graphics.UI;
 using Graphics.SEGI;
 using Graphics.Settings;
 using UnityEngine;
@@ -16,22 +17,20 @@ namespace Graphics.Inspector
 
         private static int cachedFontSize = -1;
         private static int paddingL;
-        private static GUIStyle TabContent;
+        private static Lay.Style TabContent;
 
         static void UpdateCachedValues(GlobalSettings renderSettings)
         {
-            if (cachedFontSize == renderSettings.FontSize) return;
-
+            if (cachedFontSize == renderSettings.FontSize)
+                return;
             cachedFontSize = renderSettings.FontSize;
-
-            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2f);
-
-            TabContent = new GUIStyle(GUIStyles.tabcontent);
-            TabContent.padding = new RectOffset(paddingL, paddingL, paddingL, 3);
-
+            TabContent = Lay.Style.Card;
         }
         private static void OnRenderingPathChanged()
         {
+            // HSSSS runs in Deferred only: it follows the rendering path.
+            HSSSSManager.UpdateSettings();
+
             GTAOSettings gtaoSettings = GTAOManager.settings;
             SEGISettings segiSettings = SEGIManager.settings;
 
@@ -57,23 +56,23 @@ namespace Graphics.Inspector
         {
             UpdateCachedValues(renderingSettings);
 
-            settingstScrollView = GUILayout.BeginScrollView(settingstScrollView);
-            GUILayout.BeginVertical(TabContent);
+            settingstScrollView = Lay.BeginScrollView(settingstScrollView);
+            Lay.BeginVertical(TabContent);
             {
                 Label("VERSION:", Graphics.Version, true);
-                GUILayout.Space(10);
+                Lay.Space(10);
                 Toggle("Show Advanced Settings", renderingSettings.ShowAdvancedSettings, false, advanced => renderingSettings.ShowAdvancedSettings = advanced);
-                GUILayout.Space(25);
-                //GUILayout.Space(25);
+                Lay.Space(25);
+                //Lay.Space(25);
                 Label("CAMERA", "", true);
-                GUILayout.Space(2);
+                Lay.Space(2);
                 cameraSettings.ClearFlag = Selection("Clear Flags", cameraSettings.ClearFlag, flag => cameraSettings.ClearFlag = flag);
                 if (showAdvanced)
                 {
                     //changing studio camera's culling mask breaks studio, possibly due to cinemachine
-                    GUI.enabled = false;
+                    Im.Enabled = false;
                     SelectionMask("Culling Mask", cameraSettings.CullingMask, mask => cameraSettings.CullingMask = mask);
-                    GUI.enabled = true;
+                    Im.Enabled = true;
                 }
                 Slider("Near Clipping Plane", cameraSettings.NearClipPlane, 0.01f, 15000f, "N0", ncp => { cameraSettings.NearClipPlane = ncp; });
                 Slider("Far Clipping Plane", cameraSettings.FarClipPlane, 0.01f, 150000f, "N0", ncp => { cameraSettings.FarClipPlane = ncp; });
@@ -88,9 +87,9 @@ namespace Graphics.Inspector
                 Toggle("Allow HDR", cameraSettings.HDR, false, hdr => cameraSettings.HDR = hdr);
                 //Toggle("Allow MSAA (Forward Only)", cameraSettings.MSAA, false, msaa => cameraSettings.MSAA = msaa);
                 Toggle("Allow Dynamic Resolution", cameraSettings.DynamicResolution, false, dynamic => cameraSettings.DynamicResolution = dynamic);
-                GUILayout.Space(25);
+                Lay.Space(25);
                 Label("RENDERING", "", true);
-                GUILayout.Space(1);
+                Lay.Space(1);
                 Label("Colour Space", QualitySettings.activeColorSpace.ToString());
                 Label("Quality Level", QualitySettings.names[QualitySettings.GetQualityLevel()]);
                 Text("Pixel Light Count", renderingSettings.PixelLightCount, count => renderingSettings.PixelLightCount = count);
@@ -100,9 +99,9 @@ namespace Graphics.Inspector
                 //Toggle("Pulse Realtime Reflection Probes", renderingSettings.PulseReflectionProbes, false, pulse => renderingSettings.PulseReflectionProbes = pulse);
                 //if (renderingSettings.PulseReflectionProbes)
                 //    Slider("Pulse Timing (Secs)", renderingSettings.PulseReflectionTimer, .25f, 10f, "N1", prt => { renderingSettings.PulseReflectionTimer = prt; });
-                GUILayout.Space(25);
+                Lay.Space(25);
                 Label("SHADOWS", "", true);
-                GUILayout.Space(1);
+                Lay.Space(1);
                 Selection("Shadowmask Mode", renderingSettings.ShadowmaskModeSetting, mode => renderingSettings.ShadowmaskModeSetting = mode);
                 Selection("Shadows", renderingSettings.ShadowQualitySetting, setting => renderingSettings.ShadowQualitySetting = setting);
                 Selection("Shadow Resolution", renderingSettings.ShadowResolutionSetting, resolution => renderingSettings.ShadowResolutionSetting = resolution);
@@ -110,7 +109,7 @@ namespace Graphics.Inspector
                 Text("Shadow Distance", renderingSettings.ShadowDistance, "N0", distance => renderingSettings.ShadowDistance = distance);
                 Text("Shadow Near Plane Offset", renderingSettings.ShadowNearPlaneOffset, "N0", offset => renderingSettings.ShadowNearPlaneOffset = offset);
                 Selection("Shadow Cascades", renderingSettings.ShadowCascadesNumber, cascades => { renderingSettings.ShadowCascadesNumber = cascades; renderingSettings.ShadowCascades = (int)cascades; });
-                GUILayout.Space(10);
+                Lay.Space(10);
                 Toggle("Use PCSS (Experimental)", renderingSettings.UsePCSS, false, pcss => renderingSettings.UsePCSS = pcss);
                 if (renderingSettings.UsePCSS)
                 {
@@ -123,7 +122,7 @@ namespace Graphics.Inspector
                     Slider("Max Static Gradient Bias", PCSSLight.MaxStaticGradientBias, 0f, 0.15f, "N2", bias => PCSSLight.MaxStaticGradientBias = bias);
                     Slider("Cascade Blend Distance", PCSSLight.CascadeBlendDistance, 0f, 1f, "N2", distance => PCSSLight.CascadeBlendDistance = distance);
                 }
-                GUILayout.Space(25);
+                Lay.Space(25);
                 if (DitheredShadowsManager.settings != null)
                 {
                     DitheredShadowsSettings ditheredSettings = DitheredShadowsManager.settings;
@@ -136,7 +135,7 @@ namespace Graphics.Inspector
 
                     if (ditheredSettings.Enabled)
                     {
-                        GUILayout.Space(10);
+                        Lay.Space(10);
                         Slider("Point Size", ditheredSettings.point_size.value, 0.0f, 0.1f, "N2", point => { ditheredSettings.point_size.value = point; DitheredShadowsManager.UpdateSettings(); });
                         Slider("Directional Size", ditheredSettings.direction_size.value, 0.0f, 0.1f, "N2", direction => { ditheredSettings.direction_size.value = direction; DitheredShadowsManager.UpdateSettings(); });
                         Slider("Spot Size", ditheredSettings.spot_size.value, 0.0f, 0.1f, "N2", spot => { ditheredSettings.spot_size.value = spot; DitheredShadowsManager.UpdateSettings(); });
@@ -148,9 +147,9 @@ namespace Graphics.Inspector
                 {
                     DeferredDecalsSettings decalsSettings = DecalsSystemManager.settings;
 
-                    GUILayout.Space(25);
+                    Lay.Space(25);
                     Label("DECAL SETTINGS", "", true);
-                    GUILayout.Space(10);
+                    Lay.Space(10);
                     ToggleAlt("Lock Rebuild", decalsSettings.LockRebuild.value, false, lockRebuild => { decalsSettings.LockRebuild.value = lockRebuild; DecalsSystemManager.UpdateSettings(); });
 
                     ToggleAlt("Use Exclusion Mask", decalsSettings.UseExclusionMask.value, false, useExclusionMask => { decalsSettings.UseExclusionMask.value = useExclusionMask; DecalsSystemManager.UpdateSettings(); });
@@ -164,18 +163,18 @@ namespace Graphics.Inspector
                         decalsSettings.FadeLength.overrideState, overrideState => { decalsSettings.FadeLength.overrideState = overrideState; DecalsSystemManager.UpdateSettings(); });
                 }
 
-                GUILayout.Space(25);
+                Lay.Space(25);
                 Label("UI", "", true);
-                GUILayout.Space(1);
+                Lay.Space(1);
                 Selection("Language", LocalizationManager.CurrentLanguage, language => LocalizationManager.CurrentLanguage = language, 2);
                 Slider("Font Size", renderingSettings.FontSize, 12, 24, size => renderingSettings.FontSize = size);
                 Slider("Window Width", Inspector.Width, 400, Screen.width / 2, size => Inspector.Width = size);
                 Slider("Window Height", Inspector.Height, 400, Screen.height, size => Inspector.Height = size);
-                GUILayout.Space(25);
+                Lay.Space(25);
             }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndVertical();
-            GUILayout.EndScrollView();
+            Lay.FlexibleSpace();
+            Lay.EndVertical();
+            Lay.EndScrollView();
         }
     }
 }
