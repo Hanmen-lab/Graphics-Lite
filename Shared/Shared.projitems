@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
@@ -11,6 +11,12 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Resources\blueNoiseSSR64.png" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\spot.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\ultrafog.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\volumetrics.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\hssss-pass.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\hssss-luts.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\hssss-deferred.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\hssss-deferredstandard.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\box2.png" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\btn_close.png" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\UI\hor narrow.png" />
@@ -138,6 +144,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Hooks\CreatePngScreenController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\DeferredShadingSlot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\VolumetricLightManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Setting\VolumetricLightSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\EmbeddedBundles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\VolumetricLights\VolumetricLight.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\VolumetricLights\VolumetricLightRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\VolumetricLights\NoiseVolume.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\HSSSSManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Setting\HSSSSSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\HSSSS\DeferredRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Standard Image Effects\HSSSS\HssssAssets.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Inspector\Lay.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\ColorParam.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\ColorPicker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Handlers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Im.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\LiteWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Widgets.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Kit\Icons.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Kit\Kit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Kit\Paint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Kit\Pal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Kit\StableImage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Kit\StableText.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\Kit\Svg.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Inspector\ReflectionProbeInspector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Inspector\ScreenshotInspector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\AmplifyOcclusionManager.cs" />
@@ -227,7 +258,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Hooks\HoohSmartphoneScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Hooks\SSSMirrorHooks.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Hooks\StudioReset.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Inspector\GUIStyles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Inspector\GUIUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Inspector\Inspector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Inspector\LightingInspector.cs" />

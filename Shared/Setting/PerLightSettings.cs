@@ -143,44 +143,45 @@ namespace Graphics
                 customShadowRes.ApplyShadowResolution(lightObject.Light.name);
             }
 
-            ////Volumetric Lights
-            //VolumetricLight volumetricLight = lightObject.Light.GetComponent<VolumetricLight>();
-            //if (volumetricLight != null)
-            //{
-            //    volumetricLight.enabled = UseVolumetricLight;
-            //    if (SampleCount == 0)
-            //        SampleCount = 16; // Default value
-            //    volumetricLight.SampleCount = SampleCount;
-            //    if (ScatteringCoef == 0)
-            //        ScatteringCoef = 0.1f; // Default value
-            //    volumetricLight.ScatteringCoef = ScatteringCoef;
-            //    volumetricLight.ExtinctionCoef = ExtinctionCoef;
-            //    volumetricLight.SkyboxExtinctionCoef = SkyboxExtinctionCoef;
-            //    if (MieG == 0)
-            //        MieG = 0.1f; // Default value
-            //    volumetricLight.MieG = MieG;
-            //    volumetricLight.HeightFog = HeightFog;
-            //    if (HeightScale == 0)
-            //        HeightScale = 1.0f; // Default value
-            //    volumetricLight.HeightScale = HeightScale;
-            //    volumetricLight.GroundLevel = GroundLevel;
-            //    volumetricLight.Noise = Noise;
-            //    if (NoiseScale == 0)
-            //        NoiseScale = 0.015f; // Default value
-            //    volumetricLight.NoiseScale = NoiseScale;
-            //    if (NoiseIntensity == 0)
-            //        NoiseIntensity = 1.0f; // Default value
-            //    volumetricLight.NoiseIntensity = NoiseIntensity;
-            //    if (NoiseIntensityOffset == 0)
-            //        NoiseIntensityOffset = 0.3f; // Default value
-            //    volumetricLight.NoiseIntensityOffset = NoiseIntensityOffset;
-            //    volumetricLight.NoiseVelocity = NoiseVelocity;
-            //    if (MaxRayLength == 0)
-            //        MaxRayLength = 400f; // Default value
-            //    volumetricLight.MaxRayLength = MaxRayLength;
+            //Volumetric Lights
+            VolumetricLights.VolumetricLight volumetricLight = VolumetricLightManager.For(lightObject.Light, UseVolumetricLight);
+            if (volumetricLight != null)
+            {
+                volumetricLight.enabled = UseVolumetricLight;
+                if (SampleCount == 0)
+                    SampleCount = 16; // Default value
+                volumetricLight.SampleCount = SampleCount;
+                if (ScatteringCoef == 0)
+                    ScatteringCoef = 0.1f; // Default value
+                volumetricLight.ScatteringCoef = ScatteringCoef;
+                volumetricLight.ExtinctionCoef = ExtinctionCoef;
+                volumetricLight.SkyboxExtinctionCoef = SkyboxExtinctionCoef;
+                if (MieG == 0)
+                    MieG = 0.1f; // Default value
+                volumetricLight.MieG = MieG;
+                volumetricLight.HeightFog = HeightFog;
+                if (HeightScale == 0)
+                    HeightScale = 1.0f; // Default value
+                volumetricLight.HeightScale = HeightScale;
+                volumetricLight.GroundLevel = GroundLevel;
+                volumetricLight.Noise = Noise;
+                if (NoiseScale == 0)
+                    NoiseScale = 0.015f; // Default value
+                volumetricLight.NoiseScale = NoiseScale;
+                if (NoiseIntensity == 0)
+                    NoiseIntensity = 1.0f; // Default value
+                volumetricLight.NoiseIntensity = NoiseIntensity;
+                if (NoiseIntensityOffset == 0)
+                    NoiseIntensityOffset = 0.3f; // Default value
+                volumetricLight.NoiseIntensityOffset = NoiseIntensityOffset;
+                volumetricLight.NoiseVelocity = NoiseVelocity;
+                if (MaxRayLength == 0)
+                    MaxRayLength = 400f; // Default value
+                volumetricLight.MaxRayLength = MaxRayLength;
 
-            //    LogWithDotsLight($"{lightObject.Light.name} volumetric settings", "SET");
-            //}
+                LogWithDotsLight($"{lightObject.Light.name} volumetric settings", "SET");
+                VolumetricLightManager.Rearm();
+            }
 
             if (!string.IsNullOrEmpty(CookieTextureName))
             {
@@ -278,26 +279,27 @@ namespace Graphics
                 Length = 1.0f;
             }
 
-            ////Volumetric Lights
-            //VolumetricLight volumetricLight = lightObject.Light.GetComponent<VolumetricLight>();
-            //if (volumetricLight != null)
-            //{
-            //    UseVolumetricLight = volumetricLight.enabled;
-            //    SampleCount = volumetricLight.SampleCount;
-            //    ScatteringCoef = volumetricLight.ScatteringCoef;
-            //    ExtinctionCoef = volumetricLight.ExtinctionCoef;
-            //    SkyboxExtinctionCoef = volumetricLight.SkyboxExtinctionCoef;
-            //    MieG = volumetricLight.MieG;
-            //    HeightFog = volumetricLight.HeightFog;
-            //    HeightScale = volumetricLight.HeightScale;
-            //    GroundLevel = volumetricLight.GroundLevel;
-            //    Noise = volumetricLight.Noise;
-            //    NoiseScale = volumetricLight.NoiseScale;
-            //    NoiseIntensity = volumetricLight.NoiseIntensity;
-            //    NoiseIntensityOffset = volumetricLight.NoiseIntensityOffset;
-            //    NoiseVelocity = volumetricLight.NoiseVelocity;
-            //    MaxRayLength = volumetricLight.MaxRayLength;
-            //}
+            //Volumetric Lights
+            VolumetricLights.VolumetricLight volumetricLight = VolumetricLightManager.For(lightObject.Light, false);
+            UseVolumetricLight = false;
+            if (volumetricLight != null)
+            {
+                UseVolumetricLight = volumetricLight.enabled;
+                SampleCount = volumetricLight.SampleCount;
+                ScatteringCoef = volumetricLight.ScatteringCoef;
+                ExtinctionCoef = volumetricLight.ExtinctionCoef;
+                SkyboxExtinctionCoef = volumetricLight.SkyboxExtinctionCoef;
+                MieG = volumetricLight.MieG;
+                HeightFog = volumetricLight.HeightFog;
+                HeightScale = volumetricLight.HeightScale;
+                GroundLevel = volumetricLight.GroundLevel;
+                Noise = volumetricLight.Noise;
+                NoiseScale = volumetricLight.NoiseScale;
+                NoiseIntensity = volumetricLight.NoiseIntensity;
+                NoiseIntensityOffset = volumetricLight.NoiseIntensityOffset;
+                NoiseVelocity = volumetricLight.NoiseVelocity;
+                MaxRayLength = volumetricLight.MaxRayLength;
+            }
 
             CookieTextureManager cookieTextureManager = lightObject.Light.GetComponent<CookieTextureManager>();
             if (cookieTextureManager != null)

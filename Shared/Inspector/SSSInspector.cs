@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
+using Graphics.UI;
 using UnityEngine.UI;
 using Graphics.Settings;
 using static Graphics.Inspector.Util;
@@ -14,68 +15,71 @@ namespace Graphics.Inspector
 
         private static int cachedFontSize = -1;
         private static int paddingL, paddingR;
-        private static GUIStyle TabContent;
+        private static Lay.Style TabContent;
 
         static void UpdateCachedValues(GlobalSettings renderSettings)
         {
-            if (cachedFontSize == renderSettings.FontSize) return;
-
+            if (cachedFontSize == renderSettings.FontSize)
+                return;
             cachedFontSize = renderSettings.FontSize;
-
-            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2f);
-            paddingR = Mathf.RoundToInt(renderSettings.FontSize * 2.9f);
-
-            TabContent = new GUIStyle(GUIStyles.tabcontent);
-            TabContent.padding = new RectOffset(paddingL, paddingR, paddingL, paddingL);
+            TabContent = Lay.Style.Card;
         }
 
         internal static void Draw(GlobalSettings renderSettings)
         {
             UpdateCachedValues(renderSettings);
 
-            sssScrollView = GUILayout.BeginScrollView(sssScrollView);
+            sssScrollView = Lay.BeginScrollView(sssScrollView);
             if (Graphics.Instance.CameraSettings.MainCamera is null)
             {
                 return;
             }
 
+            DrawHSSSS();
+
             if (SSSManager.settings != null)
             {
                 SSSSettings sss = SSSManager.settings;
                 SSS sssinstance = SSSManager.SSSInstance;
-                GUILayout.BeginVertical(TabContent);
+                Lay.BeginVertical(TabContent);
                 {
                     Switch("SCREEN SPACE SSS", sss.Enabled, true, enabled =>
                     {
                         sss.Enabled = enabled;
                         SSSManager.UpdateSettings();
+                        // One engine at a time, as in Graphics.
+                        if (enabled && HSSSSManager.settings != null && HSSSSManager.settings.Enabled)
+                        {
+                            HSSSSManager.settings.Enabled = false;
+                            HSSSSManager.UpdateSettings();
+                        }
                     });
 
                     if (sss.Enabled)
                     {
-                        GUILayout.Space(20);
+                        Lay.Space(20);
                         Label("COLOR", "", true);
-                        GUILayout.Space(5);
+                        Lay.Space(5);
                         Slider("Blur size", sss.BlurSize, 0f, 10f, "N1", radius => { sss.BlurSize = radius; SSSManager.UpdateSettings(); });
                         Toggle("Profile per object", sss.ProfilePerObject, false, perObj => { sss.ProfilePerObject = perObj; SSSManager.UpdateSettings(); });
                         if (!sss.ProfilePerObject)
                         {
-                            GUILayout.Space(10);
+                            Lay.Space(10);
                             SliderColor("Scattering colour", sss.sssColor, colour => { sss.sssColor = colour; SSSManager.UpdateSettings(); });
                         }
 
-                        GUILayout.Space(20);
+                        Lay.Space(20);
                         Label("RENDERING SETTINGS", "", true);
-                        GUILayout.Space(5);
+                        Lay.Space(5);
                         Slider("Postprocess iterations", sss.ProcessIterations, 0, 10, iterations => { sss.ProcessIterations = iterations; SSSManager.UpdateSettings(); });
                         Slider("Shader iterations per pass", sss.ShaderIterations, 1, 20, iterations => { sss.ShaderIterations = iterations; SSSManager.UpdateSettings(); });
                         Slider("Downscale factor", sss.DownscaleFactor, 1f, 4f, "N1", sampling => { sss.DownscaleFactor = sampling; SSSManager.UpdateSettings(); });
                         Slider("Max Distance", sss.MaxDistance, 0, 9999, distance => { sss.MaxDistance = distance; SSSManager.UpdateSettings(); });
                         SelectionMaskVertical("Layers", sss.LayerBitMask, layer => { sss.LayerBitMask = layer; SSSManager.UpdateSettings(); }, 4);
 
-                        GUILayout.Space(20);
+                        Lay.Space(20);
                         Label("DITHERING", "", true);
-                        GUILayout.Space(5);
+                        Lay.Space(5);
                         Toggle("Dither", sss.Dither, false, dither => { sss.Dither = dither; SSSManager.UpdateSettings(); });
                         if (sss.Dither)
                         {
@@ -83,9 +87,9 @@ namespace Graphics.Inspector
                             Slider("Dither scale", sss.DitherScale, 1f, 100f, "N1", scale => { sss.DitherScale = scale; SSSManager.UpdateSettings(); });
                         }
 
-                        GUILayout.Space(20);
+                        Lay.Space(20);
                         Label("DEBUG", "", true);
-                        GUILayout.Space(5);
+                        Lay.Space(5);
                         Label("Camera Name", sssinstance.transform.parent.name);
                         if (sssinstance.LightingTex)
                             Label("Buffer size", sssinstance.LightingTex.width + " x " + sssinstance.LightingTex.height);
@@ -93,9 +97,9 @@ namespace Graphics.Inspector
                         Selection("View Buffer", sss.ViewBuffer, texture => { sss.ViewBuffer = texture; SSSManager.UpdateSettings(); }, 2);
                         Toggle("Debug distance", sss.DebugDistance, false, debug => { sss.DebugDistance = debug; SSSManager.UpdateSettings(); });
 
-                        GUILayout.Space(20);
+                        Lay.Space(20);
                         Label("EDGE TEST", "", true);
-                        GUILayout.Space(5);
+                        Lay.Space(5);
                         Slider("Depth test", sss.DepthTest, 0f, 1f, "N2", depth => { sss.DepthTest = depth; SSSManager.UpdateSettings(); });
                         Slider("Normal test", sss.NormalTest, 0f, 1f, "N2", normal => { sss.NormalTest = normal; SSSManager.UpdateSettings(); });
                         Toggle("Apply edge test to dither noise", sss.EdgeDitherNoise, false, dither => { sss.EdgeDitherNoise = dither; SSSManager.UpdateSettings(); });
@@ -116,15 +120,84 @@ namespace Graphics.Inspector
                     }
                     //Graphics.Instance.SSSManager.CopySettingsToOtherInstances();
 
-                    GUILayout.ExpandHeight(true);
-                    GUILayout.FlexibleSpace();
-                    GUILayout.FlexibleSpace();
-                    GUILayout.FlexibleSpace();
+                    Lay.ExpandHeight(true);
+                    Lay.FlexibleSpace();
+                    Lay.FlexibleSpace();
+                    Lay.FlexibleSpace();
 
                 }
-                GUILayout.EndVertical();
+                Lay.EndVertical();
             }
-            GUILayout.EndScrollView();
+            Lay.EndScrollView();
+        }
+
+        private static readonly string[] LutNames = { "None", "NVIDIA 1", "NVIDIA 2" };
+
+        private static void DrawHSSSS()
+        {
+            if (HSSSSManager.settings == null)
+                HSSSSManager.settings = new HSSSSSettings();
+            HSSSSSettings h = HSSSSManager.settings;
+            Lay.BeginVertical(TabContent);
+            {
+                Switch("HSSSS", h.Enabled, true, enabled =>
+                {
+                    h.Enabled = enabled;
+                    HSSSSManager.UpdateSettings();
+                    if (enabled && SSSManager.settings != null && SSSManager.settings.Enabled)
+                    {
+                        SSSManager.settings.Enabled = false;
+                        SSSManager.UpdateSettings();
+                    }
+                });
+
+                if (h.Enabled)
+                {
+                    if (!HSSSSManager.Deferred)
+                        Warning("HSSSS needs the Deferred rendering path (Settings tab).");
+                    if (DeferredShadingSlot.DitherDisplaced)
+                        Warning("Dithered Shadows: point and spot light dithering is paused while HSSSS runs (they share the deferred pass). Directional dithering still applies.");
+
+                    Lay.Space(20);
+                    Label("SCATTERING", "", true);
+                    Lay.Space(5);
+                    Toggle("Screen Space Blur", h.ScreenSpaceSSS, false, on => { h.ScreenSpaceSSS = on; HSSSSManager.UpdateSettings(); });
+                    if (h.ScreenSpaceSSS)
+                    {
+                        Slider("Blur Radius", h.BlurRadius, 0f, 200f, "N1", v => { h.BlurRadius = v; HSSSSManager.UpdateSettings(); });
+                        Slider("Blur Depth Range", h.BlurDepthRange, 0f, 5f, "N2", v => { h.BlurDepthRange = v; HSSSSManager.UpdateSettings(); });
+                        Slider("Blur Iterations", h.BlurIterations, 1, 10, v => { h.BlurIterations = v; HSSSSManager.UpdateSettings(); });
+                        Slider("Depth Test", h.DepthTest, 0f, 1f, "N2", v => { h.DepthTest = v; HSSSSManager.UpdateSettings(); });
+                        Slider("Normal Test", h.NormalTest, 0f, 1f, "N2", v => { h.NormalTest = v; HSSSSManager.UpdateSettings(); });
+                        Toggle("Blur Albedo", h.BlurAlbedo, false, on => { h.BlurAlbedo = on; HSSSSManager.UpdateSettings(); });
+                    }
+
+                    Lay.Space(20);
+                    Label("TRANSLUCENCY", "", true);
+                    Lay.Space(5);
+                    Toggle("Baked Thickness", h.BakedThickness, false, on => { h.BakedThickness = on; HSSSSManager.UpdateSettings(); });
+                    Slider("Weight", h.TransWeight, 0f, 25f, "N2", v => { h.TransWeight = v; HSSSSManager.UpdateSettings(); });
+                    Slider("Shadow Weight", h.TransShadowWeight, 0f, 1f, "N2", v => { h.TransShadowWeight = v; HSSSSManager.UpdateSettings(); });
+                    Slider("Distortion", h.TransDistortion, 0f, 1f, "N2", v => { h.TransDistortion = v; HSSSSManager.UpdateSettings(); });
+                    Slider("Falloff", h.TransFalloff, 0f, 10f, "N2", v => { h.TransFalloff = v; HSSSSManager.UpdateSettings(); });
+                    if (!h.BakedThickness)
+                        Slider("Thickness Bias", h.ThicknessBias, 0f, 1f, "N2", v => { h.ThicknessBias = v; HSSSSManager.UpdateSettings(); });
+                    Dimension("Absorption", h.TransAbsorption, v => { h.TransAbsorption = v; HSSSSManager.UpdateSettings(); });
+
+                    Lay.Space(20);
+                    Label("SKIN LUT", "", true);
+                    Lay.Space(5);
+                    Selection("LUT Profile", LutNames[Mathf.Clamp(h.LutProfile, 0, 2)], LutNames, v => { h.LutProfile = System.Array.IndexOf(LutNames, v); HSSSSManager.UpdateSettings(); });
+                    Slider("Intensity", h.LutIntensity, 0f, 1f, "N2", v => { h.LutIntensity = v; HSSSSManager.UpdateSettings(); });
+                    Slider("Bias", h.LutBias, 0f, 1f, "N2", v => { h.LutBias = v; HSSSSManager.UpdateSettings(); });
+                    Slider("Scale", h.LutScale, 0f, 1f, "N2", v => { h.LutScale = v; HSSSSManager.UpdateSettings(); });
+                    Slider("Shadow Bias", h.ShadowLutBias, -1f, 1f, "N2", v => { h.ShadowLutBias = v; HSSSSManager.UpdateSettings(); });
+                    Slider("Shadow Scale", h.ShadowLutScale, 0f, 2f, "N2", v => { h.ShadowLutScale = v; HSSSSManager.UpdateSettings(); });
+                    Slider("Blur Weight", h.BlurWeight, 0f, 5f, "N2", v => { h.BlurWeight = v; HSSSSManager.UpdateSettings(); });
+                    Dimension("Colour Bleed", h.ColorBleed, v => { h.ColorBleed = v; HSSSSManager.UpdateSettings(); });
+                }
+            }
+            Lay.EndVertical();
         }
     }
 }

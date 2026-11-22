@@ -137,8 +137,8 @@ namespace Graphics.Settings
 
         internal int FontSize
         {
-            get => GUIStyles.FontSize;
-            set => GUIStyles.FontSize = Graphics.ConfigFontSize.Value = value;
+            get => Graphics.ConfigFontSize.Value;
+            set => Graphics.ConfigFontSize.Value = value;
         }
 
         internal bool ShowAdvancedSettings { get; set; }

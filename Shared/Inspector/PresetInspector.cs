@@ -1,4 +1,5 @@
 ﻿using System;
+using Graphics.UI;
 using System.Linq;
 using UnityEngine;
 using Graphics.Settings;
@@ -17,25 +18,15 @@ namespace Graphics.Inspector
 
         private static int cachedFontSize = -1;
         private static int paddingL, paddingR, paddingT;
-        private static GUIStyle PresetBox, TabContent;
+        private static Lay.Style PresetBox, TabContent;
 
         static void UpdateCachedValues(GlobalSettings renderSettings)
         {
-            if (cachedFontSize == renderSettings.FontSize) return;
-
+            if (cachedFontSize == renderSettings.FontSize)
+                return;
             cachedFontSize = renderSettings.FontSize;
-
-            paddingL = Mathf.RoundToInt(renderSettings.FontSize * 2f);
-            paddingR = Mathf.RoundToInt(renderSettings.FontSize * 0.3f);
-            paddingT = Mathf.RoundToInt(renderSettings.FontSize * 0.5f);
-
-            PresetBox = new GUIStyle(GUI.skin.textField);
-            PresetBox.padding = new RectOffset(paddingR, paddingR, paddingT, paddingT);
-            PresetBox.normal.background = null;
-
-            TabContent = new GUIStyle(GUIStyles.tabcontent);
-            TabContent.padding = new RectOffset(paddingL, paddingL, paddingL, paddingL);
-
+            PresetBox = Lay.Style.Card;
+            TabContent = Lay.Style.Card;
         }
 
         internal static void Draw(PresetManager presetManager, GlobalSettings renderSettings, bool showAdvanced)
@@ -43,43 +34,43 @@ namespace Graphics.Inspector
 
             UpdateCachedValues(renderSettings);
 
-            GUILayout.BeginVertical(GUIStyles.tabcontent);
+            Lay.BeginVertical(TabContent);
             {
-                GUILayout.Space(20);
-                GUILayout.BeginHorizontal();
+                Lay.Space(20);
+                Lay.BeginHorizontal();
                 TextSearch("LOAD PRESET", searchQuery, search => searchQuery = search);
                 if (Button("Refresh Preset List", true))
                 {
                     presetManager.RefreshPresetListManually();
                 }
-                GUILayout.EndHorizontal();
-                GUILayout.Space(10);
+                Lay.EndHorizontal();
+                Lay.Space(10);
 
-                GUILayout.BeginHorizontal();
-                GUILayout.BeginVertical();
+                Lay.BeginHorizontal();
+                Lay.BeginVertical();
                 Label("Filter settings:", "", false);
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
+                Lay.EndVertical();
+                Lay.BeginVertical();
                 ToggleAlt("Skybox", Graphics.loadSkybox.Value, false, loadskybox => Graphics.loadSkybox.Value = loadskybox);
                 //ToggleAlt("RainDrop", Graphics.loadRain.Value, false, loadrain => Graphics.loadRain.Value = loadrain);
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
+                Lay.EndVertical();
+                Lay.BeginVertical();
                 ToggleAlt("Aura 2", Graphics.loadAura.Value, false, loadAura => Graphics.loadAura.Value = loadAura);
-                //ToggleAlt("Volumetrics", Graphics.loadVolumetrics.Value, false, loadVolumetrics => Graphics.loadVolumetrics.Value = loadVolumetrics);
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
+                ToggleAlt("Volumetrics", Graphics.loadVolumetrics.Value, false, loadVolumetrics => Graphics.loadVolumetrics.Value = loadVolumetrics);
+                Lay.EndVertical();
+                Lay.BeginVertical();
                 //ToggleAlt("NGS-Shadows", Graphics.loadShadows.Value, false, loadShadows => Graphics.loadShadows.Value = loadShadows);
                 ToggleAlt("LuxWater", Graphics.loadLuxwater.Value, false, loadLuxwater => Graphics.loadLuxwater.Value = loadLuxwater);
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
+                Lay.EndVertical();
+                Lay.BeginVertical();
                 ToggleAlt("Fog", Graphics.loadHeightFog.Value, false, fog => Graphics.loadHeightFog.Value = fog);
                 ToggleAlt("DoF", Graphics.loadDoF.Value, false, dof => Graphics.loadDoF.Value = dof);
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
+                Lay.EndVertical();
+                Lay.BeginVertical();
                 ToggleAlt("SSS", Graphics.loadSSS.Value, false, sss => Graphics.loadSSS.Value = sss);
                 ToggleAlt("SEGI", Graphics.loadSEGI.Value, false, loadSEGI => Graphics.loadSEGI.Value = loadSEGI);
-                GUILayout.EndVertical();
-                GUILayout.EndHorizontal();
+                Lay.EndVertical();
+                Lay.EndHorizontal();
 
                 if (presetManager.PresetNames.IsNullOrEmpty())
                 {
@@ -87,9 +78,9 @@ namespace Graphics.Inspector
                 }
                 else
                 {
-                    GUILayout.BeginVertical(PresetBox);
+                    Lay.BeginVertical(PresetBox);
                     {
-                        presetScrollView = GUILayout.BeginScrollView(presetScrollView);
+                        presetScrollView = Lay.BeginScrollView(presetScrollView);
 
                         var presetStructure = presetManager.GetPresetStructure();
                         _presetIndexCurrent = Array.IndexOf(presetManager.PresetNames, presetManager.CurrentPreset);
@@ -107,7 +98,7 @@ namespace Graphics.Inspector
 
                             if (presetCount > 0)
                             {
-                                int selectedIndex = GUILayout.SelectionGrid(-1, filteredPresets, Inspector.Width / 300);
+                                int selectedIndex = Lay.SelectionGrid(-1, filteredPresets, Inspector.Width / 300);
 
                                 if (selectedIndex >= 0)
                                 {
@@ -122,19 +113,19 @@ namespace Graphics.Inspector
                             }
                         }
 
-                        GUILayout.EndScrollView();
+                        Lay.EndScrollView();
                     }
-                    GUILayout.EndVertical();
+                    Lay.EndVertical();
                 }
 
-                GUILayout.Space(5);
-                GUILayout.FlexibleSpace(); // Add a flexible space here to push everything above upwards
+                Lay.Space(5);
+                Lay.FlexibleSpace(); // Add a flexible space here to push everything above upwards
 
-                GUILayout.Space(10);
-                GUILayout.ExpandHeight(true);
+                Lay.Space(10);
+                Lay.ExpandHeight(true);
 
-                GUILayout.Space(20);
-                GUILayout.BeginHorizontal();
+                Lay.Space(20);
+                Lay.BeginHorizontal();
 
                 TextSave("SAVE PRESET", _nameToSave, save =>
                 {
@@ -148,131 +139,131 @@ namespace Graphics.Inspector
                     presetManager.CurrentPreset = _nameToSave;
                     _presetIndexOld = Array.IndexOf(presetManager.PresetNames, presetManager.CurrentPreset);
                 }
-                GUILayout.EndHorizontal();
-                GUILayout.Space(1);
+                Lay.EndHorizontal();
+                Lay.Space(1);
                 if (!isCue && !isValidFileName)
                 {
-                    GUILayout.Label("Please specify a valid file name.");
+                    Lay.Label("Please specify a valid file name.");
                     Graphics.Instance.Log.LogMessage("Please specify a valid file name.");
                 }
 
-                GUILayout.Space(20);
+                Lay.Space(20);
                 Label("DEFAULT PRESETS", "", true);
-                GUILayout.Space(10);
+                Lay.Space(10);
 
-                GUILayout.BeginHorizontal();
+                Lay.BeginHorizontal();
                 if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.MainGame && KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Unknown && (!showAdvanced))
                 {
-                    GUI.enabled = false;
+                    Im.Enabled = false;
                 }
                 if (Button("Load Main Game DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.MAIN_GAME);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Save Current as Main Game DEFAULT", true))
                 {
                     presetManager.SaveDefault(PresetDefaultType.MAIN_GAME);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Reset Main Game DEFAULT", true))
                 {
                     presetManager.RestoreDefault(PresetDefaultType.MAIN_GAME);
                 }
-                GUI.enabled = true;
-                GUILayout.EndHorizontal();
+                Im.Enabled = true;
+                Lay.EndHorizontal();
 
-                GUILayout.BeginHorizontal();
+                Lay.BeginHorizontal();
                 if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Unknown && (!showAdvanced))
                 {
-                    GUI.enabled = false;
+                    Im.Enabled = false;
                 }
                 if (Button("Load Title DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.TITLE);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Save Current as Title DEFAULT", true))
                 {
                     presetManager.SaveDefault(PresetDefaultType.TITLE);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Reset Title DEFAULT", true))
                 {
                     presetManager.RestoreDefault(PresetDefaultType.TITLE);
                 }
-                GUI.enabled = true;
-                GUILayout.EndHorizontal();
+                Im.Enabled = true;
+                Lay.EndHorizontal();
 
-                GUILayout.BeginHorizontal();
+                Lay.BeginHorizontal();
                 if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Maker && (!showAdvanced))
                 {
-                    GUI.enabled = false;
+                    Im.Enabled = false;
                 }
                 if (Button("Load Maker DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.MAKER);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Save Current as Maker DEFAULT", true))
                 {
                     presetManager.SaveDefault(PresetDefaultType.MAKER);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Reset Maker DEFAULT", true))
                 {
                     presetManager.RestoreDefault(PresetDefaultType.MAKER);
                 }
-                GUI.enabled = true;
-                GUILayout.EndHorizontal();
+                Im.Enabled = true;
+                Lay.EndHorizontal();
 
-                GUILayout.BeginHorizontal();
+                Lay.BeginHorizontal();
                 if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Unknown && (!showAdvanced))
                 {
-                    GUI.enabled = false;
+                    Im.Enabled = false;
                 }
                 if (Button("Load VR DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.VR_GAME);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Save Current as VR DEFAULT", true))
                 {
                     presetManager.SaveDefault(PresetDefaultType.VR_GAME);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Reset VR DEFAULT", true))
                 {
                     presetManager.RestoreDefault(PresetDefaultType.VR_GAME);
                 }
-                GUI.enabled = true;
-                GUILayout.EndHorizontal();
+                Im.Enabled = true;
+                Lay.EndHorizontal();
 
-                GUILayout.BeginHorizontal();
+                Lay.BeginHorizontal();
                 if (KKAPI.KoikatuAPI.GetCurrentGameMode() != KKAPI.GameMode.Studio && (!showAdvanced))
                 {
-                    GUI.enabled = false;
+                    Im.Enabled = false;
                 }
                 if (Button("Load Studio DEFAULT", true))
                 {
                     presetManager.LoadDefault(PresetDefaultType.STUDIO);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Save Current as Studio DEFAULT", true))
                 {
                     presetManager.SaveDefault(PresetDefaultType.STUDIO);
                 }
-                GUILayout.Space(10);
+                Lay.Space(10);
                 if (Button("Reset Studio DEFAULT", true))
                 {
                     presetManager.RestoreDefault(PresetDefaultType.STUDIO);
                 }
-                GUI.enabled = true;
-                GUILayout.EndHorizontal();
+                Im.Enabled = true;
+                Lay.EndHorizontal();
 
-                GUILayout.Space(20);
+                Lay.Space(20);
             }
-            GUILayout.EndVertical();
+            Lay.EndVertical();
         }
     }
 }

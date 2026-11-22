@@ -28,6 +28,8 @@ namespace Graphics
         public CTAASettings ctaa;
         public FSR3Settings fsr3;
         public SSSSettings sss;
+        public HSSSSSettings hssss;
+        public VolumetricLightSettings volumetric;
         public SEGISettings segi;
         public VAOSettings vao;
         public GTAOSettings gtao;
@@ -63,6 +65,8 @@ namespace Graphics
             this.ctaa = CTAAManager.settings;
             this.fsr3 = FSR3Manager.Settings;
             this.sss = SSSManager.settings;
+            this.hssss = HSSSSManager.settings;
+            this.volumetric = VolumetricLightManager.settings;
             this.segi = SEGIManager.settings;
             this.gtao = GTAOManager.settings;
             this.vao = VAOManager.settings;
@@ -96,6 +100,8 @@ namespace Graphics
         {
             pp.SaveParameters();
             sss = SSSManager.settings;
+            hssss = HSSSSManager.settings;
+            volumetric = VolumetricLightManager.settings;
             segi = SEGIManager.settings;
             gtao = GTAOManager.settings;
             ctaa = CTAAManager.settings;
@@ -267,6 +273,10 @@ namespace Graphics
                 SSSManager.settings = sss;
                 SSSManager.UpdateSettings();
                 LogWithDots("SSS", "OK");
+                // A preset from before HSSSS has none: it stays off.
+                HSSSSManager.settings = hssss ?? new HSSSSSettings();
+                HSSSSManager.UpdateSettings();
+                LogWithDots("HSSSS", "OK");
             }
             else
             {
@@ -380,16 +390,16 @@ namespace Graphics
                 LogWithDots("Aura 2 Volumetrics", "SKIP");
             }
 
-            //if (LoadVolumetrics)
-            //{
-            //    VolumetricLightManager.settings = volumetric;
-            //    VolumetricLightManager.UpdateSettings();
-            //    LogWithDots("Volumetric Lights", "OK");
-            //}
-            //else
-            //{
-            //    LogWithDots("Volumetric Lights", "SKIP");
-            //}
+            if (LoadVolumetrics && volumetric != null)
+            {
+                VolumetricLightManager.settings = volumetric;
+                VolumetricLightManager.UpdateSettings();
+                LogWithDots("Volumetric Lights", "OK");
+            }
+            else
+            {
+                LogWithDots("Volumetric Lights", "SKIP");
+            }
 #if AI
             //do nothing
 #else
